@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://cy6j6wjsqgujy"]
+
+[ext_resource type="Script" uid="uid://c6u1i4huc5uom" path="res://main.gd" id="1_ig7tw"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ig7tw"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_0xm2m"]
+sky_material = SubResource("ProceduralSkyMaterial_ig7tw")
+
+[sub_resource type="Environment" id="Environment_h2yge"]
+background_mode = 2
+sky = SubResource("Sky_0xm2m")
+tonemap_mode = 2
+
+[sub_resource type="Curve3D" id="Curve3D_7dm0k"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 2.822094, 1.4152126, -7.490696, 0, 0, 0, 0, 0, 0, 9.70827, -1.9982646, -20.45045, 0, 0, 0, 0, 0, 0, 3.616382, -2.1904511, -27.28702, 0, 0, 0, 0, 0, 0, 12.636445, -5.2162333, -36.09354, 0, 0, 0, 0, 0, 0, 22.389072, -4.992527, -45.636963),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
+}
+point_count = 5
+
+[sub_resource type="BoxMesh" id="BoxMesh_1bvp3"]
+
+[node name="Main" type="Node3D" unique_id=855448232]
+transform = Transform3D(0.9861139, -0.082942344, 0.14387442, 0.11011917, 0.975072, -0.19263518, -0.1243103, 0.20580357, 0.97066563, 0, 0, 0)
+script = ExtResource("1_ig7tw")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1267901750]
+environment = SubResource("Environment_h2yge")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1631282152]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="RiverPath" type="Path3D" parent="." unique_id=1801238073]
+curve = SubResource("Curve3D_7dm0k")
+
+[node name="UserCart" type="PathFollow3D" parent="RiverPath" unique_id=93584630]
+transform = Transform3D(0.8830786, 0.10630144, -0.45702478, 7.450577e-09, 0.973999, 0.22654721, 0.4692245, -0.20005888, 0.86011875, 2.822094, 1.4152126, -7.490696)
+
+[node name="XROrigin3D" type="XROrigin3D" parent="RiverPath/UserCart" unique_id=1131666848]
+
+[node name="XRCamera3D" type="XRCamera3D" parent="RiverPath/UserCart/XROrigin3D" unique_id=575449452]
+
+[node name="TestCamera" type="Camera3D" parent="RiverPath/UserCart" unique_id=566066147]
+current = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1820552780]
+transform = Transform3D(1.0000005, -3.3527613e-08, 0, 7.8231096e-08, 1.0000002, 0, 6.7055225e-08, -2.3841858e-07, 1, 1.6193407, -1.6077433, -30.382145)
+mesh = SubResource("BoxMesh_1bvp3")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=1575534655]
+transform = Transform3D(1.0000001, -3.3527613e-08, 0, 6.891787e-08, 1, 0, 3.7252903e-08, -1.3411045e-07, 1, 11.845644, -3.299006, -28.147453)
+mesh = SubResource("BoxMesh_1bvp3")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1657539988]
+transform = Transform3D(1.0000002, -3.9115548e-08, 0, 7.4505806e-08, 1, 0, 3.7252903e-08, -1.6391277e-07, 1, 22.756895, -4.0331497, -43.872917)
+mesh = SubResource("BoxMesh_1bvp3")
