@@ -11,31 +11,43 @@ signal metrics_updated(wqi: float, do: float)
 const ZONE_METRICS = {
 	1: {
 		"name": "Baseline (Low Pollution)",
-		"wqi": 90.0,
-		"do": 8.0,
+		"wqi_min": 85.0,
+		"wqi_max": 90.0,
+		"do_min": 8.0,
+		"do_max": 8.5,
 		"flow_speed": 2.0,
-		"visibility": 0.6
+		"visibility_min": 0.4,
+		"visibility_max": 0.6
 	},
 	2: {
 		"name": "Agricultural/Livestock",
-		"wqi": 60.0,
-		"do": 5.5,
+		"wqi_min": 60.0,
+		"wqi_max": 70.0,
+		"do_min": 6.0,
+		"do_max": 8.0,
 		"flow_speed": 1.2,
-		"visibility": 0.4
+		"visibility_min": 0.2,
+		"visibility_max": 0.3
 	},
 	3: {
 		"name": "Peri-urban/Agro-industrial",
-		"wqi": 30.0,
-		"do": 2.0,
+		"wqi_min": 35.0,
+		"wqi_max": 45.0,
+		"do_min": 3.0,
+		"do_max": 5.0,
 		"flow_speed": 0.6,
-		"visibility": 0.15
+		"visibility_min": 0.0,
+		"visibility_max": 0.1
 	},
 	4: {
 		"name": "Critical Chemical (Closure)",
-		"wqi": 5.0,
-		"do": 0.5,
+		"wqi_min": 5.0,
+		"wqi_max": 20.0,
+		"do_min": 0.5,
+		"do_max": 2.0,
 		"flow_speed": 0.1,
-		"visibility": 0.0
+		"visibility_min": 0.0,
+		"visibility_max": 0.0
 	}
 }
 
@@ -60,6 +72,71 @@ func _ready() -> void:
 	# Initialize metrics to Zone 1 defaults
 	_update_metrics()
 
+## Computes the metric value for a given progress ratio
+func get_metric_value(metric_name: String, ratio: float) -> float:
+	var use_range := metric_name + "_min" in ZONE_METRICS[1]
+	
+	# Determine zone based on progress thresholds
+	var zone: int = 1
+	if ratio < 0.25:
+		zone = 1
+	elif ratio < 0.50:
+		zone = 2
+	elif ratio < 0.75:
+		zone = 3
+	else:
+		zone = 4
+
+	if not use_interpolation:
+		if use_range:
+			# Return the midpoint of the range for that zone
+			return 0.5 * (ZONE_METRICS[zone][metric_name + "_min"] + ZONE_METRICS[zone][metric_name + "_max"])
+		else:
+			return ZONE_METRICS[zone][metric_name]
+
+	# With interpolation:
+	var half_w = transition_window / 2.0
+	
+	# Check transition boundaries
+	if ratio >= 0.25 - half_w and ratio <= 0.25 + half_w:
+		var t = (ratio - (0.25 - half_w)) / transition_window
+		var val_start = ZONE_METRICS[1][metric_name + "_min"] if use_range else ZONE_METRICS[1][metric_name]
+		var val_end = ZONE_METRICS[2][metric_name + "_max"] if use_range else ZONE_METRICS[2][metric_name]
+		return lerp(val_start, val_end, t)
+	elif ratio >= 0.50 - half_w and ratio <= 0.50 + half_w:
+		var t = (ratio - (0.50 - half_w)) / transition_window
+		var val_start = ZONE_METRICS[2][metric_name + "_min"] if use_range else ZONE_METRICS[2][metric_name]
+		var val_end = ZONE_METRICS[3][metric_name + "_max"] if use_range else ZONE_METRICS[3][metric_name]
+		return lerp(val_start, val_end, t)
+	elif ratio >= 0.75 - half_w and ratio <= 0.75 + half_w:
+		var t = (ratio - (0.75 - half_w)) / transition_window
+		var val_start = ZONE_METRICS[3][metric_name + "_min"] if use_range else ZONE_METRICS[3][metric_name]
+		var val_end = ZONE_METRICS[4][metric_name + "_max"] if use_range else ZONE_METRICS[4][metric_name]
+		return lerp(val_start, val_end, t)
+		
+	# Otherwise, we are inside a specific zone
+	if use_range:
+		# Linearly map within the zone's active range
+		var z_start := 0.0
+		var z_end := 1.0
+		match zone:
+			1:
+				z_start = 0.0
+				z_end = 0.25 - half_w
+			2:
+				z_start = 0.25 + half_w
+				z_end = 0.50 - half_w
+			3:
+				z_start = 0.50 + half_w
+				z_end = 0.75 - half_w
+			4:
+				z_start = 0.75 + half_w
+				z_end = 1.0
+		var t = (ratio - z_start) / (z_end - z_start)
+		return lerp(ZONE_METRICS[zone][metric_name + "_max"], ZONE_METRICS[zone][metric_name + "_min"], t)
+	else:
+		return ZONE_METRICS[zone][metric_name]
+
 func _update_metrics() -> void:
 	# 1. Determine current zone based on strict progress thresholds
 	var new_zone: int = 1
@@ -77,40 +154,11 @@ func _update_metrics() -> void:
 		current_zone = new_zone
 		has_zone_changed = true
 	
-	# 2. Calculate values (interpolated or step-wise)
-	var target_wqi: float = ZONE_METRICS[current_zone]["wqi"]
-	var target_do: float = ZONE_METRICS[current_zone]["do"]
-	var target_flow: float = ZONE_METRICS[current_zone]["flow_speed"]
-	var target_vis: float = ZONE_METRICS[current_zone]["visibility"]
-	
-	if use_interpolation:
-		var half_window = transition_window / 2.0
-		
-		# Check transition boundaries
-		if progress_ratio >= 0.25 - half_window and progress_ratio <= 0.25 + half_window:
-			var t = (progress_ratio - (0.25 - half_window)) / transition_window
-			target_wqi = lerp(ZONE_METRICS[1]["wqi"], ZONE_METRICS[2]["wqi"], t)
-			target_do = lerp(ZONE_METRICS[1]["do"], ZONE_METRICS[2]["do"], t)
-			target_flow = lerp(ZONE_METRICS[1]["flow_speed"], ZONE_METRICS[2]["flow_speed"], t)
-			target_vis = lerp(ZONE_METRICS[1]["visibility"], ZONE_METRICS[2]["visibility"], t)
-		elif progress_ratio >= 0.50 - half_window and progress_ratio <= 0.50 + half_window:
-			var t = (progress_ratio - (0.50 - half_window)) / transition_window
-			target_wqi = lerp(ZONE_METRICS[2]["wqi"], ZONE_METRICS[3]["wqi"], t)
-			target_do = lerp(ZONE_METRICS[2]["do"], ZONE_METRICS[3]["do"], t)
-			target_flow = lerp(ZONE_METRICS[2]["flow_speed"], ZONE_METRICS[3]["flow_speed"], t)
-			target_vis = lerp(ZONE_METRICS[2]["visibility"], ZONE_METRICS[3]["visibility"], t)
-		elif progress_ratio >= 0.75 - half_window and progress_ratio <= 0.75 + half_window:
-			var t = (progress_ratio - (0.75 - half_window)) / transition_window
-			target_wqi = lerp(ZONE_METRICS[3]["wqi"], ZONE_METRICS[4]["wqi"], t)
-			target_do = lerp(ZONE_METRICS[3]["do"], ZONE_METRICS[4]["do"], t)
-			target_flow = lerp(ZONE_METRICS[3]["flow_speed"], ZONE_METRICS[4]["flow_speed"], t)
-			target_vis = lerp(ZONE_METRICS[3]["visibility"], ZONE_METRICS[4]["visibility"], t)
-	
-	# Apply updated values
-	water_quality_index = target_wqi
-	dissolved_oxygen = target_do
-	water_flow_speed = target_flow
-	turbidity_visibility = target_vis
+	# Apply updated values using the helper function
+	water_quality_index = get_metric_value("wqi", progress_ratio)
+	dissolved_oxygen = get_metric_value("do", progress_ratio)
+	water_flow_speed = get_metric_value("flow_speed", progress_ratio)
+	turbidity_visibility = get_metric_value("visibility", progress_ratio)
 	
 	# Emit signals
 	if has_zone_changed:

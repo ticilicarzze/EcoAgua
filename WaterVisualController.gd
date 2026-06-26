@@ -11,20 +11,20 @@ class_name WaterVisualController
 # Visual profiles (Colors) matching each zone
 const ZONE_COLORS = {
 	1: {
-		"albedo": Color(0.12, 0.38, 0.42, 0.45),       # Translucent light sandy-brown/teal water (60cm visibility)
-		"turbidity": Color(0.38, 0.32, 0.22, 1.0)      # Sandy-brown base
+		"albedo": Color(0.55, 0.47, 0.38, 0.45), # Translucent light brown / té con leche muy diluido (40-60cm visibility)
+		"turbidity": Color(0.48, 0.40, 0.32, 1.0) # Sandy brown base
 	},
 	2: {
-		"albedo": Color(0.22, 0.35, 0.18, 0.70),       # Algae green eutrophication (40cm visibility)
-		"turbidity": Color(0.20, 0.28, 0.12, 1.0)      # Green-brown base
+		"albedo": Color(0.45, 0.35, 0.26, 0.75), # Medium brown / café con leche (20-30cm visibility)
+		"turbidity": Color(0.35, 0.26, 0.18, 1.0) # Medium brown base
 	},
 	3: {
-		"albedo": Color(0.24, 0.20, 0.16, 0.90),       # High turbidity grey-brown (15cm visibility)
-		"turbidity": Color(0.16, 0.12, 0.08, 1.0)      # Dark greyish-brown base
+		"albedo": Color(0.25, 0.16, 0.10, 0.92), # Dark rich brown / chocolate líquido (0-10cm visibility)
+		"turbidity": Color(0.18, 0.10, 0.05, 1.0) # Dark brown base
 	},
 	4: {
-		"albedo": Color(0.08, 0.07, 0.06, 0.98),       # Stagnant black-brown chemical waste (0cm visibility)
-		"turbidity": Color(0.04, 0.03, 0.03, 1.0)      # Black base
+		"albedo": Color(0.12, 0.12, 0.12, 0.98), # Almost opaque oily grey-black / gris-negro aceitoso (0cm visibility)
+		"turbidity": Color(0.05, 0.05, 0.05, 1.0) # Black base
 	}
 }
 
