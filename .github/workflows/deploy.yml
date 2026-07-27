@@ -18,28 +18,28 @@ jobs:
   export_web:
     name: Export WebGL
     runs-on: ubuntu-latest
-    container:
-      image: barichello/godot-ci:4.3
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Godot Export Folder
-        run: mkdir -v -p build/web
+      - name: Export WebGL with Godot
+        uses: firebelley/godot-export@v6.0.0
+        with:
+          godot_executable_download_url: "https://github.com/godotengine/godot-builds/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip"
+          godot_export_templates_download_url: "https://github.com/godotengine/godot-builds/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz"
+          relative_project_path: "./"
+          export_debug: false
 
-      - name: Export WebGL
-        run: godot --headless --export-release "Web" build/web/index.html
-
-      # Script necesario para habilitar SharedArrayBuffer en GitHub Pages (Godot 4)
-      - name: Download COOP/COEP Service Worker
+      - name: Add COOP/COEP Service Worker for SharedArrayBuffer
         run: |
-          curl -s https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/master/coi-serviceworker.js > build/web/coi-serviceworker.js
-          sed -i 's/<head>/<head><script src="coi-serviceworker.js"><\/script>/g' build/web/index.html
+          EXPORT_DIR="$HOME/.local/share/godot/export/Web"
+          curl -s https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/master/coi-serviceworker.js > "$EXPORT_DIR/coi-serviceworker.js"
+          sed -i 's/<head>/<head><script src="coi-serviceworker.js"><\/script>/g' "$EXPORT_DIR/index.html"
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/web
+          path: "${{ env.HOME }}/.local/share/godot/export/Web"
 
   deploy:
     name: Deploy to Pages
@@ -52,4 +52,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
