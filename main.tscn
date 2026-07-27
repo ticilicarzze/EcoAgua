@@ -1,44 +1,147 @@
 [gd_scene format=3 uid="uid://cy6j6wjsqgujy"]
 
 [ext_resource type="Script" uid="uid://c6u1i4huc5uom" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="Shader" uid="uid://d35cjg83d3goo" path="res://watershader2.gdshader" id="2_7mycd"]
+[ext_resource type="CompressedTexture2DArray" uid="uid://dcvujep4v7k1b" path="res://Assets/TexturesWater/Textures/caustic.png" id="3_272bh"]
+[ext_resource type="Texture2D" uid="uid://5dhudphm5c8o" path="res://Assets/TexturesWater/Textures/foam_albedo.png" id="4_5vw27"]
+[ext_resource type="Texture2D" uid="uid://bfa4xeh5thwio" path="res://Assets/TexturesWater/Textures/normal_A.png" id="5_kek77"]
+[ext_resource type="Texture2D" uid="uid://dpwv0qf6tb7we" path="res://Assets/TexturesWater/Textures/normal_B.png" id="6_4c57u"]
+[ext_resource type="Script" uid="uid://bynsjwun060cg" path="res://WaterVisualController.gd" id="7_water_ctrl"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ig7tw"]
-sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
-ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_272bh"]
+sky_top_color = Color(0.28, 0.45, 0.68, 1)
+sky_horizon_color = Color(0.8, 0.65, 0.48, 1)
+sky_curve = 0.12
+ground_bottom_color = Color(0.1, 0.07, 0.03, 1)
+ground_horizon_color = Color(0.48, 0.36, 0.22, 1)
+ground_curve = 0.1
 
-[sub_resource type="Sky" id="Sky_0xm2m"]
-sky_material = SubResource("ProceduralSkyMaterial_ig7tw")
+[sub_resource type="Sky" id="Sky_5vw27"]
+sky_material = SubResource("ProceduralSkyMaterial_272bh")
 
 [sub_resource type="Environment" id="Environment_h2yge"]
 background_mode = 2
-sky = SubResource("Sky_0xm2m")
+background_color = Color(0.48, 0.36, 0.22, 1)
+sky = SubResource("Sky_5vw27")
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.5, 0.34, 1)
+ambient_light_energy = 1.1
 tonemap_mode = 2
+fog_light_color = Color(0.55, 0.42, 0.28, 1)
+fog_light_energy = 0.1
+fog_density = 0.22
+fog_sky_affect = 0.0
 
 [sub_resource type="Curve3D" id="Curve3D_7dm0k"]
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 2.822094, 1.4152126, -7.490696, 0, 0, 0, 0, 0, 0, 9.70827, -1.9982646, -20.45045, 0, 0, 0, 0, 0, 0, 3.616382, -2.1904511, -27.28702, 0, 0, 0, 0, 0, 0, 12.636445, -5.2162333, -36.09354, 0, 0, 0, 0, 0, 0, 22.031878, -8.08637, -45.150894, 0, 0, 0, 0, 0, 0, 14.16577, -6.4850864, -48.29132),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -140, 0, 0, 0, 0, 0, 0, 0, 1.5, -150, 0, 0, 0, 0, 0, 0, 0, -0.5, -160, 0, 0, 0, 0, 0, 0, 0, -0.5, -240, 0, 0, 0, 0, 0, 0, 0, 1.5, -250, 0, 0, 0, 0, 0, 0, 0, -0.5, -260, 0, 0, 0, 0, 0, 0, 0, -0.5, -340, 0, 0, 0, 0, 0, 0, 0, 1.5, -350, 0, 0, 0, 0, 0, 0, 0, -0.5, -360, 0, 0, 0, 0, 0, 0, 0, -0.5, -420),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 }
-point_count = 6
+point_count = 11
 
 [sub_resource type="BoxMesh" id="BoxMesh_1bvp3"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kek77"]
+albedo_color = Color(0.56, 0.93, 0.56, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4c57u"]
+albedo_color = Color(0.48, 0.56, 0.15, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_efxa6"]
+albedo_color = Color(0.2, 0.2, 0.2, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dg77c"]
+albedo_color = Color(0.05, 0.05, 0.05, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_efxa6"]
+noise_type = 3
+domain_warp_enabled = true
+domain_warp_fractal_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_dg77c"]
+noise = SubResource("FastNoiseLite_efxa6")
+seamless = true
+as_normal_map = true
+seamless_blend_skirt = 0.6
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0xm2m"]
+render_priority = 0
+shader = ExtResource("2_7mycd")
+shader_parameter/wave_1 = Vector4(0.05, 1, 0.18, 0.6)
+shader_parameter/wave_2 = Vector4(-0.12, 0.98, 0.08, 0.47)
+shader_parameter/wave_3 = Vector4(0.15, 0.95, 0.06, 0.38)
+shader_parameter/wave_4 = Vector4(-0.08, 1, 0.07, 0.28)
+shader_parameter/wave_5 = Vector4(0.1, 0.92, 0.05, 1.81)
+shader_parameter/wave_6 = Vector4(-0.2, 0.85, 0.03, 0.33)
+shader_parameter/wave_7 = Vector4(0.18, 0.9, 0.04, 0.73)
+shader_parameter/wave_8 = Vector4(-0.05, 0.97, 0.04, 1.52)
+shader_parameter/river_flow_speed = 1.2
+shader_parameter/time_factor = 2.5
+shader_parameter/noise_zoom = 2.0
+shader_parameter/noise_amp = 0.4
+shader_parameter/base_water_color = Color(0, 0, 0, 1)
+shader_parameter/fresnel_water_color = Color(0, 0, 0, 1)
+shader_parameter/deep_water_color = Color(0.22832656, 0.14631668, 0.049382262, 1)
+shader_parameter/shallow_water_color = Color(0.026542896, 0.016090944, 0.005360369, 1)
+shader_parameter/beers_law = 0.35
+shader_parameter/depth_offset = -1.2
+shader_parameter/near = 7.0
+shader_parameter/far = 10000.0
+shader_parameter/edge_texture_scale = 3.5
+shader_parameter/edge_texture_offset = 1.0
+shader_parameter/edge_texture_speed = 0.1
+shader_parameter/edge_foam_intensity = 2.0
+shader_parameter/edge_fade_start = -3.0
+shader_parameter/edge_fade_end = 6.6
+shader_parameter/edge_foam_texture = ExtResource("4_5vw27")
+shader_parameter/peak_height_threshold = 1.0
+shader_parameter/peak_color = Vector3(1, 1, 1)
+shader_parameter/peak_intensity = 1.0
+shader_parameter/foam_texture = ExtResource("4_5vw27")
+shader_parameter/foam_intensity = 1.0
+shader_parameter/foam_scale = 1.0
+shader_parameter/metallic = 0.0
+shader_parameter/roughness = 0.56
+shader_parameter/uv_scale_text_a = 0.08
+shader_parameter/uv_speed_text_a = Vector2(0, 0.55)
+shader_parameter/uv_scale_text_b = 0.5
+shader_parameter/uv_speed_text_b = Vector2(0.04, 0.3)
+shader_parameter/normal_strength = 1.0
+shader_parameter/uv_sampler_scale = 0.3
+shader_parameter/blend_factor = 0.35
+shader_parameter/perturbation_strength = 0.5
+shader_parameter/perturbation_time = 0.2
+shader_parameter/normalmap_a = ExtResource("5_kek77")
+shader_parameter/normalmap_b = ExtResource("6_4c57u")
+shader_parameter/uv_sampler = SubResource("NoiseTexture2D_dg77c")
+shader_parameter/caustic_sampler = ExtResource("3_272bh")
+shader_parameter/caustics_intensity = 15.0
+shader_parameter/num_caustic_layers = 16.0
+shader_parameter/caustic_distortion_strength = 0.001
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ycdy4"]
+size = Vector2(80, 420)
+subdivide_width = 300
+subdivide_depth = 300
+
 [node name="Main" type="Node3D" unique_id=855448232]
-transform = Transform3D(0.9861139, -0.082942344, 0.14387442, 0.11011917, 0.975072, -0.19263518, -0.1243103, 0.20580357, 0.97066563, 0, 0, 0)
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0, 0)
 script = ExtResource("1_ig7tw")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1267901750]
 environment = SubResource("Environment_h2yge")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1631282152]
-transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
-shadow_enabled = true
+transform = Transform3D(0.7071067, -0.4999999, 0.4999999, 0, 0.7071067, 0.7071067, -0.7071067, -0.4999999, 0.4999999, 0, 8.950267, 0)
+light_color = Color(1, 0.96, 0.82, 1)
+light_energy = 0.6
+light_specular = 0.05
 
 [node name="RiverPath" type="Path3D" parent="." unique_id=1801238073]
 curve = SubResource("Curve3D_7dm0k")
 
 [node name="UserCart" type="PathFollow3D" parent="RiverPath" unique_id=93584630]
-transform = Transform3D(0.8830786, 0.106301434, -0.45702478, 7.450577e-09, 0.973999, 0.22654721, 0.4692245, -0.20005886, 0.86011875, 2.822094, 1.4152126, -7.490696)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="XROrigin3D" type="XROrigin3D" parent="RiverPath/UserCart" unique_id=1131666848]
 
@@ -47,14 +150,39 @@ transform = Transform3D(0.8830786, 0.106301434, -0.45702478, 7.450577e-09, 0.973
 [node name="TestCamera" type="Camera3D" parent="RiverPath/UserCart" unique_id=566066147]
 current = true
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1820552780]
-transform = Transform3D(1.0000006, -3.9115548e-08, 0, 7.0780516e-08, 1.0000004, 0, 7.4505806e-08, -2.8312206e-07, 1, 2.1914663, -2.987051, -31.852678)
+[node name="Zona1" type="MeshInstance3D" parent="." unique_id=1820552780]
+transform = Transform3D(1.0000005, -3.3527602e-08, 0, 7.636845e-08, 1.0000006, 0, 8.9406946e-08, -3.129243e-07, 0.9999998, 0, 0, -50)
+visible = false
 mesh = SubResource("BoxMesh_1bvp3")
+surface_material_override/0 = SubResource("StandardMaterial3D_kek77")
 
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=1575534655]
-transform = Transform3D(1.0000002, -3.9115548e-08, 0, 7.4505806e-08, 1, 0, 3.7252903e-08, -1.6391277e-07, 1, 11.55619, -3.8956194, -28.26835)
+[node name="Zona2" type="MeshInstance3D" parent="." unique_id=1575534655]
+transform = Transform3D(1.0000007, -3.352761e-08, 0, 7.636845e-08, 1.0000006, 0, 8.940696e-08, -3.1292436e-07, 0.99999994, 0, 0, -150)
+visible = false
 mesh = SubResource("BoxMesh_1bvp3")
+surface_material_override/0 = SubResource("StandardMaterial3D_4c57u")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1657539988]
-transform = Transform3D(1.0000005, -3.3527613e-08, 0, 7.8231096e-08, 1.0000002, 0, 6.7055225e-08, -2.3841858e-07, 1, 16.391487, -7.157735, -51.862602)
+[node name="Zona3" type="MeshInstance3D" parent="." unique_id=1657539988]
+transform = Transform3D(1.0000007, -3.352761e-08, 0, 7.636845e-08, 1.0000006, 0, 8.940696e-08, -3.1292436e-07, 0.99999994, 0, 0, -250)
+visible = false
 mesh = SubResource("BoxMesh_1bvp3")
+surface_material_override/0 = SubResource("StandardMaterial3D_efxa6")
+
+[node name="Zona4" type="MeshInstance3D" parent="." unique_id=343976172]
+transform = Transform3D(1.0000007, -3.352761e-08, 0, 7.636845e-08, 1.0000006, 0, 8.940696e-08, -3.1292436e-07, 0.99999994, 0, 0, -350)
+visible = false
+mesh = SubResource("BoxMesh_1bvp3")
+surface_material_override/0 = SubResource("StandardMaterial3D_dg77c")
+
+[node name="Water" type="MeshInstance3D" parent="." unique_id=384269620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -210)
+material_override = SubResource("ShaderMaterial_0xm2m")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_ycdy4")
+script = ExtResource("7_water_ctrl")
+water_material = SubResource("ShaderMaterial_0xm2m")
+use_color_override = true
+override_shallow = Color(0.026542896, 0.016090944, 0.005360369, 1)
+override_deep = Color(0.22832656, 0.14631668, 0.049382262, 1)
+override_fresnel = Color(0.33479264, 0.1898284, 0.07676139, 1)
+override_roughness = 0.56

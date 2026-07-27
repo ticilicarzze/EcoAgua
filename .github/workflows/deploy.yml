@@ -1,0 +1,55 @@
+name: "Deploy Godot WebGL to GitHub Pages"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  export_web:
+    name: Export WebGL
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Godot Export Folder
+        run: mkdir -v -p build/web
+
+      - name: Export WebGL
+        run: godot --headless --export-release "Web" build/web/index.html
+
+      # Script necesario para habilitar SharedArrayBuffer en GitHub Pages (Godot 4)
+      - name: Download COOP/COEP Service Worker
+        run: |
+          curl -s https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/master/coi-serviceworker.js > build/web/coi-serviceworker.js
+          sed -i 's/<head>/<head><script src="coi-serviceworker.js"><\/script>/g' build/web/index.html
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    name: Deploy to Pages
+    needs: export_web
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
