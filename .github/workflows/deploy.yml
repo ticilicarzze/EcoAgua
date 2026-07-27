@@ -27,6 +27,9 @@ jobs:
       - name: Setup Godot Export Folder
         run: mkdir -v -p build/web
 
+      - name: Import Assets & Build Cache
+        run: godot --headless --editor --quit || true
+
       - name: Export WebGL
         run: godot --headless --export-release "Web" build/web/index.html
 

@@ -17,8 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-XRToolsUserSettings="*uid://bqgb8i74tm0t"
-XRToolsRumbleManager="*uid://by853dk86g1qw"
+XRToolsUserSettings="*res://addons/godot-xr-tools/user_settings/user_settings.gd"
+XRToolsRumbleManager="*res://addons/godot-xr-tools/rumble/rumble_manager.gd"
 WaterManager="*res://WaterManager.gd"
 
 [editor_plugins]
