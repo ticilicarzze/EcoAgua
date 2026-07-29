@@ -1,0 +1,24 @@
+[gd_resource type="Environment" format=3 uid="uid://f4l4385p8yxx"]
+
+[ext_resource type="Texture2D" uid="uid://da67dbthgwn1k" path="res://assets/hdris/grasslands_sunset_4k.exr" id="1_xkefj"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_tipki"]
+panorama = ExtResource("1_xkefj")
+energy_multiplier = 0.9
+
+[sub_resource type="Sky" id="Sky_85g3d"]
+sky_material = SubResource("PanoramaSkyMaterial_tipki")
+
+[resource]
+background_mode = 2
+background_energy_multiplier = 0.7
+sky = SubResource("Sky_85g3d")
+ambient_light_source = 2
+ambient_light_color = Color(0.68, 0.56, 0.4, 1)
+ambient_light_energy = 1.4
+tonemap_mode = 4
+tonemap_exposure = 0.88
+tonemap_agx_contrast = 1.0
+glow_enabled = true
+glow_intensity = 0.5
+glow_bloom = 0.3
