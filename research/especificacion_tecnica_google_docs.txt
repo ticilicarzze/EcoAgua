@@ -1,0 +1,152 @@
+ESPECIFICACIÓN TÉCNICA Y REGISTRO DE AVANCE DE DESARROLLO
+
+PROYECTO: EcoAgua UNR - Simulación Ambiental Interactiva (Arroyo Ludueña)
+INSTITUCIONES: Universidad Nacional de Rosario (UNR) & ICASFAS
+MOTOR / ENTORNO: Godot Engine 4.6 (GL Compatibility Backend)
+DESPLIEGUE WEB EN VIVO: https://ecoagua-unr.netlify.app
+
+
+1. RESUMEN EJECUTIVO Y LÓGICA DEL PROTOTIPO
+
+El prototipo EcoAgua UNR es una simulación interactiva 3D y de Realidad Virtual (RV) que recrea el recorrido del Arroyo Ludueña en la llanura pampeana argentina. Representa la evolución y degradación ambiental del cuerpo de agua a lo largo de un trayecto de 294 metros con una duración programada de 120 segundos (2 minutos).
+
+La lógica del prototipo se articula mediante componentes preliminares y placeholders procedimentales que desacoplan el estado científico de la simulación de la representación visual y sonora.
+
+
+1.1 Mapa de Navegación y Cronograma de Recorrido
+
+Parámetros Generales del Recorrido:
+- Duración Total: 120.0 segundos (2 minutos)
+- Distancia Activa: 294 metros (desde Z = 0 m hasta Z = -294 m)
+- Velocidad de Avance: 3.27 m/s (en tramos de movimiento)
+- Pausas en Superficie: 3 pausas de 10.0 segundos cada una (30 segundos acumulados en superficie)
+
+Zonas Ecológicas y Checkpoints de Observación:
+
+• Zona 1: Claridad e Inicio (Z = 0 m a Z = -70 m | 0.0s a 21.5s)
+  - Modo de navegación: 100% sumergida.
+  - Características: Agua marrón clara (lecho pampeano natural), alta penetración lumínica y baja turbidez.
+
+• Zona 2: Transición / Impacto Agrícola (Z = -70 m a Z = -140 m | 21.5s a 53.0s)
+  - Tramo 1 bajo agua: 21.5s a 32.2s (10.7s).
+  - PAUSA 1 EN SUPERFICIE: 32.2s a 42.2s (10.0s en Z = -105 m). Elevación para observar el paisaje y riberas agrícolas.
+  - Tramo 2 bajo agua: 42.2s a 53.0s (10.7s).
+
+• Zona 3: Contaminación Moderada / Periurbana (Z = -140 m a Z = -210 m | 53.0s a 84.5s)
+  - Tramo 1 bajo agua: 53.0s a 63.7s (10.7s).
+  - PAUSA 2 EN SUPERFICIE: 63.7s a 73.7s (10.0s en Z = -175 m). Elevación en el tramo intermedio del río.
+  - Tramo 2 bajo agua: 73.7s a 84.5s (10.7s).
+
+• Zona 4: Contaminación Alta / Urbana Crítica (Z = -210 m a Z = -294 m | 84.5s a 120.0s)
+  - Tramo 1 bajo agua: 84.5s a 95.2s (10.7s).
+  - PAUSA 3 EN SUPERFICIE: 95.2s a 105.2s (10.0s en Z = -245 m). Última observación en el tramo más degradado.
+  - Tramo 2 bajo agua final: 105.2s a 120.0s (14.8s). Llegada y cierre del recorrido a los 120s (Z = -294 m).
+
+
+2. DOCUMENTACIÓN DE HERRAMIENTAS, MOTORES Y ENTORNO DE DESARROLLO
+
+El stack tecnológico ha sido seleccionado priorizando el rendimiento en tiempo real, la portabilidad multiplataforma y la baja latencia de renderizado.
+
+2.1 Motor Principal
+- Godot Engine 4.6 (GL Compatibility Backend): Se optó por el backend de compatibilidad (OpenGL ES 3.0 / WebGL 2.0) debido a su excelente desempeño en dispositivos móviles y visores VR standalone (Meta Quest 2/3), eliminando el overhead computacional del backend Forward+ / Vulkan.
+
+2.2 Lenguajes y Componentes de Scripting
+- GDScript: Sistema de scripts orientado a eventos.
+  • WaterManager.gd: Autoload centralizado de estado que calcula métricas fisicoquímicas reales (ICA/WQI, Oxígeno Disuelto, Turbidez y Velocidad de Flujo) en función del parámetro normalizado progress_ratio (0.0 a 1.0).
+  • WaterVisualController.gd: Escucha los eventos de WaterManager.gd y sincroniza suavemente los parámetros del shader de agua y el ambiente.
+  • FreeLookCamera.gd: Controlador de cámara libre interactiva para entornos Desktop/Web.
+
+2.3 Shaders Personalizados (GLSL)
+- Shader de Agua (watershader2.gdshader):
+  • Extinción de Profundidad en Pantalla: Sustituye la niebla volumétrica mediante lectura de textura de profundidad (hint_depth_texture), aplicando la fórmula de atenuación exponencial:
+    factor = 1.0 - e^(-profundidad_agua * turbidez)
+  • Ondulaciones Duales y Cáusticas: Utiliza mapas de normales duales desplazados temporalmente y mapa de cáusticas en proyección triplanar.
+  • Reflexión Fresnel y Espuma Procedimental: Mapeo de tonos ajustado para evitar saturación cromática.
+
+- Shader de Terreno (terrain_zones.gdshader):
+  • Mezcla procedimental de texturas de lecho de río, barro y hierba según la elevación y la pendiente, resolviendo problemas de solapamiento de geometría.
+
+2.4 Entorno de Iluminación y Renderizado
+- WorldEnvironment HDRI & Tonemapping AgX: Uso de mapas de iluminación ambiental HDRI combinados con el tonemapper AgX para preservar la fidelidad cromática de las aguas verdosas y marrones sin áreas quemadas.
+
+2.5 Entorno de Despliegue e Integración Continua (CI/CD)
+- Script de Automatización (deploy.sh): Compilación WebGL en modo headless (--headless), generación dinámica del archivo _headers para la configuración de las políticas Cross-Origin-Opener-Policy: same-origin y Cross-Origin-Embedder-Policy: require-corp (requeridas para el uso de SharedArrayBuffer en WebGL 2.0), y publicación automática en la plataforma Netlify.
+
+
+3. ENTORNO PREVISTO PARA LA INTERACCIÓN DEL PROTOTIPO
+
+El prototipo está diseñado bajo un enfoque multiplataforma e híbrido, garantizando accesibilidad universal desde navegadores web y una experiencia inmersiva profunda en visores de realidad virtual.
+
+3.1 Entorno de Realidad Virtual (RV / VR Standalone)
+- Dispositivos Objetivo: Meta Quest 2, Meta Quest 3, Meta Quest Pro (vía OpenXR).
+- Framework de Interacción: Godot XR Tools.
+- Modo de Navegación:
+  • Head Tracking 6DoF: Control natural del punto de vista del usuario mediante el movimiento de la cabeza.
+  • Avance Progresivo: Avance guiado a lo largo del spline del río (RiverPath) controlado por la lógica central para minimizar la cinetosis (VR motion sickness).
+
+3.2 Entorno WebGL / Desktop Browser
+- Dispositivos Objetivo: Computadoras de escritorio y portátiles (Windows, macOS, Linux).
+- Navegadores Compatibles: Google Chrome, Mozilla Firefox, Microsoft Edge, Brave.
+- Controles Interactivos (FreeLookCamera.gd):
+  • W / A / S / D: Desplazamiento horizontal de la cámara.
+  • Shift: Modificador de aceleración de velocidad.
+  • Clic Derecho + Arrastrar: Orientación libre de la mirada en 360°.
+  • Q / E: Variación vertical de altura.
+
+3.3 Presupuesto de Rendimiento y Adaptabilidad
+- Draw Calls: Máximo de 150 llamadas de dibujo por frame.
+- Carga Poligonal: Límite de 150.000 polígonos visibles en pantalla.
+- Tasa de Refresco Objetivo: 72 FPS - 90 FPS continuos en visores VR y 60 FPS en navegadores web.
+
+
+4. REGISTRO DE PRUEBAS DE IMPLEMENTACIÓN Y HERRAMIENTAS
+
+A continuación se detallan las pruebas realizadas durante el desarrollo de la mecánica principal (navegación del río con variación reactiva de calidad del agua y alternancia de inmersión/superficie), analizando aciertos, dificultades encontradas y errores solucionados.
+
+4.1 Aciertos Identificados
+1. Elección del Backend GL Compatibility en Godot 4: Permitió mantener una única base de código ligera que exporta directamente a WebGL 2.0 y a la arquitectura Android/OpenXR de Meta Quest sin requerir shaders duplicados.
+2. Implementación de Turbidez por Extinción en Shader: La atenuación basada en la distancia de profundidad calculada en watershader2.gdshader simula fielmente la turbidez de la cuenca del Ludueña con un consumo insignificante de recursos de GPU.
+3. Desacoplamiento Mediante Arquitectura Reactiva de Eventos: WaterManager.gd actúa como la fuente de verdad científica. Al emitir señales (zone_changed y metrics_updated), los sistemas de renderizado y audio responden de forma reactiva.
+4. Automatización del Despliegue con Header Injection en Netlify: El script deploy.sh resolvió la barrera del uso de SharedArrayBuffer en WebGL 2.0 al inyectar automáticamente los encabezados COOP y COEP.
+
+4.2 Dificultades e Inconvenientes Experimentados
+1. Ausencia de Features Modernas en Backend GL Compatibility: El backend no soporta Reflections Screen-Space (SSR) ni niebla volumétrica nativa 3D. Se diseñaron efectos alternativos aproximados mediante mapas de normales duales y cáusticas triplanares.
+2. Gestión de Artefactos Visuales (Z-Fighting y Leaking en Riberas): El solapamiento entre mallas causaba parpadeos indeseados. Se refactorizó la geometría mediante el shader procedimental terrain_zones.gdshader.
+3. Ergonomía y Prevención del Mareo por Movimiento (VR Motion Sickness): Los cambios bruscos de velocidad causaban disconfort. Se fijó una velocidad constante de 3.27 m/s con suavizado de curvas en el spline y transiciones verticales pausadas.
+
+4.3 Registro de Errores y Soluciones Técnicas Implementadas
+
+Tabla de Registro de Errores:
+---------------------------------------------------------------------------------------------------------------
+Error Identificado                      Causa Raíz                              Solución Aplicada
+---------------------------------------------------------------------------------------------------------------
+1. Transiciones abruptas de color     Cambio discontinuo de valores al        Interpolación suave lerp() con
+   y turbidez al cruzar de zona.        cruzar los umbrales de zona.            ventana del 5% (transition_window).
+
+2. Parpadeo de malla (Z-fighting)      Superposición espacial de geometrías    Shader de terreno procedural por
+   en bordes del río.                   del lecho del río y laderas.            zonas (terrain_zones.gdshader).
+
+3. Fallo de carga WebGL en Netlify     Ausencia de headers COOP/COEP en el     Inyección automática de _headers
+   por bloqueo de SharedArrayBuffer.    servidor web de destino.                desde el script deploy.sh.
+---------------------------------------------------------------------------------------------------------------
+
+Detalle de Soluciones Técnicas:
+
+- Solución 1 (Interpolación de Métricas):
+  En WaterManager.gd, se creó la función get_metric_value() que aplica un suavizado lerp dentro de una ventana relativa del 5% (transition_window = 0.05) alrededor de cada límite de zona.
+
+- Solución 2 (Eliminación de Z-Fighting):
+  Se desarrolló terrain_zones.gdshader, que calcula internamente las áreas de agua y ribera según la altura y la pendiente, eliminando la necesidad de mallas solapadas.
+
+- Solución 3 (Configuración de Aislamiento de Origen Cruzado para WebGL):
+  Se incorporó en deploy.sh la escritura automática del archivo _headers con Cross-Origin-Opener-Policy: same-origin y Cross-Origin-Embedder-Policy: require-corp.
+
+
+5. CONCLUSIONES Y PRÓXIMOS PASOS
+
+El avance de desarrollo presentado cumple satisfactoriamente con la representación funcional del prototipo, integrando los modelos de simulación científica de la UNR/ICASFAS con una arquitectura 3D liviana, optimizada y desplegada en producción.
+
+Próximos Hitos de Desarrollo:
+1. Incorporación de assets tridimensionales detallados para la flora, fauna y residuos plásticos/industriales en las Zonas 3 y 4.
+2. Refinamiento de la interfaz espacial 3D (HUD en VR) para mostrar los datos de los sensores en tiempo real al usuario dentro de la embarcación/cámara de inspección.
+3. Calibración fina del audio posicional 3D (AudioStreamPlayer3D) para enriquecer la inmersión sonora según la zona del arroyo.

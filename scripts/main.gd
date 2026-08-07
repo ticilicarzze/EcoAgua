@@ -4,6 +4,7 @@ extends Node3D
 @onready var cart = $RiverPath/UserCart
 @export var target_total_duration: float = 120.0 # Duración objetivo total: 120 segundos (2 minutos)
 @export var speed: float = 6.89 # Calculado dinámicamente según la longitud de la ruta y las pausas
+@export var surface_height_offset: float = 3.5 # Altura vertical de la cámara al emerger a la superficie
 
 # =========================================================
 # PALETA VISUAL POR ZONA (EcoAgua / Amaya 2018)
@@ -14,36 +15,42 @@ extends Node3D
 # Zona 4 usa marrón oscuro (no negro) — densidad alta acorta el campo, no blanquea.
 const ZONE_UW_FOG_COLOR: Array[Color] = [
 	Color(0.00, 0.00, 0.00, 1.0),
-	Color(0.58, 0.46, 0.32, 1.0), # Z1: té con leche diluido — más claro y visible
-	Color(0.48, 0.34, 0.18, 1.0), # Z2: café con leche — mayor visibilidad
-	Color(0.36, 0.22, 0.10, 1.0), # Z3: chocolate con leche — turbio moderado
-	Color(0.26, 0.15, 0.07, 1.0), # Z4: marrón oscuro — visible
+	Color(0.38, 0.26, 0.13, 1.0), # Z1: marrón oscuro pampeano / barro claro
+	Color(0.30, 0.19, 0.09, 1.0), # Z2: marrón sedimento oscuro
+	Color(0.22, 0.13, 0.05, 1.0), # Z3: marrón fango
+	Color(0.15, 0.08, 0.03, 1.0), # Z4: marrón muy oscuro / lodo cargado
 ]
 
 const ZONE_UW_AMBIENT_COLOR: Array[Color] = [
 	Color(0.00, 0.00, 0.00, 1.0),
-	Color(0.68, 0.56, 0.40, 1.0), # Z1: mayor claridad
-	Color(0.56, 0.42, 0.24, 1.0), # Z2
-	Color(0.42, 0.26, 0.12, 1.0), # Z3
-	Color(0.32, 0.18, 0.08, 1.0), # Z4
+	Color(0.62, 0.46, 0.28, 1.0), # Z1: iluminación marrón cálida para objetos
+	Color(0.50, 0.34, 0.18, 1.0), # Z2
+	Color(0.38, 0.22, 0.09, 1.0), # Z3
+	Color(0.26, 0.13, 0.05, 1.0), # Z4
 ]
 const ZONE_UW_AMBIENT_ENERGY: Array[float] = [
 	0.0,
-	1.40, # Z1: luz ambiente alta para mejor visibilidad
-	1.15, # Z2
-	0.88, # Z3
-	0.60, # Z4: reducida pero visible
+	0.90, # Z1: reducido para no saturar el canal rojo y mantener el tono marrón visible
+	0.85, # Z2: similar — el color marrón cálido domina sin blanquearse
+	0.95, # Z3: iluminación equilibrada
+	0.75, # Z4: ambientalmente sombría pero suficiente para distinguir modelos
 ]
 const ZONE_UW_BG_COLOR: Array[Color] = [
 	Color(0.00, 0.00, 0.00, 1.0),
-	Color(0.52, 0.40, 0.26, 1.0), # Z1
-	Color(0.42, 0.28, 0.15, 1.0), # Z2
-	Color(0.30, 0.18, 0.08, 1.0), # Z3
-	Color(0.22, 0.11, 0.04, 1.0), # Z4 — fondo marrón oscuro
+	Color(0.38, 0.26, 0.13, 1.0), # Z1
+	Color(0.30, 0.19, 0.09, 1.0), # Z2
+	Color(0.22, 0.13, 0.05, 1.0), # Z3
+	Color(0.15, 0.08, 0.03, 1.0), # Z4 — fondo lodo muy oscuro
 ]
-# Opacidad del tinte por zona (esfera adherida a la cámara) — opacidad reducida para visibilidad
-const ZONE_TINT_ALPHA: Array[float] = [
-	0.0, 0.25, 0.36, 0.48, 0.58,
+
+# Densidad de neblina WorldEnvironment subacuática por zona
+# Calibrada para mostrar la degradación progresiva manteniendo visible la flora, fauna y el lecho.
+const ZONE_UW_FOG_DENSITY: Array[float] = [
+	0.0,
+	0.018, # Z1: cristalina / muy clara (~160m visibilidad)
+	0.032, # Z2: leve bruma / transición (~90m visibilidad)
+	0.050, # Z3: turbia moderada / flora y fauna claramente visibles (~60m visibilidad)
+	0.075, # Z4: degradada y cargada / visibilidad de 15-20m garantizada
 ]
 
 # Estado en superficie (mismo para todas las zonas)
@@ -70,11 +77,24 @@ var _triggered_checkpoints: Dictionary = {} # z_checkpoint -> true si ya dispar�
 # =========================================================
 var _current_ambient: float = 1.1
 var _current_ambient_col: Color = Color(0.62, 0.50, 0.34, 1.0)
+var _current_fog_density: float = 0.035
+var _current_fog_col: Color = Color(0.58, 0.46, 0.32, 1.0)
 var _is_underwater: bool = true
 var _was_underwater: bool = true
 var _base_fov: float = 75.0
 var _current_fov: float = 75.0
 var _current_v_offset: float = 0.0
+
+# =========================================================
+# CONTROL DE CÁMARA LIBRE (FreeLook)
+# =========================================================
+var _fl_yaw: float = 0.0
+var _fl_pitch: float = 0.0
+var _fl_dragging: bool = false
+const FL_MOUSE_SENS: float = 0.003
+const FL_KEY_SPEED: float = 1.8
+const FL_PITCH_LIMIT: float = 80.0
+var _fl_camera: Camera3D = null
 
 # =========================================================
 # REFERENCIAS A OBJETOS EN TIEMPO DE EJECUCIÓN
@@ -83,7 +103,6 @@ var _particles: GPUParticles3D = null
 var _particle_nodes: Array[GPUParticles3D] = []
 var _particle_proc: ParticleProcessMaterial = null
 var _particle_mat: StandardMaterial3D = null
-var _tint_mat: StandardMaterial3D = null # esfera de tinte subacuático
 var _water_mat: ShaderMaterial = null # ShaderMaterial del nodo TopWater
 var _water_mats: Array[ShaderMaterial] = [] # alias array para _update_water_zone
 
@@ -120,9 +139,11 @@ func _ready() -> void:
 
 	_alinear_mvp()
 	_build_environment()
+	_setup_foliage_shaders()
+	_create_surface_checkpoint_visualizers()
 
-	if has_node("RiverPath/UserCart/FlatCamera"):
-		_base_fov = $RiverPath/UserCart/FlatCamera.fov
+	if has_node("FlatCamera"):
+		_base_fov = $FlatCamera.fov
 		_current_fov = _base_fov
 
 
@@ -140,6 +161,7 @@ func _ready() -> void:
 	WaterManager.zone_changed.connect(_on_zone_changed)
 	WaterManager.metrics_updated.connect(_on_metrics_updated)
 	_setup_camera_fx()
+	_setup_aquatic_fauna()
 
 	# Posicionar el carrito en Z=0 (después de la extensión de 200m del telón visual trasero)
 	cart.progress = 200.0
@@ -156,41 +178,18 @@ func _ready() -> void:
 # _setup_free_look — Control de cámara para modo web/flat
 # =========================================================
 func _setup_free_look() -> void:
-	# En modo flat la cámara activa es FlatCamera (hija de UserCart).
-	# Giramos el UserCart en Y (yaw) y la FlatCamera en X (pitch).
-	var user_cart: Node3D = $RiverPath/UserCart
-	var camera: Camera3D = $RiverPath/UserCart/FlatCamera
-
-	if not user_cart or not camera:
-		push_warning("FreeLook: No se encontró UserCart o FlatCamera.")
+	if not has_node("FlatCamera"):
+		push_warning("FreeLook: No se encontró FlatCamera en la raíz de la escena.")
 		return
-
-	var free_look := preload("res://scripts/FreeLookCamera.gd").new()
-	free_look.name = "FreeLookCamera"
-	add_child(free_look)
-	free_look.setup(user_cart, camera)
-	print("FreeLook: control de cámara activado (mouse derecho + flechas).")
+	_fl_camera = $FlatCamera
+	_fl_yaw   = 0.0
+	_fl_pitch = 0.0
+	print("FreeLook integrado: mouse (izq/der) + WASD + flechas.")
 
 # =========================================================
-# _setup_camera_fx — Esfera de tinte + partículas
+# _setup_camera_fx — Partículas subacuáticas
 # =========================================================
 func _setup_camera_fx() -> void:
-	# --- Esfera de tinte subacuático ---
-	_tint_mat = StandardMaterial3D.new()
-	_tint_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_tint_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_tint_mat.cull_mode = BaseMaterial3D.CULL_FRONT
-	_tint_mat.no_depth_test = true
-	_tint_mat.render_priority = 127
-	_tint_mat.albedo_color = Color(0.55, 0.42, 0.28, 0.0) # empieza transparente
-
-	var tint_mesh := SphereMesh.new()
-	tint_mesh.radius = 0.9
-	tint_mesh.height = 1.8
-	tint_mesh.radial_segments = 8
-	tint_mesh.rings = 4
-	tint_mesh.material = _tint_mat
-
 	# --- Partículas de sedimento submerso ---
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.012
@@ -222,13 +221,6 @@ func _setup_camera_fx() -> void:
 	_particle_nodes.clear()
 
 	for cam in target_cameras:
-		# Esfera de tinte
-		var tint_node := MeshInstance3D.new()
-		tint_node.name = "UnderwaterTint"
-		tint_node.mesh = tint_mesh
-		tint_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		cam.add_child(tint_node)
-
 		# Partículas
 		var particles := GPUParticles3D.new()
 		particles.name = "UnderwaterParticles"
@@ -242,48 +234,222 @@ func _setup_camera_fx() -> void:
 		cam.add_child(particles)
 		_particle_nodes.append(particles)
 
-	print("Camera FX: tinte subacuático y partículas configurados en las cámaras.")
+	print("Camera FX: partículas subacuáticas configuradas en las cámaras.")
 
 
 # =========================================================
 # _enter_tree
+
+# =========================================================
+# _setup_aquatic_fauna — Asigna automáticamente nado y animación a todos los peces
+# =========================================================
+func _setup_aquatic_fauna() -> void:
+	var fauna_node := get_node_or_null("Zona1/FaunaAcuatica")
+	if not fauna_node:
+		return
+	var fish_script = preload("res://scripts/MojarraAnimada.gd")
+	_attach_fish_script_recursive(fauna_node, fish_script)
+
+func _attach_fish_script_recursive(node: Node, fish_script: Script) -> void:
+	for child in node.get_children():
+		if child is Node3D and child.get_child_count() > 0 and child.get_script() == null:
+			child.set_script(fish_script)
+			if child.has_method("_ready"):
+				child._ready()
+		_attach_fish_script_recursive(child, fish_script)
+
+# =========================================================
+# _setup_foliage_shaders — Aplica shader de vegetación y desactiva sombras en plantas de superficie
+# =========================================================
+func _setup_foliage_shaders() -> void:
+	var foliage_shader: Shader = load("res://resources/shaders/foliage.gdshader")
+	if not foliage_shader:
+		push_error("Foliage: No se pudo cargar res://resources/shaders/foliage.gdshader")
+		return
+
+	var plant_categories: Array[String] = ["Ceibos", "Cortaderas", "Gramineas", "Juncos", "Pastizales", "Totoras", "Sauces"]
+	var total_plants: int = 0
+
+	for zone_idx in range(1, 5):
+		var zone_vege := get_node_or_null("Zona%d/VegetacionRiberena" % zone_idx)
+		if not zone_vege:
+			continue
+		
+		# Limpiar explícitamente Piedras para que conserven sus sombras y material PBR original
+		var piedras_node := zone_vege.get_node_or_null("Piedras")
+		if piedras_node:
+			_clear_material_override_recursive(piedras_node)
+		
+		# Aplicar shader ÚNICAMENTE a las categorías de plantas
+		for cat_name in plant_categories:
+			var cat_node := zone_vege.get_node_or_null(cat_name)
+			if cat_node:
+				_apply_foliage_shader_recursive(cat_node, foliage_shader)
+				total_plants += 1
+
+	print("Foliage Shader: Aplicado correctamente a las plantas (excluyendo rocas).")
+
+func _clear_material_override_recursive(node: Node) -> void:
+	if node is GeometryInstance3D:
+		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		if node is MeshInstance3D:
+			(node as MeshInstance3D).material_override = null
+	for child in node.get_children():
+		_clear_material_override_recursive(child)
+
+func _apply_foliage_shader_recursive(node: Node, shader_res: Shader) -> void:
+	if node is GeometryInstance3D:
+		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		
+		if node is MeshInstance3D:
+			var mesh_inst := node as MeshInstance3D
+			var orig_mat: Material = mesh_inst.get_active_material(0)
+			var tex: Texture2D = null
+			
+			if orig_mat is StandardMaterial3D:
+				tex = (orig_mat as StandardMaterial3D).albedo_texture
+			elif orig_mat is ShaderMaterial:
+				tex = (orig_mat as ShaderMaterial).get_shader_parameter("texture_albedo")
+			
+			if tex:
+				var new_shader_mat := ShaderMaterial.new()
+				new_shader_mat.shader = shader_res
+				new_shader_mat.set_shader_parameter("texture_albedo", tex)
+				new_shader_mat.set_shader_parameter("alpha_scissor_threshold", 0.3)
+				new_shader_mat.set_shader_parameter("transmission_strength", 0.65)
+				new_shader_mat.set_shader_parameter("normal_up_blend", 0.75)
+				mesh_inst.material_override = new_shader_mat
+	
+	for child in node.get_children():
+		_apply_foliage_shader_recursive(child, shader_res)
+
+
 # =========================================================
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		await get_tree().process_frame
-		if has_node("RiverPath") and has_node("Zona1"):
+		if has_node("RiverPath"):
 			_alinear_mvp()
 			_update_water_zone(1)
+			_setup_foliage_shaders()
+			_create_surface_checkpoint_visualizers()
+
+# =========================================================
+# _create_surface_checkpoint_visualizers — Marcadores 3D flotantes en el editor
+# Muestra los puntos exactos (Z y altura) donde la cámara emerge a la superficie.
+# =========================================================
+func _create_surface_checkpoint_visualizers() -> void:
+	var container_name := "SurfaceCheckpointsVisualizer"
+	var existing = get_node_or_null(container_name)
+	if existing:
+		existing.queue_free()
+
+	# Solo se muestran mientras se trabaja en el Editor 3D. Al ejecutar el juego, no existen.
+	if not Engine.is_editor_hint():
+		return
+
+	var container := Node3D.new()
+	container.name = container_name
+	add_child(container)
+
+	var curve: Curve3D = null
+	if has_node("RiverPath"):
+		curve = $RiverPath.curve
+
+	if not curve:
+		return
+
+	var checkpoints_info: Array[Dictionary] = [
+		{"z": -105.0, "name": "Zona 2 (Transición)", "color": Color(0.2, 0.85, 1.0)},
+		{"z": -175.0, "name": "Zona 3 (Turbia)", "color": Color(1.0, 0.85, 0.2)},
+		{"z": -245.0, "name": "Zona 4 (Degradada)", "color": Color(1.0, 0.4, 0.3)}
+	]
+
+	var baked_points = curve.get_baked_points()
+	if baked_points.is_empty():
+		return
+
+	for item in checkpoints_info:
+		var target_z: float = item["z"]
+		var best_pt: Vector3 = baked_points[0]
+		var min_dist: float = 999999.0
+
+		for pt in baked_points:
+			var d: float = abs(pt.z - target_z)
+			if d < min_dist:
+				min_dist = d
+				best_pt = pt
+
+		# 1. Label3D flotante visible en el viewport 3D del editor
+		var label := Label3D.new()
+		label.text = "📍 EMERSIÓN %s\nZ = %.0fm" % [item["name"], target_z]
+		label.position = Vector3(best_pt.x, 3.8, target_z)
+		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		label.font_size = 46
+		label.outline_size = 12
+		label.modulate = item["color"]
+		label.no_depth_test = true
+		container.add_child(label)
+
+		# 2. Anillo translúcido en la superficie del agua (Y=0.25)
+		var ring_mesh := CylinderMesh.new()
+		ring_mesh.top_radius = 2.5
+		ring_mesh.bottom_radius = 2.5
+		ring_mesh.height = 0.05
+
+		var ring_mat := StandardMaterial3D.new()
+		ring_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		var col: Color = item["color"]
+		col.a = 0.5
+		ring_mat.albedo_color = col
+		ring_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		ring_mesh.material = ring_mat
+
+		var ring_inst := MeshInstance3D.new()
+		ring_inst.mesh = ring_mesh
+		ring_inst.position = Vector3(best_pt.x, 0.25, target_z)
+		container.add_child(ring_inst)
+
+	print("Surface Checkpoints: Marcadores de emersión 3D agregados en el editor.")
 
 # =========================================================
 # _alinear_mvp
 # =========================================================
 func _alinear_mvp() -> void:
-	$Zona1.position = Vector3(0, 0, -35)
-	$Zona2.position = Vector3(0, 0, -105)
-	$Zona3.position = Vector3(0, 0, -175)
-	$Zona4.position = Vector3(0, 0, -245)
-
 	var curve = $RiverPath.curve
 	if curve:
 		curve.clear_points()
-		# Ruta plana en Y=-0.5 (sin montículos en el terreno)
-		# La emersión a la superficie durante las pausas se maneja mediante v_offset en PathFollow3D
-		curve.add_point(Vector3(0, -0.5, 200))  # cola trasera (telón de 200 m)
-		curve.add_point(Vector3(0, -0.5, 0))    # inicio activo
-		curve.add_point(Vector3(0, -0.5, -294)) # final activo de navegación
-		curve.add_point(Vector3(0, -0.5, -494)) # extensión visual frontal (telón de 200 m)
+		# Ruta con meandros suaves en X para dar apariencia de río natural pampeano.
+		# Los puntos intermedios oscilan ±6 m en X con curvas Bézier suaves.
+		# La emersión a la superficie se maneja mediante v_offset en PathFollow3D.
+		# Y=-1.25: cámara a media columna de agua (lecho Ludueña Y=-2.5, superficie Y=0)
+		# Canal Ludueña: 18m de base, 2.5m de profundidad, talud 1:1
+		var river_points: Array[Vector3] = [
+			Vector3(0.0, -1.25, 200.0), # cola trasera
+			Vector3(3.0, -1.25, 140.0), # meandro suave
+			Vector3(-4.0, -1.25, 80.0),
+			Vector3(5.0, -1.25, 20.0),
+			Vector3(0.0, -1.25, 0.0), # inicio activo
+			Vector3(-5.0, -1.25, -60.0),
+			Vector3(4.0, -1.25, -120.0),
+			Vector3(-3.0, -1.25, -185.0),
+			Vector3(5.0, -1.25, -250.0),
+			Vector3(-2.0, -1.25, -294.0), # final activo
+			Vector3(3.0, -1.25, -380.0),
+			Vector3(0.0, -1.25, -494.0), # extensión visual frontal
+		]
+		for pt in river_points:
+			# Calcular tangentes suaves para Bézier (escala 0.4 del intervalo promedio)
+			curve.add_point(pt)
+		# Ajustar tangentes para que las curvas sean suaves (not angular)
+		for i in range(1, curve.point_count - 1):
+			var prev: Vector3 = curve.get_point_position(i - 1)
+			var next: Vector3 = curve.get_point_position(i + 1)
+			var tangent: Vector3 = (next - prev).normalized() * 18.0
+			curve.set_point_in(i, -tangent)
+			curve.set_point_out(i, tangent)
 		# Saltamos la cola trasera: la cámara empieza en Z=0 (200 m desde el inicio de la curva).
 		cart.progress = 200.0
-
-	var mat1 = StandardMaterial3D.new(); mat1.albedo_color = Color(0.56, 0.93, 0.56)
-	$Zona1.set_surface_override_material(0, mat1)
-	var mat2 = StandardMaterial3D.new(); mat2.albedo_color = Color(0.48, 0.56, 0.15)
-	$Zona2.set_surface_override_material(0, mat2)
-	var mat3 = StandardMaterial3D.new(); mat3.albedo_color = Color(0.20, 0.20, 0.20)
-	$Zona3.set_surface_override_material(0, mat3)
-	var mat4 = StandardMaterial3D.new(); mat4.albedo_color = Color(0.05, 0.05, 0.05)
-	$Zona4.set_surface_override_material(0, mat4)
 
 # =========================================================
 # _build_environment
@@ -356,9 +522,6 @@ func _build_environment() -> void:
 			_update_water_zone(1)
 			print("Water: watershader2.gdshader aplicado y posicionado correctamente (80×820 m).")
 
-	_build_back_wall()
-	_build_front_wall()
-
 	print("Environment: listo.")
 
 
@@ -379,52 +542,86 @@ func _build_environment() -> void:
 # Se cierra en Y=-6.0 para crear un sólido opaco.
 # =========================================================
 func _build_valley_terrain() -> CSGPolygon3D:
-	# ---- Polygon cross-section ----
-	# Points defined counter-clockwise so the top face is outward.
+	# ---- Polygon cross-section — Arroyo Ludueña (datos reales) ----
+	# Canal canalizado: base 18 m de ancho, profundidad 2.5 m, taludes 1:1.
+	# Superficie del agua: Y=0  |  Lecho: Y=-2.5  |  Cámara: Y=-1.25
+	# Talud 1:1: por cada 1m de profundidad → 1m horizontal.
+	#   Cima del talud izq: X = -9 - 2.5 = -11.5, Y=0
+	#   Sobre el talud hay una llanura suave hasta el borde del encuadre.
+	#
+	#  -55  -35  -25  -16  -11.5   -9          9   11.5  16   25   35   55  ← X (m)
+	#   ●────●────●────●                              ●────●────●────●        ← Llanura (Y≈2.0)
+	#                   \                            /
+	#                    ● (Y=0) talud 1:1          ● (Y=0)
+	#                     \                        /
+	#                      ●──────────────────────●                           ← Lecho (Y=-2.5, 18m base)
+	#
 	# X = river width axis, Y = vertical elevation.
 	var profile := PackedVector2Array([
-		# Top surface — left to right
-		Vector2(-55.0, 2.0), # llanura izquierda, borde exterior
-		Vector2(-18.0, 2.0), # cima barranca izquierda
-		Vector2(-9.5, -1.0), # pie barranca izquierda
-		Vector2(-8.0, -1.5), # lecho izquierdo
-		Vector2(8.0, -1.5),  # lecho derecho
-		Vector2(9.5, -1.0), # pie barranca derecha
-		Vector2(18.0, 2.0), # cima barranca derecha
-		Vector2(55.0, 2.0), # llanura derecha, borde exterior
-		# Close the solid body below ground
-		Vector2(55.0, -6.0),
-		Vector2(-55.0, -6.0),
+		# Llanura amplia izquierda (planicie pampeana) — más alta y pronunciada
+		Vector2(-100.0, 3.0), # borde exterior lejano
+		Vector2(-35.0, 3.0),
+		Vector2(-25.0, 3.0),
+		Vector2(-16.0, 2.5), # inicio descenso suave hacia el canal
+		# Cima del talud 1:1 al nivel del agua (Y=0)
+		Vector2(-11.5, 0.0), # borde superior del talud izq. (agua surface)
+		# Talud 1:1 izquierdo: -2.5m en 2.5m horizontal
+		Vector2(-9.0, -2.5), # borde izquierdo del lecho
+		# Lecho subdividido: 7 puntos intermedios para vertex displacement
+		Vector2(-6.75, -2.5),
+		Vector2(-4.5, -2.5),
+		Vector2(-2.25, -2.5),
+		Vector2(0.0, -2.5), # centro del lecho
+		Vector2(2.25, -2.5),
+		Vector2(4.5, -2.5),
+		Vector2(6.75, -2.5),
+		Vector2(9.0, -2.5), # borde derecho del lecho
+		# Talud 1:1 derecho (espejo)
+		Vector2(11.5, 0.0), # borde superior del talud der.
+		Vector2(16.0, 2.5), # suave transición a llanura
+		Vector2(25.0, 3.0),
+		Vector2(35.0, 3.0),
+		Vector2(100.0, 3.0), # borde exterior lejano
+		# Cierra el sólido bajo tierra
+		Vector2(100.0, -8.0),
+		Vector2(-100.0, -8.0),
 	])
 
-	# ---- Material: pampa soil con textura triplanar y mapa de normales procedural ----
-	var terrain_mat := StandardMaterial3D.new()
-	var floor_tex: Texture2D = load("res://assets/models/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg") as Texture2D
-	if floor_tex:
-		terrain_mat.albedo_texture = floor_tex
-		terrain_mat.uv1_triplanar = true
-		terrain_mat.uv1_triplanar_sharpness = 4.0
-		terrain_mat.uv1_scale = Vector3(0.2, 0.2, 0.2)
-	else:
-		terrain_mat.albedo_color = Color(0.55, 0.42, 0.26, 1.0) # fallback tierra pampeana
+	# ---- Material: ShaderMaterial multi-zona con transición gradual entre suelos ----
+	# terrain_zones.gdshader mezcla 4 texturas según WORLD_POSITION.z con smoothstep.
+	# Zona1 (Z=0→-70): sandy gravel | Zona2 (Z=-70→-140): forest ground
+	# Zona3 (Z=-140→-210): brown mud | Zona4 (Z=-210→-294): mismo que Zona3
+	# Transición gradual de ±12 m en los bordes de zona (invisible al usuario).
+	var terrain_shader: Shader = load("res://resources/shaders/terrain_zones.gdshader")
+	var terrain_mat := ShaderMaterial.new()
+	terrain_mat.shader = terrain_shader
 
-	# Ruido Simplex 2D aplicado directamente como mapa de normales al terreno (ondulaciones orgánicas no repetitivas)
-	var noise := FastNoiseLite.new()
-	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
-	noise.frequency = 0.05
-	noise.fractal_octaves = 3
+	# Texturas de suelo por zona (triplanar con anti-tiling en todas las zonas)
+	var tex1: Texture2D = load("res://assets/models/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg")
+	var tex2: Texture2D = load("res://assets/models/Suelo_Zona2_forest_ground_06_diff_2k.jpg")
+	var tex3: Texture2D = load("res://assets/models/Suelo_Zona3_brown_mud_03_diff_2k.jpg")
+	var tex_bank: Texture2D = load("res://assets/models/BordeDelRio_coast_sand_rocks_02_diff_2k.jpg")
+	if tex1: terrain_mat.set_shader_parameter("tex_zona1", tex1)
+	if tex2: terrain_mat.set_shader_parameter("tex_zona2", tex2)
+	if tex3: terrain_mat.set_shader_parameter("tex_zona3", tex3)
+	if tex_bank: terrain_mat.set_shader_parameter("tex_bank", tex_bank)
 
-	var noise_tex := NoiseTexture2D.new()
-	noise_tex.noise = noise
-	noise_tex.as_normal_map = true
-	noise_tex.bump_strength = 10.0
+	# Normal map desactivado — el bump_strength alto generaba sombras oscuras artificiales.
+	# La rugosidad visual se logra únicamente con roughness=0.95 (material PBR mate).
+	terrain_mat.set_shader_parameter("normal_scale", 0.0)
 
-	terrain_mat.normal_enabled = true
-	terrain_mat.normal_texture = noise_tex
-	terrain_mat.normal_scale = 1.4
-
-	terrain_mat.roughness = 0.95
-	terrain_mat.metallic = 0.0
+	# Parámetros de mezcla
+	terrain_mat.set_shader_parameter("uv_scale", 0.2)
+	terrain_mat.set_shader_parameter("z_blend_z1z2", -70.0) # centro transición Z1→Z2
+	terrain_mat.set_shader_parameter("z_blend_z2z3", -140.0) # centro transición Z2→Z3
+	terrain_mat.set_shader_parameter("z_blend_z3z4", -210.0) # centro transición Z3→Z4
+	terrain_mat.set_shader_parameter("blend_half_width", 12.0) # ±12 m de transición suave
+	terrain_mat.set_shader_parameter("roughness", 0.95)
+	# Vertex displacement del lecho (hundimientos y elevaciones procedurales)
+	terrain_mat.set_shader_parameter("displacement_strength", 0.8) # ±0.8 m de relieve visible
+	terrain_mat.set_shader_parameter("displacement_frequency", 0.10) # frecuencia espacial
+	terrain_mat.set_shader_parameter("bank_height_strength", 1.2) # ±1.2 m variación de barranca por zona
+	print("Terrain: ShaderMaterial multi-zona cargado (Z1=sandy, Z2=forest, Z3/Z4=mud).")
 
 	# ---- CSGPolygon3D in PATH mode ----
 	var valley := CSGPolygon3D.new()
@@ -433,106 +630,49 @@ func _build_valley_terrain() -> CSGPolygon3D:
 	valley.mode = CSGPolygon3D.MODE_PATH
 	valley.path_rotation = CSGPolygon3D.PATH_ROTATION_POLYGON
 	valley.path_interval_type = CSGPolygon3D.PATH_INTERVAL_DISTANCE
-	valley.path_interval = 3.0
+	valley.path_interval = 2.0  # mayor resolución longitudinal para vertex displacement
 	valley.smooth_faces = true
 	valley.path_continuous_u = true
 	valley.path_u_distance = 10.0
 	valley.material = terrain_mat
+	valley.use_collision = true   # Habilita Snap to Floor (Shift+Fin) en el editor
 	valley.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	add_child(valley)
 	valley.path_node = valley.get_path_to($RiverPath)
 	print("Valley: CSGPolygon3D terrain creado a lo largo del RiverPath.")
+
 	return valley
 
-# =========================================================
-# _build_back_wall — Talud natural de fondo en Z=+195..+200
-# =========================================================
-# Crea una elevación suave y redondeada de tierra pampeana al final del canal
-# para cerrar el horizonte de forma 100% natural y sin formas cuadradas.
-func _build_back_wall() -> void:
-	var terrain_mat := StandardMaterial3D.new()
-	var floor_tex: Texture2D = load("res://assets/models/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg") as Texture2D
-	if floor_tex:
-		terrain_mat.albedo_texture = floor_tex
-		terrain_mat.uv1_triplanar = true
-		terrain_mat.uv1_triplanar_sharpness = 4.0
-		terrain_mat.uv1_scale = Vector3(0.25, 0.25, 0.25)
-	else:
-		terrain_mat.albedo_color = Color(0.55, 0.42, 0.26, 1.0)
-	terrain_mat.roughness = 0.95
 
-	# Usamos domos suaves horizontales que se solapan para formar un talud/barranca natural.
-	# [posX, posY, posZ, scaleX, scaleY, scaleZ]
-	var mounds: Array = [
-		# Talud central que cierra el cauce del agua
-		[0.0, 0.5, 196.0, 30.0, 4.0, 15.0],
-		# Barranca izquierda suave
-		[-30.0, 1.2, 197.0, 35.0, 4.5, 14.0],
-		# Barranca derecha suave
-		[30.0, 1.2, 197.0, 35.0, 4.5, 14.0],
-		# Cierre de segundo plano detrás
-		[0.0, 2.0, 201.0, 70.0, 6.0, 16.0],
-	]
 
-	for m in mounds:
-		var sphere := SphereMesh.new()
-		sphere.radius = 1.0
-		sphere.height = 2.0
-		sphere.radial_segments = 24
-		sphere.rings = 12
-		sphere.material = terrain_mat
-
-		var mi := MeshInstance3D.new()
-		mi.name = "NaturalBank"
-		mi.mesh = sphere
-		mi.position = Vector3(m[0], m[1], m[2])
-		mi.scale = Vector3(m[3], m[4], m[5])
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		add_child(mi)
-
-	print("Back Wall: talud natural de fondo creado en Z=+196..+201.")
 
 # =========================================================
-# _build_front_wall — Talud natural de fondo frontal en Z=-615..-621
+# _input — CONTROL DE CÁMARA LIBRE (integrado en Main)
 # =========================================================
-# Crea una elevación suave de tierra pampeana al final del tramo extendido
-# para cerrar el horizonte delantero de forma 100% natural.
-func _build_front_wall() -> void:
-	var terrain_mat := StandardMaterial3D.new()
-	var floor_tex: Texture2D = load("res://assets/models/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg") as Texture2D
-	if floor_tex:
-		terrain_mat.albedo_texture = floor_tex
-		terrain_mat.uv1_triplanar = true
-		terrain_mat.uv1_triplanar_sharpness = 4.0
-		terrain_mat.uv1_scale = Vector3(0.25, 0.25, 0.25)
-	else:
-		terrain_mat.albedo_color = Color(0.25, 0.18, 0.12, 1.0)
-	terrain_mat.roughness = 0.95
+func _input(event: InputEvent) -> void:
+	if not _fl_camera:
+		return
+	if Engine.is_editor_hint():
+		return
 
-	var mounds: Array = [
-		[0.0, 0.5, -490.0, 30.0, 4.0, 15.0],
-		[-30.0, 1.2, -491.0, 35.0, 4.5, 14.0],
-		[30.0, 1.2, -491.0, 35.0, 4.5, 14.0],
-		[0.0, 2.0, -495.0, 70.0, 6.0, 16.0],
-	]
+	# Activar arrastre con clic izquierdo o derecho del mouse
+	if event is InputEventMouseButton:
+		var btn := (event as InputEventMouseButton).button_index
+		if btn == MOUSE_BUTTON_LEFT or btn == MOUSE_BUTTON_RIGHT:
+			_fl_dragging = (event as InputEventMouseButton).pressed
 
-	for m in mounds:
-		var sphere := SphereMesh.new()
-		sphere.radius = 1.0
-		sphere.height = 2.0
-		sphere.radial_segments = 24
-		sphere.rings = 12
-		sphere.material = terrain_mat
+	# Rotar cámara con movimiento del mouse
+	if event is InputEventMouseMotion and _fl_dragging:
+		var rel := (event as InputEventMouseMotion).relative
+		_fl_yaw   -= rel.x * FL_MOUSE_SENS
+		_fl_pitch -= rel.y * FL_MOUSE_SENS
+		_fl_pitch = clamp(_fl_pitch, deg_to_rad(-FL_PITCH_LIMIT), deg_to_rad(FL_PITCH_LIMIT))
 
-		var mi := MeshInstance3D.new()
-		mi.name = "FrontNaturalBank"
-		mi.mesh = sphere
-		mi.position = Vector3(m[0], m[1], m[2])
-		mi.scale = Vector3(m[3], m[4], m[5])
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		add_child(mi)
-
-	print("Front Wall: talud natural frontal creado en Z=-490..-495.")
+	# Escape: soltar el arrastre
+	if event is InputEventKey:
+		var ke := event as InputEventKey
+		if ke.pressed and ke.keycode == KEY_ESCAPE:
+			_fl_dragging = false
 
 # =========================================================
 # _process — STATE MACHINE
@@ -574,7 +714,7 @@ func _process(delta: float) -> void:
 			print("→ UNDERWATER")
 
 	# Animación suave de elevación vertical a la superficie durante pausas (sin modificar el terreno)
-	var target_v: float = 2.0 if _state == State.SURFACE_PAUSE else 0.0
+	var target_v: float = surface_height_offset if _state == State.SURFACE_PAUSE else 0.0
 	_current_v_offset = lerp(_current_v_offset, target_v, LERP_SPEED * delta)
 	cart.v_offset = _current_v_offset
 
@@ -586,19 +726,14 @@ func _process(delta: float) -> void:
 	if _is_underwater != _was_underwater:
 		_was_underwater = _is_underwater
 		if _is_underwater:
-			# AL SUMERGIRSE: Aplicar tinte e iluminación subacuática INSTANTÁNEAMENTE en el primer frame
-			if _tint_mat:
-				var uw_col: Color = ZONE_UW_FOG_COLOR[cur_zone]
-				_tint_mat.albedo_color = Color(uw_col.r, uw_col.g, uw_col.b, ZONE_TINT_ALPHA[cur_zone])
+			# AL SUMERGIRSE: Iluminación subacuática e inicio de partículas INSTANTÁNEO
 			_current_ambient = ZONE_UW_AMBIENT_ENERGY[cur_zone]
 			_current_ambient_col = ZONE_UW_AMBIENT_COLOR[cur_zone]
 			for p in _particle_nodes:
 				p.emitting = true
 				p.visible = true
 		else:
-			# AL EMERGER: Eliminar tinte y ocultar partículas INSTANTÁNEAMENTE
-			if _tint_mat:
-				_tint_mat.albedo_color = Color(_tint_mat.albedo_color.r, _tint_mat.albedo_color.g, _tint_mat.albedo_color.b, 0.0)
+			# AL EMERGER: Restaurar iluminación de superficie y ocultar partículas
 			_current_ambient = SF_AMBIENT_ENERGY
 			_current_ambient_col = SF_AMBIENT_COLOR
 			for p in _particle_nodes:
@@ -606,9 +741,11 @@ func _process(delta: float) -> void:
 				p.visible = false
 				p.restart()
 
-	# Targets visuales (ambient)
+	# Targets visuales (ambient y neblina WorldEnvironment)
 	var t_amb: float
 	var t_amb_col: Color
+	var target_fog_density: float = ZONE_UW_FOG_DENSITY[cur_zone]
+	var target_fog_col: Color = ZONE_UW_FOG_COLOR[cur_zone]
 
 	if _is_underwater:
 		t_amb = ZONE_UW_AMBIENT_ENERGY[cur_zone]
@@ -617,9 +754,11 @@ func _process(delta: float) -> void:
 		t_amb = SF_AMBIENT_ENERGY
 		t_amb_col = SF_AMBIENT_COLOR
 
-	# Interpolar ambient
+	# Interpolar ambient y neblina
 	_current_ambient = lerp(_current_ambient, t_amb, LERP_SPEED * delta)
 	_current_ambient_col = _current_ambient_col.lerp(t_amb_col, LERP_SPEED * delta)
+	_current_fog_density = lerp(_current_fog_density, target_fog_density, LERP_SPEED * delta)
+	_current_fog_col = _current_fog_col.lerp(target_fog_col, LERP_SPEED * delta)
 
 	# Aplicar Environment
 	var env = $WorldEnvironment.environment
@@ -628,9 +767,14 @@ func _process(delta: float) -> void:
 		env.ambient_light_energy = _current_ambient
 		if _is_underwater:
 			env.background_mode = Environment.BG_COLOR
-			env.background_color = ZONE_UW_BG_COLOR[cur_zone]
-			env.fog_enabled = false
+			env.background_color = _current_fog_col
+			# Neblina subacuática de WorldEnvironment activa: densidad progresiva y color de agua turbia
+			env.fog_enabled = true
+			env.fog_mode = Environment.FOG_MODE_EXPONENTIAL
+			env.fog_light_color = _current_fog_col
+			env.fog_density = _current_fog_density
 		else:
+			# En superficie: deshabilitar neblina por completo para no alterar la visión exterior
 			env.background_mode = Environment.BG_SKY
 			env.fog_enabled = false
 
@@ -640,21 +784,6 @@ func _process(delta: float) -> void:
 		var target_light: float = lt[cur_zone] if _is_underwater else 0.6
 		$DirectionalLight3D.light_energy = lerp(
 			$DirectionalLight3D.light_energy, target_light, LERP_SPEED * delta)
-
-	# Tinte de pantalla (esfera unlit en la cámara)
-	if _tint_mat:
-		if _is_underwater:
-			var target_alpha: float = ZONE_TINT_ALPHA[cur_zone]
-			var uw_col: Color = ZONE_UW_FOG_COLOR[cur_zone]
-			var cur: Color = _tint_mat.albedo_color
-			_tint_mat.albedo_color = Color(
-				lerp(cur.r, uw_col.r, LERP_SPEED * delta),
-				lerp(cur.g, uw_col.g, LERP_SPEED * delta),
-				lerp(cur.b, uw_col.b, LERP_SPEED * delta),
-				lerp(cur.a, target_alpha, LERP_SPEED * delta)
-			)
-		else:
-			_tint_mat.albedo_color = Color(_tint_mat.albedo_color.r, _tint_mat.albedo_color.g, _tint_mat.albedo_color.b, 0.0)
 
 	# Partículas (sedimento/burbujas subacuáticas)
 	if _particle_proc and _particle_mat:
@@ -678,11 +807,30 @@ func _process(delta: float) -> void:
 					p.visible = false
 					p.restart()
 
-	# Restaurar FOV fijo de la cámara (el campo de visión de distancia se maneja con la niebla de turbidez)
-	if has_node("RiverPath/UserCart/FlatCamera"):
-		$RiverPath/UserCart/FlatCamera.fov = _base_fov
+	# Restaurar FOV fijo de la cámara
 	if has_node("RiverPath/UserCart/XROrigin3D/XRCamera3D"):
 		$RiverPath/UserCart/XROrigin3D/XRCamera3D.fov = _base_fov
+
+	# Teclado WASD / Flechas para rotar la cámara libre
+	if _fl_camera:
+		var fl_turn  := 0.0
+		var fl_pitch := 0.0
+		if Input.is_key_pressed(KEY_LEFT)  or Input.is_key_pressed(KEY_A):
+			fl_turn += FL_KEY_SPEED * delta
+		if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D):
+			fl_turn -= FL_KEY_SPEED * delta
+		if Input.is_key_pressed(KEY_UP)    or Input.is_key_pressed(KEY_W):
+			fl_pitch += FL_KEY_SPEED * delta
+		if Input.is_key_pressed(KEY_DOWN)  or Input.is_key_pressed(KEY_S):
+			fl_pitch -= FL_KEY_SPEED * delta
+		_fl_yaw   += fl_turn
+		_fl_pitch  = clamp(_fl_pitch + fl_pitch, deg_to_rad(-FL_PITCH_LIMIT), deg_to_rad(FL_PITCH_LIMIT))
+
+	# La FlatCamera ahora está en la raíz de la escena (no es hija del PathFollow3D).
+	# Copiamos SOLO la posición global del carro, y aplicamos nuestra propia rotación libre.
+	if _fl_camera:
+		_fl_camera.global_position = cart.global_position
+		_fl_camera.rotation = Vector3(_fl_pitch, _fl_yaw, 0.0)
 
 
 # =========================================================
@@ -695,7 +843,9 @@ func _zone_from_ratio(r: float) -> int:
 	else: return 4
 
 func _on_zone_changed(new_zone: int) -> void:
-	print("Zona: %d — %s" % [new_zone, WaterManager.get_zone_name()])
+	var density: float = ZONE_UW_FOG_DENSITY[new_zone]
+	var vis_dist: float = 3.0 / density if density > 0.0 else 0.0
+	print("→ ZONA %d: %s | Neblina Densidad: %.3f | Visibilidad Alcance: ~%.0f metros" % [new_zone, WaterManager.get_zone_name(), density, vis_dist])
 	_update_water_zone(new_zone)
 
 # Paleta de superficie del agua por zona (marrón pampeano para watershader2.gdshader)
@@ -748,9 +898,9 @@ func _update_water_zone(zone: int) -> void:
 		mat.set_shader_parameter("roughness", roughness_by_zone[z])
 	print("Water: zona %d — superficie actualizada en watershader2.gdshader." % z)
 
-func _on_metrics_updated(wqi: float, do_val: float, turb_val: float) -> void:
-	var turb_pct: float = turb_val * 100.0
-	print("ICA (WQI)=%.1f | OD=%.2f mg/L | Turbidez (Visibilidad)=%.0f%%" % [wqi, do_val, turb_pct])
+func _on_metrics_updated(wqi: float, do_val: float, _turb_val: float) -> void:
+	var vis_m: float = WaterManager.get_metric_value("visibility", WaterManager.progress_ratio)
+	print("ICA (WQI)=%.1f | OD=%.2f mg/L | Neblina Densidad=%.3f | Visibilidad Alcance=~%.0f m" % [wqi, do_val, _current_fog_density, vis_m])
 
 # =========================================================
 # _find_mesh_instance — busca recursivamente el primer MeshInstance3D

@@ -10,47 +10,47 @@ signal metrics_updated(wqi: float, do: float, turbidez: float)
 # Constant configuration metrics per zone
 const ZONE_METRICS = {
 	1: {
-		"name": "Baseline (Low Pollution)",
+		"name": "Baseline (Baja Contaminación)",
 		"wqi_min": 85.0,
 		"wqi_max": 90.0,
 		"do_min": 8.0,
 		"do_max": 8.5,
 		"flow_speed": 2.0,
-		"visibility_min": 0.4,
-		"visibility_max": 0.6,
+		"visibility_min": 120.0,
+		"visibility_max": 160.0,
 		"turbidez": 1.0
 	},
 	2: {
-		"name": "Agricultural/Livestock",
+		"name": "Agrícola / Ganadero",
 		"wqi_min": 60.0,
 		"wqi_max": 70.0,
 		"do_min": 6.0,
 		"do_max": 8.0,
 		"flow_speed": 1.2,
-		"visibility_min": 0.2,
-		"visibility_max": 0.3,
+		"visibility_min": 70.0,
+		"visibility_max": 90.0,
 		"turbidez": 0.75
 	},
 	3: {
-		"name": "Peri-urban/Agro-industrial",
+		"name": "Periurbano / Agroindustrial",
 		"wqi_min": 35.0,
 		"wqi_max": 45.0,
 		"do_min": 3.0,
 		"do_max": 5.0,
 		"flow_speed": 0.6,
-		"visibility_min": 0.0,
-		"visibility_max": 0.1,
+		"visibility_min": 40.0,
+		"visibility_max": 60.0,
 		"turbidez": 0.50
 	},
 	4: {
-		"name": "Critical Chemical (Closure)",
+		"name": "Químico Crítico (Cierre)",
 		"wqi_min": 5.0,
 		"wqi_max": 20.0,
 		"do_min": 0.5,
 		"do_max": 2.0,
 		"flow_speed": 0.1,
-		"visibility_min": 0.0,
-		"visibility_max": 0.0,
+		"visibility_min": 15.0,
+		"visibility_max": 20.0,
 		"turbidez": 0.30
 	}
 }

@@ -1,0 +1,82 @@
+===============================================================================
+               MAPA DE NAVEGACION - PROYECTO ECOAGUA UNR
+                     Simulación Arroyo Ludueña (2 min)
+===============================================================================
+
+RESUMEN DEL RECORRIDO TOTAL
+-------------------------------------------------------------------------------
+Duración total: 120 segundos (2 minutos)
+Distancia activa: 294 metros (Z = 0 m  a  Z = -294 m)
+Pausas en superficie: 3 pausas de 10 segundos cada una (30 segundos en total)
+Velocidad de avance: 3.27 m/s (en movimiento)
+
+
+===============================================================================
+1. TIEMPOS Y ESTADOS POR ZONA
+===============================================================================
+
+ZONA 1 (Z = 0 m a Z = -70 m) - Claridad e Inicio
+-------------------------------------------------------------------------------
+- Tiempo en la zona: 21.5 segundos (del segundo 0 al 21.5)
+- Estado: 100% BAJO EL AGUA
+- Características: Agua marrón clara ("té con leche diluido"), navegación 
+  continua sin salir a la superficie.
+
+
+ZONA 2 (Z = -70 m a Z = -140 m) - Transición
+-------------------------------------------------------------------------------
+- Tiempo total en la zona: 31.5 segundos (del segundo 21.5 al 53.0)
+- Cronograma:
+    * 21.5s a 32.2s  (10.7s) : Navegación bajo el agua.
+    * 32.2s a 42.2s  (10.0s) : SALIDA 1 A LA SUPERFICIE (Pausa en Z = -105 m).
+    * 42.2s a 53.0s  (10.7s) : Reingreso y navegación bajo el agua.
+
+
+ZONA 3 (Z = -140 m a Z = -210 m) - Contaminación Moderada
+-------------------------------------------------------------------------------
+- Tiempo total en la zona: 31.5 segundos (del segundo 53.0 al 84.5)
+- Cronograma:
+    * 53.0s a 63.7s  (10.7s) : Navegación bajo el agua.
+    * 63.7s a 73.7s  (10.0s) : SALIDA 2 A LA SUPERFICIE (Pausa en Z = -175 m).
+    * 73.7s a 84.5s  (10.7s) : Reingreso y navegación bajo el agua.
+
+
+ZONA 4 (Z = -210 m a Z = -294 m) - Contaminación Alta
+-------------------------------------------------------------------------------
+- Tiempo total en la zona: 35.5 segundos (del segundo 84.5 al 120.0)
+- Cronograma:
+    *  84.5s a  95.2s (10.7s) : Navegación bajo el agua.
+    *  95.2s a 105.2s (10.0s) : SALIDA 3 A LA SUPERFICIE (Pausa en Z = -245 m).
+    * 105.2s a 120.0s (14.8s) : Reingreso y navegación final bajo el agua.
+    * Segundo 120.0            : LLEGADA Y FIN DEL RECORRIDO (Z = -294 m).
+
+
+===============================================================================
+2. RESUMEN DE SALIDAS A LA SUPERFICIE (CHECKPOINTS)
+===============================================================================
+
+- SALIDA 1 (Segundo 32.2 | Z = -105 m):
+  Sube a la superficie durante 10 segundos para observar el paisaje y la orilla.
+
+- SALIDA 2 (Segundo 63.7 | Z = -175 m):
+  Sube a la superficie durante 10 segundos en el tramo intermedio del río.
+
+- SALIDA 3 (Segundo 95.2 | Z = -245 m):
+  Última salida a la superficie durante 10 segundos en el tramo más degradado.
+
+
+===============================================================================
+3. CRONOGRAMA LINEAL SEGUNDO A SEGUNDO
+===============================================================================
+
+[ 00.0s - 21.5s ]  Bajo agua  | Zona 1  | 21.5s bajo agua continua
+[ 21.5s - 32.2s ]  Bajo agua  | Zona 2  | 10.7s bajo agua
+[ 32.2s - 42.2s ]  SUPERFICIE | Zona 2  | PAUSA 1 (10s al aire)
+[ 42.2s - 53.0s ]  Bajo agua  | Zona 2  | 10.7s bajo agua
+[ 53.0s - 63.7s ]  Bajo agua  | Zona 3  | 10.7s bajo agua
+[ 63.7s - 73.7s ]  SUPERFICIE | Zona 3  | PAUSA 2 (10s al aire)
+[ 73.7s - 84.5s ]  Bajo agua  | Zona 3  | 10.7s bajo agua
+[ 84.5s - 95.2s ]  Bajo agua  | Zona 4  | 10.7s bajo agua
+[ 95.2s - 105.2s]  SUPERFICIE | Zona 4  | PAUSA 3 (10s al aire)
+[105.2s - 120.0s]  Bajo agua  | Zona 4  | 14.8s bajo agua hasta el final
+===============================================================================

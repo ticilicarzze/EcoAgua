@@ -8,27 +8,30 @@
 [ext_resource type="Texture2D" uid="uid://bfa4xeh5thwio" path="res://assets/textures/water/normal_A.png" id="5_kek77"]
 [ext_resource type="Texture2D" uid="uid://dpwv0qf6tb7we" path="res://assets/textures/water/normal_B.png" id="6_4c57u"]
 [ext_resource type="Script" uid="uid://bynsjwun060cg" path="res://scripts/WaterVisualController.gd" id="7_water_ctrl"]
+[ext_resource type="Script" uid="uid://242lg4sampay" path="res://scripts/HUDController.gd" id="8_hud_ctrl"]
+[ext_resource type="PackedScene" uid="uid://dxjetpy830q13" path="res://assets/models/ZONA1/Fauna acuática/Mojarra_animacion.glb" id="10_choun"]
+[ext_resource type="Script" uid="uid://bquu6qhd164yc" path="res://scripts/MojarraAnimada.gd" id="11_mojarra_script"]
+[ext_resource type="PackedScene" uid="uid://ccujb410togyy" path="res://assets/models/ZONA1/Vegetación ribereña/Graminea_pampeana.glb" id="12_eb6dy"]
+[ext_resource type="PackedScene" uid="uid://eawhk3jxl62w" path="res://assets/models/ZONA1/Vegetacion Acuática/Ceratophyllum.glb" id="13_trceg"]
+[ext_resource type="PackedScene" uid="uid://bcdy8lcg65f51" path="res://assets/models/ZONA1/Vegetacion Acuática/Alga_filamentosa.glb" id="14_a8y0u"]
+[ext_resource type="PackedScene" uid="uid://csnwpeupmawsr" path="res://assets/models/ZONA1/Vegetacion Acuática/Rama_grupo.glb" id="14_og1vs"]
+[ext_resource type="PackedScene" uid="uid://dp0g423eqdvl" path="res://assets/models/ZONA1/Vegetación ribereña/Ceibo.glb" id="15_jkv2x"]
+[ext_resource type="PackedScene" uid="uid://cp6pivt8jpkia" path="res://assets/models/ZONA1/Vegetación ribereña/Junco.glb" id="16_0ld40"]
+[ext_resource type="PackedScene" uid="uid://b0jgyhgjk6j03" path="res://assets/models/ZONA1/Vegetacion Acuática/Rama_sola.glb" id="16_2wyq8"]
+[ext_resource type="PackedScene" uid="uid://cfk4gm0gunuei" path="res://assets/models/ZONA1/Vegetación ribereña/Pastizales_altos_pampeanos.glb" id="17_gqmmt"]
+[ext_resource type="PackedScene" uid="uid://bd5x0vjad48mo" path="res://assets/models/ZONA1/Vegetación ribereña/Piedra.glb" id="18_yc10j"]
+[ext_resource type="PackedScene" uid="uid://11r0vp6rcy8j" path="res://assets/models/ZONA1/Vegetación ribereña/Sauce_criollo.glb" id="19_jscy8"]
+[ext_resource type="PackedScene" uid="uid://duwcxodfp1vxt" path="res://assets/models/ZONA1/Vegetación ribereña/Totoras.glb" id="20_yc10j"]
+[ext_resource type="PackedScene" uid="uid://dle4lhbmcy0io" path="res://assets/models/ZONA1/Vegetacion Acuática/Lenteja_de_agua_dispersa_2.glb" id="21_jscy8"]
+[ext_resource type="PackedScene" uid="uid://dkh3yeivu0uci" path="res://assets/models/ZONA1/Fauna acuática/dientudo_animacion.glb" id="24_vxglm"]
+[ext_resource type="PackedScene" uid="uid://dhmnjpdihg8ky" path="res://assets/models/ZONA1/Fauna acuática/bagre_animacion.glb" id="25_2f3dj"]
 
 [sub_resource type="Curve3D" id="Curve3D_7dm0k"]
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, -0.5, 200, 0, 0, 0, 0, 0, 0, 0, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -294, 0, 0, 0, 0, 0, 0, 0, -0.5, -494),
-"tilts": PackedFloat32Array(0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, -1.25, 200, 0.5996669, 0, 17.990007, -0.5996669, 0, -17.990007, 3, -1.25, 140, -0.29995835, 0, 17.997501, 0.29995835, 0, -17.997501, -4, -1.25, 80, -0.8988771, 0, 17.977543, 0.8988771, 0, -17.977543, 5, -1.25, 20, 2.2326252, 0, 17.861002, -2.2326252, 0, -17.861002, 0, -1.25, 0, -0.5996669, 0, 17.990007, 0.5996669, 0, -17.990007, -5, -1.25, -60, -0.28796312, 0, 17.997696, 0.28796312, 0, -17.997696, 4, -1.25, -120, -0.13845745, 0, 17.999468, 0.13845745, 0, -17.999468, -3, -1.25, -185, -0.16513067, 0, 17.999243, 0.16513067, 0, -17.999243, 5, -1.25, -250, 0.2768903, 0, 17.99787, -0.2768903, 0, -17.99787, -2, -1.25, -294, -0.179991, 0, 17.999102, 0.179991, 0, -17.999102, 3, -1.25, -380, 0, 0, 0, 0, 0, 0, 0, -1.25, -494),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 }
-point_count = 4
-
-[sub_resource type="BoxMesh" id="BoxMesh_1bvp3"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tipki"]
-albedo_color = Color(0.56, 0.93, 0.56, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_85g3d"]
-albedo_color = Color(0.48, 0.56, 0.15, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_choun"]
-albedo_color = Color(0.2, 0.2, 0.2, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ya4ey"]
-albedo_color = Color(0.05, 0.05, 0.05, 1)
+point_count = 12
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_efxa6"]
 noise_type = 3
@@ -96,7 +99,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_eb6dy"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_og1vs"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -119,45 +122,21 @@ sky_mode = 1
 curve = SubResource("Curve3D_7dm0k")
 
 [node name="UserCart" type="PathFollow3D" parent="RiverPath" unique_id=93584630]
-transform = Transform3D(1, 0, 0, 0, 0.9999986, 0, 0, 0, 0.9999986, 0, -0.5, 6.272271e-05)
+transform = Transform3D(0.98601735, 0, 0.16664053, 0, 0.9999986, 0, -0.16664101, 0, 0.9860146, 0.4119924, -1.25, 2.8415756)
 progress = 200.0
 
 [node name="XROrigin3D" type="XROrigin3D" parent="RiverPath/UserCart" unique_id=1131666848]
 
 [node name="XRCamera3D" type="XRCamera3D" parent="RiverPath/UserCart/XROrigin3D" unique_id=575449452]
 
-[node name="FlatCamera" type="Camera3D" parent="RiverPath/UserCart" unique_id=566066147]
+[node name="FlatCamera" type="Camera3D" parent="." unique_id=566066147]
 current = true
-
-[node name="Zona1" type="MeshInstance3D" parent="." unique_id=1820552780]
-transform = Transform3D(1.0000005, -3.3527602e-08, 0, 7.636845e-08, 1.0000006, 0, 8.9406946e-08, -3.129243e-07, 0.9999998, 0, 0, -35)
-visible = false
-mesh = SubResource("BoxMesh_1bvp3")
-surface_material_override/0 = SubResource("StandardMaterial3D_tipki")
-
-[node name="Zona2" type="MeshInstance3D" parent="." unique_id=1575534655]
-transform = Transform3D(1.0000007, -3.352761e-08, 0, 7.636845e-08, 1.0000006, 0, 8.940696e-08, -3.1292436e-07, 0.99999994, 0, 0, -105)
-visible = false
-mesh = SubResource("BoxMesh_1bvp3")
-surface_material_override/0 = SubResource("StandardMaterial3D_85g3d")
-
-[node name="Zona3" type="MeshInstance3D" parent="." unique_id=1657539988]
-transform = Transform3D(1.0000007, -3.352761e-08, 0, 7.636845e-08, 1.0000006, 0, 8.940696e-08, -3.1292436e-07, 0.99999994, 0, 0, -175)
-visible = false
-mesh = SubResource("BoxMesh_1bvp3")
-surface_material_override/0 = SubResource("StandardMaterial3D_choun")
-
-[node name="Zona4" type="MeshInstance3D" parent="." unique_id=343976172]
-transform = Transform3D(1.0000007, -3.352761e-08, 0, 7.636845e-08, 1.0000006, 0, 8.940696e-08, -3.1292436e-07, 0.99999994, 0, 0, -245)
-visible = false
-mesh = SubResource("BoxMesh_1bvp3")
-surface_material_override/0 = SubResource("StandardMaterial3D_ya4ey")
 
 [node name="Water" type="MeshInstance3D" parent="." unique_id=384269620]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_eb6dy")
+mesh = SubResource("PlaneMesh_og1vs")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true
@@ -165,3 +144,342 @@ override_shallow = Color(0.026542896, 0.016090944, 0.005360369, 1)
 override_deep = Color(0.22832656, 0.14631668, 0.049382262, 1)
 override_fresnel = Color(0.33479264, 0.1898284, 0.07676139, 1)
 override_roughness = 0.56
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1559939218]
+script = ExtResource("8_hud_ctrl")
+
+[node name="Control" type="Control" parent="CanvasLayer" unique_id=381401685]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control" unique_id=1582658439]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.035
+anchor_bottom = 0.062000003
+offset_right = -0.3199997
+offset_bottom = -0.1760025
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control" unique_id=1556278839]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer" unique_id=961922053]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/Control/MarginContainer/VBoxContainer" unique_id=1898607913]
+layout_mode = 2
+text = "ICA"
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="CanvasLayer/Control/MarginContainer/VBoxContainer" unique_id=680236333]
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/Control" unique_id=1490284796]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer2" unique_id=183058597]
+layout_mode = 2
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="CanvasLayer/Control/MarginContainer2/VBoxContainer" unique_id=1711925957]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/Control/MarginContainer2/VBoxContainer/TextureProgressBar" unique_id=573442946]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/MarginContainer2/VBoxContainer" unique_id=1650886572]
+layout_mode = 2
+
+[node name="Zona1" type="Node3D" parent="." unique_id=2000000001]
+
+[node name="FaunaAcuatica" type="Node3D" parent="Zona1" unique_id=2000000002]
+
+[node name="Mojarras" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000003]
+
+[node name="mojarra-animacion-final" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=1967325715 instance=ExtResource("10_choun")]
+transform = Transform3D(8.851989, 0, -0.82117426, 0, 8.89, 0, 0.82117426, 0, 8.851989, -0.013041969, -1.8629396, -31.44965)
+script = ExtResource("11_mojarra_script")
+swim_frequency = 0.42
+
+[node name="mojarra-animacion-final2" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=628988057 instance=ExtResource("10_choun")]
+transform = Transform3D(8.405655, 0, -2.8942995, 0, 8.89, 0, 2.8942995, 0, 8.405655, -7.7736993, -1.8683261, -32.142418)
+script = ExtResource("11_mojarra_script")
+swim_amplitude = 0.22
+swim_frequency = 0.35
+
+[node name="mojarra-animacion-final3" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=114852164 instance=ExtResource("10_choun")]
+transform = Transform3D(-8.599005, 0, -2.2559075, 0, 8.89, 0, 2.2559075, 0, -8.599005, -2.3274322, -1.9385524, -24.406994)
+script = ExtResource("11_mojarra_script")
+swim_frequency = 0.42
+
+[node name="Bagres" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000004]
+
+[node name="bagre_animacion" parent="Zona1/FaunaAcuatica/Bagres" unique_id=1838174442 instance=ExtResource("25_2f3dj")]
+transform = Transform3D(9.62823, 0, 0, 0, 9.628233, 0, 0, 0, 9.62823, -1.1311778, -1.6789737, -71.83863)
+script = ExtResource("11_mojarra_script")
+patrol_range_x = 2.0
+patrol_range_z = 3.0
+patrol_speed = 0.22
+swim_amplitude = 0.15
+swim_frequency = 0.3
+
+[node name="Dientudos" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000005]
+
+[node name="dientudo_animacion" parent="Zona1/FaunaAcuatica/Dientudos" unique_id=780454754 instance=ExtResource("24_vxglm")]
+transform = Transform3D(8.731883, 0, 0, 0, 8.731888, 0, 0, 0, 8.731883, -9.290532, -2.0567968, -53.819595)
+script = ExtResource("11_mojarra_script")
+patrol_range_x = 3.0
+patrol_range_z = 4.0
+patrol_speed = 0.3
+swim_amplitude = 0.18
+
+[node name="FaunaTerrestre" type="Node3D" parent="Zona1" unique_id=2000000006]
+
+[node name="Ranas" type="Node3D" parent="Zona1/FaunaTerrestre" unique_id=2000000007]
+
+[node name="Teros" type="Node3D" parent="Zona1/FaunaTerrestre" unique_id=2000000008]
+
+[node name="Tortugas" type="Node3D" parent="Zona1/FaunaTerrestre" unique_id=2000000009]
+
+[node name="VegetacionAcuatica" type="Node3D" parent="Zona1" unique_id=2000000010]
+
+[node name="Ceratophyllum" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=2000000011]
+
+[node name="Ceratophyllum" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1476020544 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999905, 0, 0, 0, 1, 0, 0, 0, 0.99999905, -4.1887283, -4.3050766, -1.3724185)
+
+[node name="Ceratophyllum2" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1416239034 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999987, 0, 0, 0, 1, 0, 0, 0, 0.9999987, -2.5201516, -3.7498062, -5.4226384)
+
+[node name="Ceratophyllum3" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1617393520 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, 5.993567, -3.517565, 1.2464222)
+
+[node name="Ceratophyllum4" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=737344427 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, 3.2337582, -3.7498062, -1.3724183)
+
+[node name="Ceratophyllum5" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1714188299 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999988, 0, 0, 0, 1, 0, 0, 0, 0.9999988, -4.1887264, -3.7498062, -11.632003)
+
+[node name="Ceratophyllum6" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1567952954 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, -2.520151, -3.7498062, -15.682223)
+
+[node name="Ceratophyllum7" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1421972747 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 5.9935656, -3.7498062, -9.013164)
+
+[node name="Ceratophyllum8" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=658406024 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999988, 0, 0, 0, 1, 0, 0, 0, 0.9999988, 3.2337577, -3.7498062, -11.632005)
+
+[node name="LentejaDeAgua" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=2000000012]
+
+[node name="Lenteja_de_agua_dispersa_2" parent="Zona1/VegetacionAcuatica/LentejaDeAgua" unique_id=481124257 instance=ExtResource("21_jscy8")]
+transform = Transform3D(1.643739, 0, 0, 0, 1.6437399, 0, 0, 0, 1.643739, 8.822773, 0.31855202, -100.956635)
+
+[node name="Potamogeton" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=2000000013]
+
+[node name="Ramas" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=2000000014]
+
+[node name="Rama_grupo" parent="Zona1/VegetacionAcuatica/Ramas" unique_id=1025367414 instance=ExtResource("14_og1vs")]
+transform = Transform3D(-0.008076262, 0, -0.47847128, 0, 0.4785402, 0, 0.47847128, 0, -0.008076262, 2.995789, -3.6418302, -84.06488)
+
+[node name="AlgaFilamentosa" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=436761068]
+
+[node name="Alga_filamentosa" parent="Zona1/VegetacionAcuatica/AlgaFilamentosa" unique_id=327639828 instance=ExtResource("14_a8y0u")]
+transform = Transform3D(0.40999943, 0, 0, 0, 0.41, 0, 0, 0, 0.40999943, -6.79206, 0.19067311, -109.479515)
+
+[node name="Alga_filamentosa2" parent="Zona1/VegetacionAcuatica/AlgaFilamentosa" unique_id=590163067 instance=ExtResource("14_a8y0u")]
+transform = Transform3D(0.3522682, 0, 0.20977741, 0, 0.40999997, 0, -0.20977741, 0, 0.3522682, -6.7920585, 0.24810052, -109.524734)
+
+[node name="Rama_sola" parent="Zona1/VegetacionAcuatica" unique_id=1356306129 instance=ExtResource("16_2wyq8")]
+transform = Transform3D(0.8503722, 0.07903325, 0.5202106, -0.06741859, 0.996872, -0.041242972, -0.52184296, 0, 0.8530405, -5.401948, -3.5614827, -82.518166)
+
+[node name="VegetacionRiberena" type="Node3D" parent="Zona1" unique_id=2000000015]
+
+[node name="Ceibos" type="Node3D" parent="Zona1/VegetacionRiberena" unique_id=2000000016]
+
+[node name="Ceibo" parent="Zona1/VegetacionRiberena/Ceibos" unique_id=854360531 instance=ExtResource("15_jkv2x")]
+transform = Transform3D(3.5895257, 0, 1.7987546, 0, 4.015, 0, -1.7987546, 0, 3.5895257, 26.645355, 1.0590146, -102.15205)
+
+[node name="Ceibo3" parent="Zona1/VegetacionRiberena/Ceibos" unique_id=546896828 instance=ExtResource("15_jkv2x")]
+transform = Transform3D(3.589525, 0, 1.7987542, 0, 4.015, 0, -1.7987542, 0, 3.589525, 49.949306, 1.0590146, -123.0584)
+
+[node name="Ceibo2" parent="Zona1/VegetacionRiberena/Ceibos" unique_id=592769249 instance=ExtResource("15_jkv2x")]
+transform = Transform3D(3.5895233, 0, 1.7987534, 0, 4.015, 0, -1.7987534, 0, 3.5895233, -17.214249, 1.1973896, -107.910164)
+
+[node name="Cortaderas" type="Node3D" parent="Zona1/VegetacionRiberena" unique_id=2000000017]
+
+[node name="Gramineas" type="Node3D" parent="Zona1/VegetacionRiberena" unique_id=2000000018]
+
+[node name="Gramínea_pampeana_2" parent="Zona1/VegetacionRiberena/Gramineas" unique_id=717036724 instance=ExtResource("12_eb6dy")]
+transform = Transform3D(5.700415, 0, 0.71426845, 0, 5.7450004, 0, -0.71426845, 0, 5.700415, 25.344975, 1.3386049, -89.48072)
+
+[node name="Juncos" type="Node3D" parent="Zona1/VegetacionRiberena" unique_id=2000000019]
+
+[node name="Junco" parent="Zona1/VegetacionRiberena/Juncos" unique_id=286529457 instance=ExtResource("16_0ld40")]
+transform = Transform3D(3.6299999, 0, 0, 0, 3.63, 0, 0, 0, 3.6299999, 30.060455, 1.3510534, -121.85341)
+
+[node name="Pastizales" type="Node3D" parent="Zona1/VegetacionRiberena" unique_id=2000000020]
+
+[node name="Pastizales_altos_pampeanos" parent="Zona1/VegetacionRiberena/Pastizales" unique_id=193110643 instance=ExtResource("17_gqmmt")]
+transform = Transform3D(2.8099992, 0, 0, 0, 2.81, 0, 0, 0, 2.8099992, 20.77124, 1.0722389, -96.15914)
+
+[node name="Sauces" type="Node3D" parent="Zona1/VegetacionRiberena" unique_id=2000000021]
+
+[node name="Sauce_criollo" parent="Zona1/VegetacionRiberena/Sauces" unique_id=1423407734 instance=ExtResource("19_jscy8")]
+transform = Transform3D(-4.592616, 0, -3.150638, 0, 5.569447, 0, 3.150638, 0, -4.592616, -19.691399, 0.9861603, -91.30996)
+
+[node name="Sauce_criollo2" parent="Zona1/VegetacionRiberena/Sauces" unique_id=2146629217 instance=ExtResource("19_jscy8")]
+transform = Transform3D(2.905297, 0, -4.751619, 0, 5.5694475, 0, 4.751619, 0, 2.905297, -8.852019, 0.9861603, -132.23956)
+
+[node name="Totoras" type="Node3D" parent="Zona1/VegetacionRiberena" unique_id=2000000022]
+
+[node name="Piedras" type="Node3D" parent="Zona1/VegetacionRiberena" unique_id=409628725]
+
+[node name="Piedra" parent="Zona1/VegetacionRiberena/Piedras" unique_id=235583569 instance=ExtResource("18_yc10j")]
+transform = Transform3D(0.1632349, 0, 0.18521531, 0, 0.16852985, 0, -0.27177596, 0, 0.111244574, 17.055222, 0.8657609, -88.45931)
+
+[node name="Piedra2" parent="Zona1/VegetacionRiberena/Piedras" unique_id=1003212089 instance=ExtResource("18_yc10j")]
+transform = Transform3D(0.09705169, 0, 0.16158505, 0, 0.13537572, 0, -0.16158505, 0, 0.09705169, -13.132994, -0.17466426, -101.44232)
+
+[node name="Totoras2" parent="Zona1/VegetacionRiberena" unique_id=1607144363 instance=ExtResource("20_yc10j")]
+transform = Transform3D(1.639675, 0, 0, 0, 1.6396755, 0, 0, 0, 1.639675, 14.173341, 1.023147, -76.26803)
+
+[node name="Zona2" type="Node3D" parent="." unique_id=125977905]
+
+[node name="FaunaAcuatica" type="Node3D" parent="Zona2" unique_id=1183213559]
+
+[node name="Mojarras" type="Node3D" parent="Zona2/FaunaAcuatica" unique_id=1383011641]
+
+[node name="Bagres" type="Node3D" parent="Zona2/FaunaAcuatica" unique_id=1077265548]
+
+[node name="Dientudos" type="Node3D" parent="Zona2/FaunaAcuatica" unique_id=71934553]
+
+[node name="FaunaTerrestre" type="Node3D" parent="Zona2" unique_id=905587491]
+
+[node name="Ranas" type="Node3D" parent="Zona2/FaunaTerrestre" unique_id=742853401]
+
+[node name="Teros" type="Node3D" parent="Zona2/FaunaTerrestre" unique_id=1282832585]
+
+[node name="Tortugas" type="Node3D" parent="Zona2/FaunaTerrestre" unique_id=867215163]
+
+[node name="VegetacionAcuatica" type="Node3D" parent="Zona2" unique_id=1694644154]
+
+[node name="Ceratophyllum" type="Node3D" parent="Zona2/VegetacionAcuatica" unique_id=730128464]
+
+[node name="LentejaDeAgua" type="Node3D" parent="Zona2/VegetacionAcuatica" unique_id=787409138]
+
+[node name="Potamogeton" type="Node3D" parent="Zona2/VegetacionAcuatica" unique_id=1912820531]
+
+[node name="Ramas" type="Node3D" parent="Zona2/VegetacionAcuatica" unique_id=564826407]
+
+[node name="VegetacionRiberena" type="Node3D" parent="Zona2" unique_id=1751783809]
+
+[node name="Ceibos" type="Node3D" parent="Zona2/VegetacionRiberena" unique_id=1258659623]
+
+[node name="Cortaderas" type="Node3D" parent="Zona2/VegetacionRiberena" unique_id=1450542524]
+
+[node name="Gramineas" type="Node3D" parent="Zona2/VegetacionRiberena" unique_id=1444043297]
+
+[node name="Juncos" type="Node3D" parent="Zona2/VegetacionRiberena" unique_id=1716119662]
+
+[node name="Pastizales" type="Node3D" parent="Zona2/VegetacionRiberena" unique_id=845900138]
+
+[node name="Sauces" type="Node3D" parent="Zona2/VegetacionRiberena" unique_id=114183029]
+
+[node name="Totoras" type="Node3D" parent="Zona2/VegetacionRiberena" unique_id=143584964]
+
+[node name="Zona3" type="Node3D" parent="." unique_id=1768277809]
+
+[node name="FaunaAcuatica" type="Node3D" parent="Zona3" unique_id=1079065875]
+
+[node name="Mojarras" type="Node3D" parent="Zona3/FaunaAcuatica" unique_id=1928983697]
+
+[node name="Bagres" type="Node3D" parent="Zona3/FaunaAcuatica" unique_id=1659284725]
+
+[node name="Dientudos" type="Node3D" parent="Zona3/FaunaAcuatica" unique_id=1835296605]
+
+[node name="FaunaTerrestre" type="Node3D" parent="Zona3" unique_id=1445432981]
+
+[node name="Ranas" type="Node3D" parent="Zona3/FaunaTerrestre" unique_id=1790375863]
+
+[node name="Teros" type="Node3D" parent="Zona3/FaunaTerrestre" unique_id=1399928248]
+
+[node name="Tortugas" type="Node3D" parent="Zona3/FaunaTerrestre" unique_id=1439804035]
+
+[node name="VegetacionAcuatica" type="Node3D" parent="Zona3" unique_id=1116440915]
+
+[node name="Ceratophyllum" type="Node3D" parent="Zona3/VegetacionAcuatica" unique_id=2004480334]
+
+[node name="LentejaDeAgua" type="Node3D" parent="Zona3/VegetacionAcuatica" unique_id=1399839014]
+
+[node name="Potamogeton" type="Node3D" parent="Zona3/VegetacionAcuatica" unique_id=336829388]
+
+[node name="Ramas" type="Node3D" parent="Zona3/VegetacionAcuatica" unique_id=1805050011]
+
+[node name="VegetacionRiberena" type="Node3D" parent="Zona3" unique_id=1152568921]
+
+[node name="Ceibos" type="Node3D" parent="Zona3/VegetacionRiberena" unique_id=1687524225]
+
+[node name="Cortaderas" type="Node3D" parent="Zona3/VegetacionRiberena" unique_id=289574609]
+
+[node name="Gramineas" type="Node3D" parent="Zona3/VegetacionRiberena" unique_id=679442961]
+
+[node name="Juncos" type="Node3D" parent="Zona3/VegetacionRiberena" unique_id=2020333249]
+
+[node name="Pastizales" type="Node3D" parent="Zona3/VegetacionRiberena" unique_id=1529155316]
+
+[node name="Sauces" type="Node3D" parent="Zona3/VegetacionRiberena" unique_id=1972215887]
+
+[node name="Totoras" type="Node3D" parent="Zona3/VegetacionRiberena" unique_id=216499331]
+
+[node name="Zona4" type="Node3D" parent="." unique_id=368755399]
+
+[node name="FaunaAcuatica" type="Node3D" parent="Zona4" unique_id=591282995]
+
+[node name="Mojarras" type="Node3D" parent="Zona4/FaunaAcuatica" unique_id=1344561014]
+
+[node name="Bagres" type="Node3D" parent="Zona4/FaunaAcuatica" unique_id=1999246507]
+
+[node name="Dientudos" type="Node3D" parent="Zona4/FaunaAcuatica" unique_id=1181622995]
+
+[node name="FaunaTerrestre" type="Node3D" parent="Zona4" unique_id=1095836608]
+
+[node name="Ranas" type="Node3D" parent="Zona4/FaunaTerrestre" unique_id=1056291096]
+
+[node name="Teros" type="Node3D" parent="Zona4/FaunaTerrestre" unique_id=1936027007]
+
+[node name="Tortugas" type="Node3D" parent="Zona4/FaunaTerrestre" unique_id=772773997]
+
+[node name="VegetacionAcuatica" type="Node3D" parent="Zona4" unique_id=288800761]
+
+[node name="Ceratophyllum" type="Node3D" parent="Zona4/VegetacionAcuatica" unique_id=1400236987]
+
+[node name="LentejaDeAgua" type="Node3D" parent="Zona4/VegetacionAcuatica" unique_id=1703200232]
+
+[node name="Potamogeton" type="Node3D" parent="Zona4/VegetacionAcuatica" unique_id=2029429197]
+
+[node name="Ramas" type="Node3D" parent="Zona4/VegetacionAcuatica" unique_id=1524531926]
+
+[node name="VegetacionRiberena" type="Node3D" parent="Zona4" unique_id=33527385]
+
+[node name="Ceibos" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=1756116113]
+
+[node name="Cortaderas" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=347214375]
+
+[node name="Gramineas" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=1405639831]
+
+[node name="Juncos" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=1728672815]
+
+[node name="Pastizales" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=704216165]
+
+[node name="Sauces" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=1665924968]
+
+[node name="Totoras" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=331523810]

@@ -1,47 +1,59 @@
 # FreeLookCamera.gd
-# Controla la TestCamera en modo flat/web (sin headset VR).
-# Permite girar la cámara como si fuera un visor usando:
-#   - Arrastrar con botón DERECHO del mouse  → mirar a los costados / arriba-abajo
-#   - Flechas izquierda/derecha              → girar horizontalmente (yaw)
-#   - Flechas arriba/abajo                   → inclinar verticalmente (pitch)
+# Control de cámara libre para modo flat/web (sin headset VR).
+# Se agrega como hijo directo del nodo Main y apunta la cámara correctamente.
+#
+# CONTROLES:
+#   Mouse izquierdo o derecho (mantener) + mover   → girar vista
+#   Flechas / W A S D                              → girar vista con teclado
+#   Escape                                          → liberar cursor
 extends Node
 
-## Velocidad de giro con mouse (radianes por pixel)
 @export var mouse_sensitivity: float = 0.003
-## Velocidad de giro con teclado (radianes por segundo)
-@export var key_speed: float = 1.5
-## Límite vertical de inclinación (grados)
+@export var key_speed: float = 1.8
 @export var pitch_limit: float = 80.0
 
 var _yaw: float   = 0.0
 var _pitch: float = 0.0
 var _dragging: bool = false
-
-# Referencia a la cámara activa en flat mode
 var _camera: Camera3D = null
 
 func setup(_origin: Node3D, camera: Camera3D) -> void:
-	# _origin se ignora; rotamos solo la cámara con Euler acumulado
 	_camera = camera
-	# Tomamos la rotación actual de la cámara como punto de partida
-	_yaw   = _camera.global_rotation.y
-	_pitch = _camera.global_rotation.x
+	if not _camera:
+		push_warning("FreeLookCamera: cámara no válida.")
+		return
+	# Inicializar yaw/pitch desde la rotación actual local de la cámara
+	_yaw   = 0.0
+	_pitch = 0.0
+	print("FreeLookCamera: inicializada en '", _camera.name, "'.")
 
 func _input(event: InputEvent) -> void:
 	if not _camera:
 		return
 
-	# --- Botón derecho del mouse: activar/desactivar arrastre ---
+	# Activar arrastre con clic izquierdo o derecho
 	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT:
-			_dragging = event.pressed
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if _dragging else Input.MOUSE_MODE_VISIBLE
+		var btn := (event as InputEventMouseButton).button_index
+		if btn == MOUSE_BUTTON_LEFT or btn == MOUSE_BUTTON_RIGHT:
+			_dragging = (event as InputEventMouseButton).pressed
+			if not _dragging:
+				# Al soltar el mouse, dejar cursor visible
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-	# --- Movimiento del mouse mientras se arrastra ---
+	# Rotar con movimiento de mouse mientras se arrastra
 	if event is InputEventMouseMotion and _dragging:
-		_yaw   -= event.relative.x * mouse_sensitivity
-		_pitch -= event.relative.y * mouse_sensitivity
+		var motion := event as InputEventMouseMotion
+		_yaw   -= motion.relative.x * mouse_sensitivity
+		_pitch -= motion.relative.y * mouse_sensitivity
 		_apply_rotation()
+		get_viewport().set_input_as_handled()
+
+	# Escape: liberar cursor
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		if key_event.pressed and key_event.keycode == KEY_ESCAPE:
+			_dragging = false
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _process(delta: float) -> void:
 	if not _camera:
@@ -50,13 +62,13 @@ func _process(delta: float) -> void:
 	var turning  := 0.0
 	var pitching := 0.0
 
-	if Input.is_key_pressed(KEY_LEFT):
+	if Input.is_key_pressed(KEY_LEFT)  or Input.is_key_pressed(KEY_A):
 		turning += key_speed * delta
-	if Input.is_key_pressed(KEY_RIGHT):
+	if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D):
 		turning -= key_speed * delta
-	if Input.is_key_pressed(KEY_UP):
+	if Input.is_key_pressed(KEY_UP)    or Input.is_key_pressed(KEY_W):
 		pitching += key_speed * delta
-	if Input.is_key_pressed(KEY_DOWN):
+	if Input.is_key_pressed(KEY_DOWN)  or Input.is_key_pressed(KEY_S):
 		pitching -= key_speed * delta
 
 	if turning != 0.0 or pitching != 0.0:
@@ -66,6 +78,5 @@ func _process(delta: float) -> void:
 
 func _apply_rotation() -> void:
 	_pitch = clamp(_pitch, deg_to_rad(-pitch_limit), deg_to_rad(pitch_limit))
-	# Aplicamos la rotación directamente en coordenadas globales
-	# para que no interfiera con el PathFollow3D
-	_camera.global_rotation = Vector3(_pitch, _yaw, 0.0)
+	# Rotamos la cámara en coordenadas LOCALES para que respete la orientación del PathFollow3D
+	_camera.rotation = Vector3(_pitch, _yaw, 0.0)
