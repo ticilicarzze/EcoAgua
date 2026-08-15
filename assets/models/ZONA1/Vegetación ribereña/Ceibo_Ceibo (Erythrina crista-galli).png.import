@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ekkindfaorbs"
 path.s3tc="res://.godot/imported/Ceibo_Ceibo (Erythrina crista-galli).png-9e8cb2be236010561078d9711dde4a54.s3tc.ctex"
+path.etc2="res://.godot/imported/Ceibo_Ceibo (Erythrina crista-galli).png-9e8cb2be236010561078d9711dde4a54.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetación ribereña/Ceibo_Ceibo (Erythrina crista-galli).png"
-dest_files=["res://.godot/imported/Ceibo_Ceibo (Erythrina crista-galli).png-9e8cb2be236010561078d9711dde4a54.s3tc.ctex"]
+dest_files=["res://.godot/imported/Ceibo_Ceibo (Erythrina crista-galli).png-9e8cb2be236010561078d9711dde4a54.s3tc.ctex", "res://.godot/imported/Ceibo_Ceibo (Erythrina crista-galli).png-9e8cb2be236010561078d9711dde4a54.etc2.ctex"]
 
 [params]
 

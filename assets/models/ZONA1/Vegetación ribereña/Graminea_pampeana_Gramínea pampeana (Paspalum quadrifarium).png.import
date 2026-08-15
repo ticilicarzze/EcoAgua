@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://n4xb7pclvl47"
 path.s3tc="res://.godot/imported/Graminea_pampeana_Gramínea pampeana (Paspalum quadrifarium).png-e66f3d4fe99b35bd2e4e81c966fab0ad.s3tc.ctex"
+path.etc2="res://.godot/imported/Graminea_pampeana_Gramínea pampeana (Paspalum quadrifarium).png-e66f3d4fe99b35bd2e4e81c966fab0ad.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetación ribereña/Graminea_pampeana_Gramínea pampeana (Paspalum quadrifarium).png"
-dest_files=["res://.godot/imported/Graminea_pampeana_Gramínea pampeana (Paspalum quadrifarium).png-e66f3d4fe99b35bd2e4e81c966fab0ad.s3tc.ctex"]
+dest_files=["res://.godot/imported/Graminea_pampeana_Gramínea pampeana (Paspalum quadrifarium).png-e66f3d4fe99b35bd2e4e81c966fab0ad.s3tc.ctex", "res://.godot/imported/Graminea_pampeana_Gramínea pampeana (Paspalum quadrifarium).png-e66f3d4fe99b35bd2e4e81c966fab0ad.etc2.ctex"]
 
 [params]
 

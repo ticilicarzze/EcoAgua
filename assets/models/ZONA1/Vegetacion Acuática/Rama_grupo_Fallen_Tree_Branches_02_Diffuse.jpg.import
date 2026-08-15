@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bwqrimu5fc0tj"
 path.s3tc="res://.godot/imported/Rama_grupo_Fallen_Tree_Branches_02_Diffuse.jpg-b833a760621a795cc1fae156e10b1300.s3tc.ctex"
+path.etc2="res://.godot/imported/Rama_grupo_Fallen_Tree_Branches_02_Diffuse.jpg-b833a760621a795cc1fae156e10b1300.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetacion Acuática/Rama_grupo_Fallen_Tree_Branches_02_Diffuse.jpg"
-dest_files=["res://.godot/imported/Rama_grupo_Fallen_Tree_Branches_02_Diffuse.jpg-b833a760621a795cc1fae156e10b1300.s3tc.ctex"]
+dest_files=["res://.godot/imported/Rama_grupo_Fallen_Tree_Branches_02_Diffuse.jpg-b833a760621a795cc1fae156e10b1300.s3tc.ctex", "res://.godot/imported/Rama_grupo_Fallen_Tree_Branches_02_Diffuse.jpg-b833a760621a795cc1fae156e10b1300.etc2.ctex"]
 
 [params]
 

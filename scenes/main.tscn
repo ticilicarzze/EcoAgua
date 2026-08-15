@@ -25,6 +25,8 @@
 [ext_resource type="PackedScene" uid="uid://dle4lhbmcy0io" path="res://assets/models/ZONA1/Vegetacion Acuática/Lenteja_de_agua_dispersa_2.glb" id="21_jscy8"]
 [ext_resource type="PackedScene" uid="uid://dkh3yeivu0uci" path="res://assets/models/ZONA1/Fauna acuática/dientudo_animacion.glb" id="24_vxglm"]
 [ext_resource type="PackedScene" uid="uid://dhmnjpdihg8ky" path="res://assets/models/ZONA1/Fauna acuática/bagre_animacion.glb" id="25_2f3dj"]
+[ext_resource type="Script" uid="uid://hotnjrlqgtlx" path="res://scripts/BagreAnimado.gd" id="26_bagre_script"]
+[ext_resource type="Script" uid="uid://devs2jovq8qx0" path="res://scripts/DientudoAnimado.gd" id="27_dientudo_script"]
 
 [sub_resource type="Curve3D" id="Curve3D_7dm0k"]
 _data = {
@@ -99,7 +101,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_og1vs"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_vxglm"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -136,7 +138,7 @@ current = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_og1vs")
+mesh = SubResource("PlaneMesh_vxglm")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true
@@ -206,38 +208,28 @@ layout_mode = 2
 [node name="Mojarras" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000003]
 
 [node name="mojarra-animacion-final" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=1967325715 instance=ExtResource("10_choun")]
-transform = Transform3D(8.851989, 0, -0.82117426, 0, 8.89, 0, 0.82117426, 0, 8.851989, -0.013041969, -1.8629396, -31.44965)
+transform = Transform3D(3.784, 0, -0.351, 0, 3.8, 0, 0.351, 0, 3.784, -0.013041969, -1.8629396, -31.44965)
 script = ExtResource("11_mojarra_script")
 swim_frequency = 0.42
 
 [node name="mojarra-animacion-final2" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=628988057 instance=ExtResource("10_choun")]
-transform = Transform3D(8.405655, 0, -2.8942995, 0, 8.89, 0, 2.8942995, 0, 8.405655, -7.7736993, -1.8683261, -32.142418)
+transform = Transform3D(3.593, 0, -1.237, 0, 3.8, 0, 1.237, 0, 3.593, -7.7736993, -1.8683261, -32.142418)
 script = ExtResource("11_mojarra_script")
 swim_amplitude = 0.22
 swim_frequency = 0.35
 
 [node name="mojarra-animacion-final3" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=114852164 instance=ExtResource("10_choun")]
-transform = Transform3D(-8.599005, 0, -2.2559075, 0, 8.89, 0, 2.2559075, 0, -8.599005, -2.3274322, -1.9385524, -24.406994)
+transform = Transform3D(-3.4821637, 0, -0.91352916, 0, 3.6, 0, 0.91352916, 0, -3.4821637, -2.3274322, -1.9385524, -24.406994)
 script = ExtResource("11_mojarra_script")
 swim_frequency = 0.42
 
 [node name="Bagres" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000004]
 
-[node name="bagre_animacion" parent="Zona1/FaunaAcuatica/Bagres" unique_id=1838174442 instance=ExtResource("25_2f3dj")]
-transform = Transform3D(9.62823, 0, 0, 0, 9.628233, 0, 0, 0, 9.62823, -1.1311778, -1.6789737, -71.83863)
-script = ExtResource("11_mojarra_script")
-patrol_range_x = 2.0
-patrol_range_z = 3.0
-patrol_speed = 0.22
-swim_amplitude = 0.15
-swim_frequency = 0.3
-
 [node name="Dientudos" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000005]
 
 [node name="dientudo_animacion" parent="Zona1/FaunaAcuatica/Dientudos" unique_id=780454754 instance=ExtResource("24_vxglm")]
 transform = Transform3D(8.731883, 0, 0, 0, 8.731888, 0, 0, 0, 8.731883, -9.290532, -2.0567968, -53.819595)
-script = ExtResource("11_mojarra_script")
-patrol_range_x = 3.0
+script = ExtResource("27_dientudo_script")
 patrol_range_z = 4.0
 patrol_speed = 0.3
 swim_amplitude = 0.18
@@ -483,3 +475,11 @@ transform = Transform3D(1.639675, 0, 0, 0, 1.6396755, 0, 0, 0, 1.639675, 14.1733
 [node name="Sauces" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=1665924968]
 
 [node name="Totoras" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=331523810]
+
+[node name="bagre_animacion" parent="." unique_id=1619274827 instance=ExtResource("25_2f3dj")]
+transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, -5.092868, -1.8592255, -28.977997)
+script = ExtResource("26_bagre_script")
+
+[node name="dientudo_animacion" parent="." unique_id=1219655256 instance=ExtResource("24_vxglm")]
+transform = Transform3D(10.359998, 0, 0, 0, 10.36, 0, 0, 0, 10.359998, -6.484395, -2.7835546, -48.037067)
+script = ExtResource("27_dientudo_script")

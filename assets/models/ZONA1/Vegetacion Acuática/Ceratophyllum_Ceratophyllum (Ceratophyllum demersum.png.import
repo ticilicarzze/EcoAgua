@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbd7ov0nrst8o"
 path.s3tc="res://.godot/imported/Ceratophyllum_Ceratophyllum (Ceratophyllum demersum.png-c9de789f30cd090798958995896244e3.s3tc.ctex"
+path.etc2="res://.godot/imported/Ceratophyllum_Ceratophyllum (Ceratophyllum demersum.png-c9de789f30cd090798958995896244e3.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetacion Acuática/Ceratophyllum_Ceratophyllum (Ceratophyllum demersum.png"
-dest_files=["res://.godot/imported/Ceratophyllum_Ceratophyllum (Ceratophyllum demersum.png-c9de789f30cd090798958995896244e3.s3tc.ctex"]
+dest_files=["res://.godot/imported/Ceratophyllum_Ceratophyllum (Ceratophyllum demersum.png-c9de789f30cd090798958995896244e3.s3tc.ctex", "res://.godot/imported/Ceratophyllum_Ceratophyllum (Ceratophyllum demersum.png-c9de789f30cd090798958995896244e3.etc2.ctex"]
 
 [params]
 

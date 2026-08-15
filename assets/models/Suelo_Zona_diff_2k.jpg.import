@@ -2,21 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d12b074rbmpnf"
-path.s3tc="res://.godot/imported/Piedra_rock_low_Metallic.png-rock_low_Roughness.jpg-59132dab09860eb4e7d435def99f7a4d.s3tc.ctex"
-path.etc2="res://.godot/imported/Piedra_rock_low_Metallic.png-rock_low_Roughness.jpg-59132dab09860eb4e7d435def99f7a4d.etc2.ctex"
+uid="uid://coc5navlvcatw"
+path.s3tc="res://.godot/imported/Suelo_Zona_diff_2k.jpg-cc76adbaaabe4b9952698c76994534a7.s3tc.ctex"
+path.etc2="res://.godot/imported/Suelo_Zona_diff_2k.jpg-cc76adbaaabe4b9952698c76994534a7.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
-generator_parameters={
-"md5": "1d832da5cf1f91887059d9232506c3b0"
-}
 
 [deps]
 
-source_file="res://assets/models/ZONA1/Vegetación ribereña/Piedra_rock_low_Metallic.png-rock_low_Roughness.jpg"
-dest_files=["res://.godot/imported/Piedra_rock_low_Metallic.png-rock_low_Roughness.jpg-59132dab09860eb4e7d435def99f7a4d.s3tc.ctex", "res://.godot/imported/Piedra_rock_low_Metallic.png-rock_low_Roughness.jpg-59132dab09860eb4e7d435def99f7a4d.etc2.ctex"]
+source_file="res://assets/models/Suelo_Zona_diff_2k.jpg"
+dest_files=["res://.godot/imported/Suelo_Zona_diff_2k.jpg-cc76adbaaabe4b9952698c76994534a7.s3tc.ctex", "res://.godot/imported/Suelo_Zona_diff_2k.jpg-cc76adbaaabe4b9952698c76994534a7.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dhaprgndlcxmc"
 path.s3tc="res://.godot/imported/bagre_animacion_Map #19-Map #21.jpg-bacdc0bc629e4c5498aff4a5d2dd1417.s3tc.ctex"
+path.etc2="res://.godot/imported/bagre_animacion_Map #19-Map #21.jpg-bacdc0bc629e4c5498aff4a5d2dd1417.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Fauna acuática/bagre_animacion_Map #19-Map #21.jpg"
-dest_files=["res://.godot/imported/bagre_animacion_Map #19-Map #21.jpg-bacdc0bc629e4c5498aff4a5d2dd1417.s3tc.ctex"]
+dest_files=["res://.godot/imported/bagre_animacion_Map #19-Map #21.jpg-bacdc0bc629e4c5498aff4a5d2dd1417.s3tc.ctex", "res://.godot/imported/bagre_animacion_Map #19-Map #21.jpg-bacdc0bc629e4c5498aff4a5d2dd1417.etc2.ctex"]
 
 [params]
 

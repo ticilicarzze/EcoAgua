@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5ur6u03op2pq"
 path.s3tc="res://.godot/imported/Rama_sola_Fallen_Tree_Branches_02_Diffuse.jpg-2f8e4c5fe3f074bee0ae247b9c7caa5f.s3tc.ctex"
+path.etc2="res://.godot/imported/Rama_sola_Fallen_Tree_Branches_02_Diffuse.jpg-2f8e4c5fe3f074bee0ae247b9c7caa5f.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetacion Acuática/Rama_sola_Fallen_Tree_Branches_02_Diffuse.jpg"
-dest_files=["res://.godot/imported/Rama_sola_Fallen_Tree_Branches_02_Diffuse.jpg-2f8e4c5fe3f074bee0ae247b9c7caa5f.s3tc.ctex"]
+dest_files=["res://.godot/imported/Rama_sola_Fallen_Tree_Branches_02_Diffuse.jpg-2f8e4c5fe3f074bee0ae247b9c7caa5f.s3tc.ctex", "res://.godot/imported/Rama_sola_Fallen_Tree_Branches_02_Diffuse.jpg-2f8e4c5fe3f074bee0ae247b9c7caa5f.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://yk30fial8mjj"
 path.s3tc="res://.godot/imported/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg-d14d59c88dfa53e1e0cd1d39f7b9e189.s3tc.ctex"
+path.etc2="res://.godot/imported/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg-d14d59c88dfa53e1e0cd1d39f7b9e189.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg"
-dest_files=["res://.godot/imported/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg-d14d59c88dfa53e1e0cd1d39f7b9e189.s3tc.ctex"]
+dest_files=["res://.godot/imported/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg-d14d59c88dfa53e1e0cd1d39f7b9e189.s3tc.ctex", "res://.godot/imported/Suelo_Zona1_sandy_gravel_02_diff_2k.jpg-d14d59c88dfa53e1e0cd1d39f7b9e189.etc2.ctex"]
 
 [params]
 

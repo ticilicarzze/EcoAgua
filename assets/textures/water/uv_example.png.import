@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ch1eb1v8e4utn"
 path.s3tc="res://.godot/imported/uv_example.png-27ecac249db228d900bbbcc1917e1218.s3tc.ctex"
+path.etc2="res://.godot/imported/uv_example.png-27ecac249db228d900bbbcc1917e1218.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/water/uv_example.png"
-dest_files=["res://.godot/imported/uv_example.png-27ecac249db228d900bbbcc1917e1218.s3tc.ctex"]
+dest_files=["res://.godot/imported/uv_example.png-27ecac249db228d900bbbcc1917e1218.s3tc.ctex", "res://.godot/imported/uv_example.png-27ecac249db228d900bbbcc1917e1218.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cvimullpm8tl5"
 path.s3tc="res://.godot/imported/Piedra_rock_low_Base_Color.jpg-b7c33849608a9239771a6965034b08af.s3tc.ctex"
+path.etc2="res://.godot/imported/Piedra_rock_low_Base_Color.jpg-b7c33849608a9239771a6965034b08af.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetación ribereña/Piedra_rock_low_Base_Color.jpg"
-dest_files=["res://.godot/imported/Piedra_rock_low_Base_Color.jpg-b7c33849608a9239771a6965034b08af.s3tc.ctex"]
+dest_files=["res://.godot/imported/Piedra_rock_low_Base_Color.jpg-b7c33849608a9239771a6965034b08af.s3tc.ctex", "res://.godot/imported/Piedra_rock_low_Base_Color.jpg-b7c33849608a9239771a6965034b08af.etc2.ctex"]
 
 [params]
 

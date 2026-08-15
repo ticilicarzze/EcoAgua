@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvr2eq15hxo3p"
 path.s3tc="res://.godot/imported/Lenteja_de_agua_dispersa_2_Lenteja de agua dispersa (Lemna dispersa).png-c28343191105be625a2707c097fde631.s3tc.ctex"
+path.etc2="res://.godot/imported/Lenteja_de_agua_dispersa_2_Lenteja de agua dispersa (Lemna dispersa).png-c28343191105be625a2707c097fde631.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetacion Acuática/Lenteja_de_agua_dispersa_2_Lenteja de agua dispersa (Lemna dispersa).png"
-dest_files=["res://.godot/imported/Lenteja_de_agua_dispersa_2_Lenteja de agua dispersa (Lemna dispersa).png-c28343191105be625a2707c097fde631.s3tc.ctex"]
+dest_files=["res://.godot/imported/Lenteja_de_agua_dispersa_2_Lenteja de agua dispersa (Lemna dispersa).png-c28343191105be625a2707c097fde631.s3tc.ctex", "res://.godot/imported/Lenteja_de_agua_dispersa_2_Lenteja de agua dispersa (Lemna dispersa).png-c28343191105be625a2707c097fde631.etc2.ctex"]
 
 [params]
 

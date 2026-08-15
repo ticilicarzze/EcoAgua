@@ -241,22 +241,38 @@ func _setup_camera_fx() -> void:
 # _enter_tree
 
 # =========================================================
-# _setup_aquatic_fauna — Asigna automáticamente nado y animación a todos los peces
+# _setup_aquatic_fauna — Asigna automáticamente nado y animación a todos los peces según especie
 # =========================================================
 func _setup_aquatic_fauna() -> void:
-	var fauna_node := get_node_or_null("Zona1/FaunaAcuatica")
-	if not fauna_node:
-		return
-	var fish_script = preload("res://scripts/MojarraAnimada.gd")
-	_attach_fish_script_recursive(fauna_node, fish_script)
+	var mojarra_script  = preload("res://scripts/MojarraAnimada.gd")
+	var bagre_script    = preload("res://scripts/BagreAnimado.gd")
+	var dientudo_script = preload("res://scripts/DientudoAnimado.gd")
 
-func _attach_fish_script_recursive(node: Node, fish_script: Script) -> void:
+	_apply_fish_scripts_recursive(self, mojarra_script, bagre_script, dientudo_script)
+
+func _apply_fish_scripts_recursive(node: Node, mojarra_script: Script, bagre_script: Script, dientudo_script: Script) -> void:
+	if node is PezAnimado:
+		return
+
+	var node_name := node.name.to_lower()
+	if node is Node3D and node != self:
+		var target_script: Script = null
+		if node_name.contains("bagre"):
+			target_script = bagre_script
+		elif node_name.contains("dientudo"):
+			target_script = dientudo_script
+		elif node_name.contains("mojarra"):
+			target_script = mojarra_script
+
+		if target_script != null:
+			if node.get_script() != target_script:
+				node.set_script(target_script)
+				if node.has_method("_ready"):
+					node._ready()
+			return
+
 	for child in node.get_children():
-		if child is Node3D and child.get_child_count() > 0 and child.get_script() == null:
-			child.set_script(fish_script)
-			if child.has_method("_ready"):
-				child._ready()
-		_attach_fish_script_recursive(child, fish_script)
+		_apply_fish_scripts_recursive(child, mojarra_script, bagre_script, dientudo_script)
 
 # =========================================================
 # _setup_foliage_shaders — Aplica shader de vegetación y desactiva sombras en plantas de superficie
@@ -601,10 +617,12 @@ func _build_valley_terrain() -> CSGPolygon3D:
 	var tex2: Texture2D = load("res://assets/models/Suelo_Zona2_forest_ground_06_diff_2k.jpg")
 	var tex3: Texture2D = load("res://assets/models/Suelo_Zona3_brown_mud_03_diff_2k.jpg")
 	var tex_bank: Texture2D = load("res://assets/models/BordeDelRio_coast_sand_rocks_02_diff_2k.jpg")
+	var tex_top: Texture2D = load("res://assets/models/Suelo_Zona_diff_2k.jpg")
 	if tex1: terrain_mat.set_shader_parameter("tex_zona1", tex1)
 	if tex2: terrain_mat.set_shader_parameter("tex_zona2", tex2)
 	if tex3: terrain_mat.set_shader_parameter("tex_zona3", tex3)
 	if tex_bank: terrain_mat.set_shader_parameter("tex_bank", tex_bank)
+	if tex_top: terrain_mat.set_shader_parameter("tex_top", tex_top)
 
 	# Normal map desactivado — el bump_strength alto generaba sombras oscuras artificiales.
 	# La rugosidad visual se logra únicamente con roughness=0.95 (material PBR mate).

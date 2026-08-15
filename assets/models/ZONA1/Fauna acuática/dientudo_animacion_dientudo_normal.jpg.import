@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dyg4ri6upo8bs"
 path.s3tc="res://.godot/imported/dientudo_animacion_dientudo_normal.jpg-853f570b5c06b6b7e5f318e706fecdd9.s3tc.ctex"
+path.etc2="res://.godot/imported/dientudo_animacion_dientudo_normal.jpg-853f570b5c06b6b7e5f318e706fecdd9.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Fauna acuática/dientudo_animacion_dientudo_normal.jpg"
-dest_files=["res://.godot/imported/dientudo_animacion_dientudo_normal.jpg-853f570b5c06b6b7e5f318e706fecdd9.s3tc.ctex"]
+dest_files=["res://.godot/imported/dientudo_animacion_dientudo_normal.jpg-853f570b5c06b6b7e5f318e706fecdd9.s3tc.ctex", "res://.godot/imported/dientudo_animacion_dientudo_normal.jpg-853f570b5c06b6b7e5f318e706fecdd9.etc2.ctex"]
 
 [params]
 

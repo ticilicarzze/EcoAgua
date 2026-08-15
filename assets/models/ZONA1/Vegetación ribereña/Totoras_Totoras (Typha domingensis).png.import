@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ckj8a0rts4vu0"
 path.s3tc="res://.godot/imported/Totoras_Totoras (Typha domingensis).png-9e322e1ce2a848ad2c0169483a459d1e.s3tc.ctex"
+path.etc2="res://.godot/imported/Totoras_Totoras (Typha domingensis).png-9e322e1ce2a848ad2c0169483a459d1e.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetación ribereña/Totoras_Totoras (Typha domingensis).png"
-dest_files=["res://.godot/imported/Totoras_Totoras (Typha domingensis).png-9e322e1ce2a848ad2c0169483a459d1e.s3tc.ctex"]
+dest_files=["res://.godot/imported/Totoras_Totoras (Typha domingensis).png-9e322e1ce2a848ad2c0169483a459d1e.s3tc.ctex", "res://.godot/imported/Totoras_Totoras (Typha domingensis).png-9e322e1ce2a848ad2c0169483a459d1e.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dfk5bukufi82u"
 path.s3tc="res://.godot/imported/Cortadera_Cortadera (Cortaderia selloana).png-39613166465f907b2bd3230a29720115.s3tc.ctex"
+path.etc2="res://.godot/imported/Cortadera_Cortadera (Cortaderia selloana).png-39613166465f907b2bd3230a29720115.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetación ribereña/Cortadera_Cortadera (Cortaderia selloana).png"
-dest_files=["res://.godot/imported/Cortadera_Cortadera (Cortaderia selloana).png-39613166465f907b2bd3230a29720115.s3tc.ctex"]
+dest_files=["res://.godot/imported/Cortadera_Cortadera (Cortaderia selloana).png-39613166465f907b2bd3230a29720115.s3tc.ctex", "res://.godot/imported/Cortadera_Cortadera (Cortaderia selloana).png-39613166465f907b2bd3230a29720115.etc2.ctex"]
 
 [params]
 

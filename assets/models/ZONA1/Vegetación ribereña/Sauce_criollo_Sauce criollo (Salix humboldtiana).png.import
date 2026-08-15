@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bnq3y51bkwyie"
 path.s3tc="res://.godot/imported/Sauce_criollo_Sauce criollo (Salix humboldtiana).png-a587cbf07cfd411f1847eb9738bc810b.s3tc.ctex"
+path.etc2="res://.godot/imported/Sauce_criollo_Sauce criollo (Salix humboldtiana).png-a587cbf07cfd411f1847eb9738bc810b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetación ribereña/Sauce_criollo_Sauce criollo (Salix humboldtiana).png"
-dest_files=["res://.godot/imported/Sauce_criollo_Sauce criollo (Salix humboldtiana).png-a587cbf07cfd411f1847eb9738bc810b.s3tc.ctex"]
+dest_files=["res://.godot/imported/Sauce_criollo_Sauce criollo (Salix humboldtiana).png-a587cbf07cfd411f1847eb9738bc810b.s3tc.ctex", "res://.godot/imported/Sauce_criollo_Sauce criollo (Salix humboldtiana).png-a587cbf07cfd411f1847eb9738bc810b.etc2.ctex"]
 
 [params]
 

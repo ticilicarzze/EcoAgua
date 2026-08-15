@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://h3ps5sjkjy3l"
 path.s3tc="res://.godot/imported/BordeDelRio_coast_sand_rocks_02_diff_2k.jpg-fe020a0adc4a9316e0537a7678c4d2c9.s3tc.ctex"
+path.etc2="res://.godot/imported/BordeDelRio_coast_sand_rocks_02_diff_2k.jpg-fe020a0adc4a9316e0537a7678c4d2c9.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/BordeDelRio_coast_sand_rocks_02_diff_2k.jpg"
-dest_files=["res://.godot/imported/BordeDelRio_coast_sand_rocks_02_diff_2k.jpg-fe020a0adc4a9316e0537a7678c4d2c9.s3tc.ctex"]
+dest_files=["res://.godot/imported/BordeDelRio_coast_sand_rocks_02_diff_2k.jpg-fe020a0adc4a9316e0537a7678c4d2c9.s3tc.ctex", "res://.godot/imported/BordeDelRio_coast_sand_rocks_02_diff_2k.jpg-fe020a0adc4a9316e0537a7678c4d2c9.etc2.ctex"]
 
 [params]
 

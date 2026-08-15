@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://57hdcxqw005t"
 path.s3tc="res://.godot/imported/Pastizales_altos_pampeanos_Pastizales alto pampeano PNG.png-4ebb1b6a963928dd1a1493fd033922dd.s3tc.ctex"
+path.etc2="res://.godot/imported/Pastizales_altos_pampeanos_Pastizales alto pampeano PNG.png-4ebb1b6a963928dd1a1493fd033922dd.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Vegetación ribereña/Pastizales_altos_pampeanos_Pastizales alto pampeano PNG.png"
-dest_files=["res://.godot/imported/Pastizales_altos_pampeanos_Pastizales alto pampeano PNG.png-4ebb1b6a963928dd1a1493fd033922dd.s3tc.ctex"]
+dest_files=["res://.godot/imported/Pastizales_altos_pampeanos_Pastizales alto pampeano PNG.png-4ebb1b6a963928dd1a1493fd033922dd.s3tc.ctex", "res://.godot/imported/Pastizales_altos_pampeanos_Pastizales alto pampeano PNG.png-4ebb1b6a963928dd1a1493fd033922dd.etc2.ctex"]
 
 [params]
 

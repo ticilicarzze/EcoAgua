@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ddl67xedlvtob"
 path.s3tc="res://.godot/imported/Mojarra_animacion_Mojarra.jpg-a2188612fbd6d89a334144fec31b3188.s3tc.ctex"
+path.etc2="res://.godot/imported/Mojarra_animacion_Mojarra.jpg-a2188612fbd6d89a334144fec31b3188.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ZONA1/Fauna acuática/Mojarra_animacion_Mojarra.jpg"
-dest_files=["res://.godot/imported/Mojarra_animacion_Mojarra.jpg-a2188612fbd6d89a334144fec31b3188.s3tc.ctex"]
+dest_files=["res://.godot/imported/Mojarra_animacion_Mojarra.jpg-a2188612fbd6d89a334144fec31b3188.s3tc.ctex", "res://.godot/imported/Mojarra_animacion_Mojarra.jpg-a2188612fbd6d89a334144fec31b3188.etc2.ctex"]
 
 [params]
 

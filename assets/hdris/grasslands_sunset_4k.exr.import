@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://da67dbthgwn1k"
 path.bptc="res://.godot/imported/grasslands_sunset_4k.exr-21fad34c2eb537d1df2a2cf190a424e8.bptc.ctex"
+path.astc="res://.godot/imported/grasslands_sunset_4k.exr-21fad34c2eb537d1df2a2cf190a424e8.astc.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/hdris/grasslands_sunset_4k.exr"
-dest_files=["res://.godot/imported/grasslands_sunset_4k.exr-21fad34c2eb537d1df2a2cf190a424e8.bptc.ctex"]
+dest_files=["res://.godot/imported/grasslands_sunset_4k.exr-21fad34c2eb537d1df2a2cf190a424e8.bptc.ctex", "res://.godot/imported/grasslands_sunset_4k.exr-21fad34c2eb537d1df2a2cf190a424e8.astc.ctex"]
 
 [params]
 

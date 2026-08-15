@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://6bb0aum5y8pn"]
+
+[ext_resource type="Script" uid="uid://dyutp1j8nwbgm" path="res://scripts/PreviewPeces.gd" id="1_prev"]
+
+[node name="PreviewPeces" type="Node3D" unique_id=256952396]
+script = ExtResource("1_prev")
