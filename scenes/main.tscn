@@ -10,10 +10,10 @@
 [ext_resource type="Script" uid="uid://bynsjwun060cg" path="res://scripts/WaterVisualController.gd" id="7_water_ctrl"]
 [ext_resource type="Script" uid="uid://242lg4sampay" path="res://scripts/HUDController.gd" id="8_hud_ctrl"]
 [ext_resource type="PackedScene" uid="uid://dxjetpy830q13" path="res://assets/models/ZONA1/Fauna acuática/Mojarra_animacion.glb" id="10_choun"]
-[ext_resource type="Script" uid="uid://bquu6qhd164yc" path="res://scripts/MojarraAnimada.gd" id="11_mojarra_script"]
+[ext_resource type="PackedScene" uid="uid://dkh3yeivu0uci" path="res://assets/models/ZONA1/Fauna acuática/dientudo_animacion.glb" id="11_jscy8"]
+[ext_resource type="PackedScene" uid="uid://dhmnjpdihg8ky" path="res://assets/models/ZONA1/Fauna acuática/bagre_animacion.glb" id="11_pm3ni"]
 [ext_resource type="PackedScene" uid="uid://ccujb410togyy" path="res://assets/models/ZONA1/Vegetación ribereña/Graminea_pampeana.glb" id="12_eb6dy"]
 [ext_resource type="PackedScene" uid="uid://eawhk3jxl62w" path="res://assets/models/ZONA1/Vegetacion Acuática/Ceratophyllum.glb" id="13_trceg"]
-[ext_resource type="PackedScene" uid="uid://bcdy8lcg65f51" path="res://assets/models/ZONA1/Vegetacion Acuática/Alga_filamentosa.glb" id="14_a8y0u"]
 [ext_resource type="PackedScene" uid="uid://csnwpeupmawsr" path="res://assets/models/ZONA1/Vegetacion Acuática/Rama_grupo.glb" id="14_og1vs"]
 [ext_resource type="PackedScene" uid="uid://dp0g423eqdvl" path="res://assets/models/ZONA1/Vegetación ribereña/Ceibo.glb" id="15_jkv2x"]
 [ext_resource type="PackedScene" uid="uid://cp6pivt8jpkia" path="res://assets/models/ZONA1/Vegetación ribereña/Junco.glb" id="16_0ld40"]
@@ -23,10 +23,6 @@
 [ext_resource type="PackedScene" uid="uid://11r0vp6rcy8j" path="res://assets/models/ZONA1/Vegetación ribereña/Sauce_criollo.glb" id="19_jscy8"]
 [ext_resource type="PackedScene" uid="uid://duwcxodfp1vxt" path="res://assets/models/ZONA1/Vegetación ribereña/Totoras.glb" id="20_yc10j"]
 [ext_resource type="PackedScene" uid="uid://dle4lhbmcy0io" path="res://assets/models/ZONA1/Vegetacion Acuática/Lenteja_de_agua_dispersa_2.glb" id="21_jscy8"]
-[ext_resource type="PackedScene" uid="uid://dkh3yeivu0uci" path="res://assets/models/ZONA1/Fauna acuática/dientudo_animacion.glb" id="24_vxglm"]
-[ext_resource type="PackedScene" uid="uid://dhmnjpdihg8ky" path="res://assets/models/ZONA1/Fauna acuática/bagre_animacion.glb" id="25_2f3dj"]
-[ext_resource type="Script" uid="uid://hotnjrlqgtlx" path="res://scripts/BagreAnimado.gd" id="26_bagre_script"]
-[ext_resource type="Script" uid="uid://devs2jovq8qx0" path="res://scripts/DientudoAnimado.gd" id="27_dientudo_script"]
 
 [sub_resource type="Curve3D" id="Curve3D_7dm0k"]
 _data = {
@@ -101,7 +97,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_vxglm"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_yc10j"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -121,6 +117,7 @@ light_specular = 0.05
 sky_mode = 1
 
 [node name="RiverPath" type="Path3D" parent="." unique_id=1801238073]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, -0.00065255165, 0, -0.0014843941)
 curve = SubResource("Curve3D_7dm0k")
 
 [node name="UserCart" type="PathFollow3D" parent="RiverPath" unique_id=93584630]
@@ -135,10 +132,10 @@ progress = 200.0
 current = true
 
 [node name="Water" type="MeshInstance3D" parent="." unique_id=384269620]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0.2850113, -3.8146973e-06, -146.98906)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_vxglm")
+mesh = SubResource("PlaneMesh_yc10j")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true
@@ -207,32 +204,168 @@ layout_mode = 2
 
 [node name="Mojarras" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000003]
 
-[node name="mojarra-animacion-final" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=1967325715 instance=ExtResource("10_choun")]
-transform = Transform3D(3.784, 0, -0.351, 0, 3.8, 0, 0.351, 0, 3.784, -0.013041969, -1.8629396, -31.44965)
-script = ExtResource("11_mojarra_script")
-swim_frequency = 0.42
+[node name="Banco1" type="Node3D" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=941306367]
+transform = Transform3D(0.9999995, 0, 0, 0, 1, 0, 0, 0, 0.9999995, 0, -0.6596794, -21.454891)
 
-[node name="mojarra-animacion-final2" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=628988057 instance=ExtResource("10_choun")]
-transform = Transform3D(3.593, 0, -1.237, 0, 3.8, 0, 1.237, 0, 3.593, -7.7736993, -1.8683261, -32.142418)
-script = ExtResource("11_mojarra_script")
-swim_amplitude = 0.22
-swim_frequency = 0.35
+[node name="Mojarra_animacion" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=1452026750 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 3.2355433, -1.3979514, -8.50889)
 
-[node name="mojarra-animacion-final3" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=114852164 instance=ExtResource("10_choun")]
-transform = Transform3D(-3.4821637, 0, -0.91352916, 0, 3.6, 0, 0.91352916, 0, -3.4821637, -2.3274322, -1.9385524, -24.406994)
-script = ExtResource("11_mojarra_script")
-swim_frequency = 0.42
+[node name="Mojarra_animacion2" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=1698494446 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 4.4791217, -1.3979514, -9.105835)
+
+[node name="Mojarra_animacion3" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=1252607583 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999985, 0, 0, 0, 3.6, 0, 0, 0, 3.5999985, 2.2780979, -1.3104575, -8.550016)
+
+[node name="Mojarra_animacion4" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=1655526011 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.6195228, -1.6874204, -8.244474)
+
+[node name="Mojarra_animacion5" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=592523449 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.797589, -1.177015, -10.319651)
+
+[node name="Mojarra_animacion6" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=3344012 instance=ExtResource("10_choun")]
+transform = Transform3D(3.599998, 0, 0, 0, 3.6, 0, 0, 0, 3.599998, 2.8904362, -1.4885879, -9.926125)
+
+[node name="Mojarra_animacion7" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=1752626719 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999978, 0, 0, 0, 3.6, 0, 0, 0, 3.5999978, 2.3305807, -1.8202362, -9.926125)
+
+[node name="Mojarra_animacion8" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=77367394 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5709184, -1.9521985, -9.16795)
+
+[node name="Mojarra_animacion9" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=158589208 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5910639, -1.0676374, -8.251875)
+
+[node name="Mojarra_animacion10" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=476340543 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 3.607742, -1.8202362, -10.28507)
+
+[node name="Mojarra_animacion11" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=2094203715 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999968, 0, 0, 0, 3.6, 0, 0, 0, 3.5999968, 0.95260876, -1.3662434, -9.955154)
+
+[node name="Mojarra_animacion12" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=1426586479 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999968, 0, 0, 0, 3.6, 0, 0, 0, 3.5999968, 1.5721886, -1.4529843, -8.251875)
+
+[node name="Mojarra_animacion13" parent="Zona1/FaunaAcuatica/Mojarras/Banco1" unique_id=198273822 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 2.5524178, -1.8202362, -7.900816)
+
+[node name="Banco2" type="Node3D" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=2075957026]
+transform = Transform3D(0.99999934, 0, 0, 0, 1, 0, 0, 0, 0.99999934, -7.6499534, -0.6596794, -6.302457)
+
+[node name="Mojarra_animacion" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=1318744670 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 3.5652118, -1.3979514, -8.50889)
+
+[node name="Mojarra_animacion2" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=1553330555 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 4.4791217, -1.3979514, -9.105835)
+
+[node name="Mojarra_animacion3" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=1653348435 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999985, 0, 0, 0, 3.6, 0, 0, 0, 3.5999985, 2.2780979, -1.3104575, -8.550016)
+
+[node name="Mojarra_animacion4" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=2081243622 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.6195228, -1.6874204, -8.244474)
+
+[node name="Mojarra_animacion5" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=1384448815 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.797589, -1.177015, -10.319651)
+
+[node name="Mojarra_animacion6" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=1419154232 instance=ExtResource("10_choun")]
+transform = Transform3D(3.599998, 0, 0, 0, 3.6, 0, 0, 0, 3.599998, 2.8904362, -1.4885879, -9.926125)
+
+[node name="Mojarra_animacion7" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=1621266042 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999978, 0, 0, 0, 3.6, 0, 0, 0, 3.5999978, 2.3305807, -1.8202362, -9.926125)
+
+[node name="Mojarra_animacion8" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=2048407276 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5709184, -1.9521985, -9.16795)
+
+[node name="Mojarra_animacion9" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=264755336 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5910639, -1.0676374, -8.251875)
+
+[node name="Mojarra_animacion10" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=980001994 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 3.607742, -1.8202362, -10.28507)
+
+[node name="Mojarra_animacion11" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=357545117 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999968, 0, 0, 0, 3.6, 0, 0, 0, 3.5999968, 0.38623857, -1.3662434, -9.955155)
+
+[node name="Mojarra_animacion12" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=447354008 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999968, 0, 0, 0, 3.6, 0, 0, 0, 3.5999968, 1.5721886, -1.4529843, -8.251875)
+
+[node name="Mojarra_animacion13" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=1959093336 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 2.5524178, -1.8202362, -7.900816)
+
+[node name="Mojarra_animacion14" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=871650961 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 4.7017612, -1.8202362, -7.900816)
+
+[node name="Mojarra_animacion15" parent="Zona1/FaunaAcuatica/Mojarras/Banco2" unique_id=1310916093 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 0.7155895, -1.8202362, -7.900816)
+
+[node name="Banco3" type="Node3D" parent="Zona1/FaunaAcuatica/Mojarras" unique_id=685921415]
+transform = Transform3D(0.9999993, 0, 0, 0, 1, 0, 0, 0, 0.9999993, -12.794666, -0.6596794, -40.365147)
+
+[node name="Mojarra_animacion" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=428474555 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 3.2355433, -1.3979514, -8.50889)
+
+[node name="Mojarra_animacion2" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=767084605 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 4.4791217, -1.3979514, -9.105835)
+
+[node name="Mojarra_animacion3" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=779361817 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999985, 0, 0, 0, 3.6, 0, 0, 0, 3.5999985, 2.2780979, -1.3104575, -8.550016)
+
+[node name="Mojarra_animacion4" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=303176463 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.6195228, -1.6874204, -8.244474)
+
+[node name="Mojarra_animacion5" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=1060228244 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.797589, -1.177015, -10.319651)
+
+[node name="Mojarra_animacion6" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=1185651904 instance=ExtResource("10_choun")]
+transform = Transform3D(3.599998, 0, 0, 0, 3.6, 0, 0, 0, 3.599998, 2.8904362, -1.4885879, -9.926125)
+
+[node name="Mojarra_animacion7" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=128762898 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999978, 0, 0, 0, 3.6, 0, 0, 0, 3.5999978, 2.3305807, -1.8202362, -9.926125)
+
+[node name="Mojarra_animacion8" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=395522191 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5709184, -1.9521985, -9.16795)
+
+[node name="Mojarra_animacion9" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=1150159870 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5910639, -1.0676374, -8.251875)
+
+[node name="Mojarra_animacion10" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=1465929564 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 3.607742, -1.8202362, -10.28507)
+
+[node name="Mojarra_animacion11" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=1003986123 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999968, 0, 0, 0, 3.6, 0, 0, 0, 3.5999968, 0.95260876, -1.3662434, -9.955154)
+
+[node name="Mojarra_animacion12" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=1499364374 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999968, 0, 0, 0, 3.6, 0, 0, 0, 3.5999968, 1.5721886, -1.4529843, -8.251875)
+
+[node name="Mojarra_animacion13" parent="Zona1/FaunaAcuatica/Mojarras/Banco3" unique_id=1625226508 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 2.5524178, -1.8202362, -7.900816)
 
 [node name="Bagres" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000004]
 
+[node name="bagre_animacion" parent="Zona1/FaunaAcuatica/Bagres" unique_id=1619274827 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(-8.329206, 0, -5.5339127, 0, 10, 0, 5.5339127, 0, -8.329206, -0.97350734, -2.9149752, -20.187464)
+
+[node name="bagre_animacion3" parent="Zona1/FaunaAcuatica/Bagres" unique_id=2080752750 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(5.807026, 0, -8.1411495, 0, 10, 0, 8.1411495, 0, 5.807026, -8.355709, -2.9646773, -45.97099)
+
+[node name="bagre_animacion5" parent="Zona1/FaunaAcuatica/Bagres" unique_id=614133132 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(8.98026, 0, -4.399384, 0, 10, 0, 4.399384, 0, 8.98026, -11.316633, -3.11415, -34.71303)
+
+[node name="bagre_animacion6" parent="Zona1/FaunaAcuatica/Bagres" unique_id=1356560356 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(1.2360119, 0, -9.923297, 0, 10, 0, 9.923297, 0, 1.2360119, 1.1912566, -1.8362291, -25.65352)
+
+[node name="bagre_animacion4" parent="Zona1/FaunaAcuatica/Bagres" unique_id=800327709 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(9.316901, 0, 3.6325061, 0, 10, 0, -3.6325061, 0, 9.316901, 0.88277507, -3.097476, 10.210239)
+
 [node name="Dientudos" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000005]
 
-[node name="dientudo_animacion" parent="Zona1/FaunaAcuatica/Dientudos" unique_id=780454754 instance=ExtResource("24_vxglm")]
-transform = Transform3D(8.731883, 0, 0, 0, 8.731888, 0, 0, 0, 8.731883, -9.290532, -2.0567968, -53.819595)
-script = ExtResource("27_dientudo_script")
-patrol_range_z = 4.0
-patrol_speed = 0.3
-swim_amplitude = 0.18
+[node name="dientudo_animacion" parent="Zona1/FaunaAcuatica/Dientudos" unique_id=780454754 instance=ExtResource("11_jscy8")]
+transform = Transform3D(7.037186, 0, 3.8049922, 0, 8, 0, -3.8049922, 0, 7.037186, -9.08677, -2.520381, -28.295103)
+
+[node name="dientudo_animacion3" parent="Zona1/FaunaAcuatica/Dientudos" unique_id=1892736171 instance=ExtResource("11_jscy8")]
+transform = Transform3D(1.9624584, 0, 7.755559, 0, 8, 0, -7.755559, 0, 1.9624584, -9.086768, -2.520381, -65.26657)
+
+[node name="dientudo_animacion4" parent="Zona1/FaunaAcuatica/Dientudos" unique_id=1259233284 instance=ExtResource("11_jscy8")]
+transform = Transform3D(1.4716102, 0, -7.863479, 0, 8, 0, 7.863479, 0, 1.4716102, -3.1281948, -2.520381, -44.699516)
+
+[node name="dientudo_animacion5" parent="Zona1/FaunaAcuatica/Dientudos" unique_id=56887637 instance=ExtResource("11_jscy8")]
+transform = Transform3D(5.4150043, 0, -5.888773, 0, 8, 0, 5.888773, 0, 5.4150043, 3.404799, -2.2861545, -13.155828)
 
 [node name="FaunaTerrestre" type="Node3D" parent="Zona1" unique_id=2000000006]
 
@@ -283,12 +416,6 @@ transform = Transform3D(1.643739, 0, 0, 0, 1.6437399, 0, 0, 0, 1.643739, 8.82277
 transform = Transform3D(-0.008076262, 0, -0.47847128, 0, 0.4785402, 0, 0.47847128, 0, -0.008076262, 2.995789, -3.6418302, -84.06488)
 
 [node name="AlgaFilamentosa" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=436761068]
-
-[node name="Alga_filamentosa" parent="Zona1/VegetacionAcuatica/AlgaFilamentosa" unique_id=327639828 instance=ExtResource("14_a8y0u")]
-transform = Transform3D(0.40999943, 0, 0, 0, 0.41, 0, 0, 0, 0.40999943, -6.79206, 0.19067311, -109.479515)
-
-[node name="Alga_filamentosa2" parent="Zona1/VegetacionAcuatica/AlgaFilamentosa" unique_id=590163067 instance=ExtResource("14_a8y0u")]
-transform = Transform3D(0.3522682, 0, 0.20977741, 0, 0.40999997, 0, -0.20977741, 0, 0.3522682, -6.7920585, 0.24810052, -109.524734)
 
 [node name="Rama_sola" parent="Zona1/VegetacionAcuatica" unique_id=1356306129 instance=ExtResource("16_2wyq8")]
 transform = Transform3D(0.8503722, 0.07903325, 0.5202106, -0.06741859, 0.996872, -0.041242972, -0.52184296, 0, 0.8530405, -5.401948, -3.5614827, -82.518166)
@@ -350,9 +477,84 @@ transform = Transform3D(1.639675, 0, 0, 0, 1.6396755, 0, 0, 0, 1.639675, 14.1733
 
 [node name="Mojarras" type="Node3D" parent="Zona2/FaunaAcuatica" unique_id=1383011641]
 
+[node name="Banco1" type="Node3D" parent="Zona2/FaunaAcuatica/Mojarras" unique_id=1037967138]
+transform = Transform3D(0.99999934, 0, 0, 0, 1, 0, 0, 0, 0.99999934, 0, -0.6596794, -67.62868)
+
+[node name="Mojarra_animacion" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=1644054048 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 3.2355433, -1.3979514, -8.50889)
+
+[node name="Mojarra_animacion2" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=373999899 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 4.4791217, -1.3979514, -9.105835)
+
+[node name="Mojarra_animacion3" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=858714082 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999985, 0, 0, 0, 3.6, 0, 0, 0, 3.5999985, 2.2780979, -1.3104575, -8.550016)
+
+[node name="Mojarra_animacion4" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=651504369 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.6195228, -1.6874204, -8.244474)
+
+[node name="Mojarra_animacion5" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=1304350914 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.797589, -1.177015, -10.319651)
+
+[node name="Mojarra_animacion6" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=302078612 instance=ExtResource("10_choun")]
+transform = Transform3D(3.599998, 0, 0, 0, 3.6, 0, 0, 0, 3.599998, 2.8904362, -1.4885879, -9.926125)
+
+[node name="Mojarra_animacion7" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=823941307 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999978, 0, 0, 0, 3.6, 0, 0, 0, 3.5999978, 2.3305807, -1.8202362, -9.926125)
+
+[node name="Mojarra_animacion8" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=629002741 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5709184, -1.9521985, -9.16795)
+
+[node name="Mojarra_animacion9" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=1597490865 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5910639, -1.0676374, -8.251875)
+
+[node name="Mojarra_animacion10" parent="Zona2/FaunaAcuatica/Mojarras/Banco1" unique_id=1546412870 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 3.607742, -1.8202362, -10.28507)
+
+[node name="Banco2" type="Node3D" parent="Zona2/FaunaAcuatica/Mojarras" unique_id=163946629]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.7148197, -0.09186697, -101.7663)
+
+[node name="Mojarra_animacion" parent="Zona2/FaunaAcuatica/Mojarras/Banco2" unique_id=1687912049 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 3.2355433, -1.3979514, -8.50889)
+
+[node name="Mojarra_animacion2" parent="Zona2/FaunaAcuatica/Mojarras/Banco2" unique_id=1199337379 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 4.4791217, -1.3979514, -9.105835)
+
+[node name="Mojarra_animacion3" parent="Zona2/FaunaAcuatica/Mojarras/Banco2" unique_id=834372019 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999985, 0, 0, 0, 3.6, 0, 0, 0, 3.5999985, 2.2780979, -1.3104575, -8.550016)
+
+[node name="Mojarra_animacion4" parent="Zona2/FaunaAcuatica/Mojarras/Banco2" unique_id=256017468 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.6195228, -1.6874204, -8.244474)
+
+[node name="Mojarra_animacion5" parent="Zona2/FaunaAcuatica/Mojarras/Banco2" unique_id=1063698535 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.797589, -1.177015, -10.319651)
+
+[node name="Mojarra_animacion7" parent="Zona2/FaunaAcuatica/Mojarras/Banco2" unique_id=780977937 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999978, 0, 0, 0, 3.6, 0, 0, 0, 3.5999978, 2.3305807, -1.8202362, -9.926125)
+
+[node name="Mojarra_animacion8" parent="Zona2/FaunaAcuatica/Mojarras/Banco2" unique_id=1056008713 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5709184, -1.9521985, -9.16795)
+
 [node name="Bagres" type="Node3D" parent="Zona2/FaunaAcuatica" unique_id=1077265548]
 
+[node name="bagre_animacion" parent="Zona2/FaunaAcuatica/Bagres" unique_id=1329258437 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(6.7687535, 0, -7.3609653, 0, 10, 0, 7.3609653, 0, 6.7687535, 2.3101072, -2.837239, -131.28355)
+
+[node name="bagre_animacion4" parent="Zona2/FaunaAcuatica/Bagres" unique_id=2023002429 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(9.316894, 0, 3.6325042, 0, 10, 0, -3.6325042, 0, 9.316894, 0.8827746, -2.8975453, -96.84415)
+
+[node name="bagre_animacion5" parent="Zona2/FaunaAcuatica/Bagres" unique_id=1540167506 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(-6.7815943, 0, -7.349142, 0, 10, 0, 7.349142, 0, -6.7815943, 0, -2.409595, -71.76878)
+
 [node name="Dientudos" type="Node3D" parent="Zona2/FaunaAcuatica" unique_id=71934553]
+
+[node name="dientudo_animacion2" parent="Zona2/FaunaAcuatica/Dientudos" unique_id=1078873957 instance=ExtResource("11_jscy8")]
+transform = Transform3D(5.415003, 0, -5.8887715, 0, 8, 0, 5.8887715, 0, 5.415003, -3.6475859, -2.5068629, -82.01052)
+
+[node name="dientudo_animacion3" parent="Zona2/FaunaAcuatica/Dientudos" unique_id=777468349 instance=ExtResource("11_jscy8")]
+transform = Transform3D(5.4150014, 0, -5.88877, 0, 8, 0, 5.88877, 0, 5.4150014, -3.6475852, -2.5068629, -113.943054)
+
+[node name="dientudo_animacion4" parent="Zona2/FaunaAcuatica/Dientudos" unique_id=1232582642 instance=ExtResource("11_jscy8")]
+transform = Transform3D(5.4149995, 0, -5.888768, 0, 8, 0, 5.888768, 0, 5.4149995, 9.525615, -2.5068629, -134.46436)
 
 [node name="FaunaTerrestre" type="Node3D" parent="Zona2" unique_id=905587491]
 
@@ -394,7 +596,40 @@ transform = Transform3D(1.639675, 0, 0, 0, 1.6396755, 0, 0, 0, 1.639675, 14.1733
 
 [node name="Mojarras" type="Node3D" parent="Zona3/FaunaAcuatica" unique_id=1928983697]
 
+[node name="Mojarra_animacion" parent="Zona3/FaunaAcuatica/Mojarras" unique_id=1976496359 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999959, 0, 0, 0, 3.6, 0, 0, 0, 3.5999959, 9.160162, -2.0576308, -133.57004)
+
+[node name="Mojarra_animacion2" parent="Zona3/FaunaAcuatica/Mojarras" unique_id=761300943 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999942, 0, 0, 0, 3.6, 0, 0, 0, 3.5999942, 2.7551742, -0.69508266, -211.05219)
+
+[node name="Mojarra_animacion3" parent="Zona3/FaunaAcuatica/Mojarras" unique_id=1393665830 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999947, 0, 0, 0, 3.6, 0, 0, 0, 3.5999947, -5.4497967, -1.9701369, -158.74016)
+
+[node name="Mojarra_animacion4" parent="Zona3/FaunaAcuatica/Mojarras" unique_id=745796873 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999944, 0, 0, 0, 3.6, 0, 0, 0, 3.5999944, -1.1785454, -2.3463721, -139.48096)
+
+[node name="Mojarra_animacion5" parent="Zona3/FaunaAcuatica/Mojarras" unique_id=1969863625 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999956, 0, 0, 0, 3.6, 0, 0, 0, 3.5999956, -2.4963048, -1.8366944, -141.55621)
+
+[node name="Mojarra_animacion6" parent="Zona3/FaunaAcuatica/Mojarras" unique_id=693071003 instance=ExtResource("10_choun")]
+transform = Transform3D(3.599995, 0, 0, 0, 3.6, 0, 0, 0, 3.599995, 4.1948514, -1.9576303, -166.2403)
+
+[node name="Mojarra_animacion7" parent="Zona3/FaunaAcuatica/Mojarras" unique_id=438967912 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999951, 0, 0, 0, 3.6, 0, 0, 0, 3.5999951, 8.241632, -2.6701546, -148.69717)
+
+[node name="Mojarra_animacion8" parent="Zona3/FaunaAcuatica/Mojarras" unique_id=98801288 instance=ExtResource("10_choun")]
+transform = Transform3D(3.599993, 0, 0, 0, 3.6, 0, 0, 0, 3.599993, -6.37351, -1.4142983, -192.98415)
+
 [node name="Bagres" type="Node3D" parent="Zona3/FaunaAcuatica" unique_id=1659284725]
+
+[node name="bagre_animacion2" parent="Zona3/FaunaAcuatica/Bagres" unique_id=632686119 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(5.4610143, 0, -8.377179, 0, 10, 0, 8.377179, 0, 5.4610143, 0, -2.7632613, -178.8231)
+
+[node name="bagre_animacion4" parent="Zona3/FaunaAcuatica/Bagres" unique_id=841521020 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(6.5209746, 0, 7.5813336, 0, 10, 0, -7.5813336, 0, 6.5209746, -2.8995574, -2.785825, -223.73172)
+
+[node name="bagre_animacion3" parent="Zona3/FaunaAcuatica/Bagres" unique_id=761005772 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(1.2360129, 0, -9.923305, 0, 10, 0, 9.923305, 0, 1.2360129, -5.4051657, -2.805956, -153.0253)
 
 [node name="Dientudos" type="Node3D" parent="Zona3/FaunaAcuatica" unique_id=1835296605]
 
@@ -440,6 +675,9 @@ transform = Transform3D(1.639675, 0, 0, 0, 1.6396755, 0, 0, 0, 1.639675, 14.1733
 
 [node name="Bagres" type="Node3D" parent="Zona4/FaunaAcuatica" unique_id=1999246507]
 
+[node name="bagre_animacion5" parent="Zona4/FaunaAcuatica/Bagres" unique_id=725750177 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(-5.1204195, 0, 8.589583, 0, 10, 0, -8.589583, 0, -5.1204195, -0.27515355, -2.718752, -279.09082)
+
 [node name="Dientudos" type="Node3D" parent="Zona4/FaunaAcuatica" unique_id=1181622995]
 
 [node name="FaunaTerrestre" type="Node3D" parent="Zona4" unique_id=1095836608]
@@ -475,11 +713,3 @@ transform = Transform3D(1.639675, 0, 0, 0, 1.6396755, 0, 0, 0, 1.639675, 14.1733
 [node name="Sauces" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=1665924968]
 
 [node name="Totoras" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=331523810]
-
-[node name="bagre_animacion" parent="." unique_id=1619274827 instance=ExtResource("25_2f3dj")]
-transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, -5.092868, -1.8592255, -28.977997)
-script = ExtResource("26_bagre_script")
-
-[node name="dientudo_animacion" parent="." unique_id=1219655256 instance=ExtResource("24_vxglm")]
-transform = Transform3D(10.359998, 0, 0, 0, 10.36, 0, 0, 0, 10.359998, -6.484395, -2.7835546, -48.037067)
-script = ExtResource("27_dientudo_script")

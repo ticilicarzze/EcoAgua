@@ -255,7 +255,9 @@ func _apply_fish_scripts_recursive(node: Node, mojarra_script: Script, bagre_scr
 		return
 
 	var node_name := node.name.to_lower()
-	if node is Node3D and node != self:
+	var is_container := (node_name == "mojarras" or node_name == "bagres" or node_name == "dientudos" or node_name == "faunaacuatica" or node_name.contains("banco"))
+
+	if node is Node3D and node != self and not is_container:
 		var target_script: Script = null
 		if node_name.contains("bagre"):
 			target_script = bagre_script
