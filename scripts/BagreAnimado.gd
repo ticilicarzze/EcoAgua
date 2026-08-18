@@ -12,7 +12,7 @@ extends PezAnimado
 func _setup_species_params() -> void:
 	patrol_range_x = 4.5
 	patrol_range_z = 8.5
-	patrol_speed   = 0.16
+	patrol_speed   = 0.16 ## Velocidad base (Bagre - 1.0x)
 	turn_speed     = 1.2
 	swim_amplitude = 0.14
 	swim_frequency = 0.32
@@ -24,6 +24,11 @@ func _setup_species_params() -> void:
 	wall_inward_bias = 0.85 ## Gira con mayor amplitud de grados hacia el centro del río
 	wall_deflection_strength = 1.0 ## Viraje completo hacia el interior
 	turn_speed = 1.6 ## Giro más ágil y fluido en virajes de orilla
+
+	# Reducción a 0.7x de velocidad en Zonas 3 y 4 (Z <= -140.0)
+	if global_position.z <= -140.0:
+		patrol_speed *= 0.7 ## 0.112 rad/s
+		swim_frequency *= 0.7 ## 0.224 Hz
 
 func _ready() -> void:
 	super._ready()

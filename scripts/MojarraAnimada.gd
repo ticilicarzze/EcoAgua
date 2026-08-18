@@ -17,9 +17,10 @@ func _setup_species_params() -> void:
 	patrol_range_x = radius
 	patrol_range_z = radius
 
-	# Velocidad de nado única por banco (siempre positiva para avance frontal continuo)
-	patrol_speed = group_rng.randf_range(0.26, 0.38)
-	turn_speed   = 4.0
+	# Velocidad de nado por banco (3.0x la velocidad del bagre: 0.16 * 3.0 = 0.48 rad/s)
+	var base_mojarra_speed: float = 0.16 * 3.0
+	patrol_speed = base_mojarra_speed * group_rng.randf_range(0.95, 1.05)
+	turn_speed = 4.0
 	wall_boost_multiplier = 2.0 ## Aceleración rápida exclusiva tras virar en la pared
 
 	# 3. Variación individual natural para los peces del MISMO banco
@@ -29,9 +30,9 @@ func _setup_species_params() -> void:
 
 	# Micro-variaciones individuales para que los coletazos no sean copias robóticas
 	swim_amplitude = randf_range(0.07, 0.10)
-	swim_frequency = randf_range(0.42, 0.52)
-	bob_amplitude  = randf_range(0.02, 0.04)
-	bob_frequency  = randf_range(0.60, 0.80)
+	swim_frequency = randf_range(0.85, 1.00) ## Coletazo muy rápido y vibrante (~3x frecuencia del bagre)
+	bob_amplitude = randf_range(0.02, 0.04)
+	bob_frequency = randf_range(0.60, 0.80)
 	model_yaw_offset_deg = 0.0
 
 	# 4. Garantizar que cada mojarra mantenga una escala entre 3.6 y 4.0

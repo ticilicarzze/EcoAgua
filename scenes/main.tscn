@@ -97,7 +97,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_yc10j"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_pm3ni"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -132,10 +132,10 @@ progress = 200.0
 current = true
 
 [node name="Water" type="MeshInstance3D" parent="." unique_id=384269620]
-transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0.2850113, -3.8146973e-06, -146.98906)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_yc10j")
+mesh = SubResource("PlaneMesh_pm3ni")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true
@@ -339,7 +339,7 @@ transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 2.5524178, 
 [node name="Bagres" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000004]
 
 [node name="bagre_animacion" parent="Zona1/FaunaAcuatica/Bagres" unique_id=1619274827 instance=ExtResource("11_pm3ni")]
-transform = Transform3D(-8.329206, 0, -5.5339127, 0, 10, 0, 5.5339127, 0, -8.329206, -0.97350734, -2.9149752, -20.187464)
+transform = Transform3D(-8.329204, 0, -5.533911, 0, 10, 0, 5.533911, 0, -8.329204, -3.6011777, -2.9149752, -11.349456)
 
 [node name="bagre_animacion3" parent="Zona1/FaunaAcuatica/Bagres" unique_id=2080752750 instance=ExtResource("11_pm3ni")]
 transform = Transform3D(5.807026, 0, -8.1411495, 0, 10, 0, 8.1411495, 0, 5.807026, -8.355709, -2.9646773, -45.97099)
@@ -348,7 +348,7 @@ transform = Transform3D(5.807026, 0, -8.1411495, 0, 10, 0, 8.1411495, 0, 5.80702
 transform = Transform3D(8.98026, 0, -4.399384, 0, 10, 0, 4.399384, 0, 8.98026, -11.316633, -3.11415, -34.71303)
 
 [node name="bagre_animacion6" parent="Zona1/FaunaAcuatica/Bagres" unique_id=1356560356 instance=ExtResource("11_pm3ni")]
-transform = Transform3D(1.2360119, 0, -9.923297, 0, 10, 0, 9.923297, 0, 1.2360119, 1.1912566, -1.8362291, -25.65352)
+transform = Transform3D(1.2360116, 0, -9.923295, 0, 10, 0, 9.923295, 0, 1.2360116, 1.1912564, -2.6534133, -25.653517)
 
 [node name="bagre_animacion4" parent="Zona1/FaunaAcuatica/Bagres" unique_id=800327709 instance=ExtResource("11_pm3ni")]
 transform = Transform3D(9.316901, 0, 3.6325061, 0, 10, 0, -3.6325061, 0, 9.316901, 0.88277507, -3.097476, 10.210239)
