@@ -30,7 +30,7 @@ func _setup_species_params() -> void:
 
 	# Micro-variaciones individuales para que los coletazos no sean copias robóticas
 	swim_amplitude = randf_range(0.07, 0.10)
-	swim_frequency = randf_range(0.85, 1.00) ## Coletazo muy rápido y vibrante (~3x frecuencia del bagre)
+	swim_frequency = randf_range(0.48, 0.54) ## Coletazo a 1.6x frecuencia del bagre (0.512 Hz)
 	bob_amplitude = randf_range(0.02, 0.04)
 	bob_frequency = randf_range(0.60, 0.80)
 	model_yaw_offset_deg = 0.0
