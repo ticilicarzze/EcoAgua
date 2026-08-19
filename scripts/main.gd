@@ -151,11 +151,20 @@ func _ready() -> void:
 		return
 
 	var xr_interface = XRServer.find_interface("OpenXR")
-	if xr_interface and xr_interface.is_initialized():
-		get_viewport().use_xr = true
-		print("XR Mode: Headset detected.")
+	if not xr_interface:
+		xr_interface = XRServer.find_interface("WebXR")
+
+	if xr_interface:
+		if not xr_interface.is_initialized():
+			xr_interface.initialize()
+		if xr_interface.is_initialized():
+			get_viewport().use_xr = true
+			print("XR Mode: Headset detected (%s)." % xr_interface.get_name())
+		else:
+			print("XR Mode: Flat mode (no headset initialized). FreeLook activado.")
+			_setup_free_look()
 	else:
-		print("XR Mode: Flat mode (no headset). FreeLook activado.")
+		print("XR Mode: Flat mode (no headset interface). FreeLook activado.")
 		_setup_free_look()
 
 	WaterManager.zone_changed.connect(_on_zone_changed)
