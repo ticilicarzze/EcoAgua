@@ -151,20 +151,11 @@ func _ready() -> void:
 		return
 
 	var xr_interface = XRServer.find_interface("OpenXR")
-	if not xr_interface:
-		xr_interface = XRServer.find_interface("WebXR")
-
-	if xr_interface:
-		if not xr_interface.is_initialized():
-			xr_interface.initialize()
-		if xr_interface.is_initialized():
-			get_viewport().use_xr = true
-			print("XR Mode: Headset detected (%s)." % xr_interface.get_name())
-		else:
-			print("XR Mode: Flat mode (no headset initialized). FreeLook activado.")
-			_setup_free_look()
+	if xr_interface and xr_interface.is_initialized():
+		get_viewport().use_xr = true
+		print("XR Mode: Headset detected.")
 	else:
-		print("XR Mode: Flat mode (no headset interface). FreeLook activado.")
+		print("XR Mode: Flat mode (no headset). FreeLook activado.")
 		_setup_free_look()
 
 	WaterManager.zone_changed.connect(_on_zone_changed)
@@ -191,7 +182,7 @@ func _setup_free_look() -> void:
 		push_warning("FreeLook: No se encontró FlatCamera en la raíz de la escena.")
 		return
 	_fl_camera = $FlatCamera
-	_fl_yaw   = 0.0
+	_fl_yaw = 0.0
 	_fl_pitch = 0.0
 	print("FreeLook integrado: mouse (izq/der) + WASD + flechas.")
 
@@ -253,8 +244,8 @@ func _setup_camera_fx() -> void:
 # _setup_aquatic_fauna — Asigna automáticamente nado y animación a todos los peces según especie
 # =========================================================
 func _setup_aquatic_fauna() -> void:
-	var mojarra_script  = preload("res://scripts/MojarraAnimada.gd")
-	var bagre_script    = preload("res://scripts/BagreAnimado.gd")
+	var mojarra_script = preload("res://scripts/MojarraAnimada.gd")
+	var bagre_script = preload("res://scripts/BagreAnimado.gd")
 	var dientudo_script = preload("res://scripts/DientudoAnimado.gd")
 
 	_apply_fish_scripts_recursive(self, mojarra_script, bagre_script, dientudo_script)
@@ -387,9 +378,9 @@ func _create_surface_checkpoint_visualizers() -> void:
 		return
 
 	var checkpoints_info: Array[Dictionary] = [
-		{"z": -105.0, "name": "Zona 2 (Transición)", "color": Color(0.2, 0.85, 1.0)},
-		{"z": -175.0, "name": "Zona 3 (Turbia)", "color": Color(1.0, 0.85, 0.2)},
-		{"z": -245.0, "name": "Zona 4 (Degradada)", "color": Color(1.0, 0.4, 0.3)}
+		{"z": - 105.0, "name": "Zona 2 (Transición)", "color": Color(0.2, 0.85, 1.0)},
+		{"z": - 175.0, "name": "Zona 3 (Turbia)", "color": Color(1.0, 0.85, 0.2)},
+		{"z": - 245.0, "name": "Zona 4 (Degradada)", "color": Color(1.0, 0.4, 0.3)}
 	]
 
 	var baked_points = curve.get_baked_points()
@@ -659,20 +650,18 @@ func _build_valley_terrain() -> CSGPolygon3D:
 	valley.mode = CSGPolygon3D.MODE_PATH
 	valley.path_rotation = CSGPolygon3D.PATH_ROTATION_POLYGON
 	valley.path_interval_type = CSGPolygon3D.PATH_INTERVAL_DISTANCE
-	valley.path_interval = 2.0  # mayor resolución longitudinal para vertex displacement
+	valley.path_interval = 2.0 # mayor resolución longitudinal para vertex displacement
 	valley.smooth_faces = true
 	valley.path_continuous_u = true
 	valley.path_u_distance = 10.0
 	valley.material = terrain_mat
-	valley.use_collision = true   # Habilita Snap to Floor (Shift+Fin) en el editor
+	valley.use_collision = true # Habilita Snap to Floor (Shift+Fin) en el editor
 	valley.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	add_child(valley)
 	valley.path_node = valley.get_path_to($RiverPath)
 	print("Valley: CSGPolygon3D terrain creado a lo largo del RiverPath.")
 
 	return valley
-
-
 
 
 # =========================================================
@@ -693,7 +682,7 @@ func _input(event: InputEvent) -> void:
 	# Rotar cámara con movimiento del mouse
 	if event is InputEventMouseMotion and _fl_dragging:
 		var rel := (event as InputEventMouseMotion).relative
-		_fl_yaw   -= rel.x * FL_MOUSE_SENS
+		_fl_yaw -= rel.x * FL_MOUSE_SENS
 		_fl_pitch -= rel.y * FL_MOUSE_SENS
 		_fl_pitch = clamp(_fl_pitch, deg_to_rad(-FL_PITCH_LIMIT), deg_to_rad(FL_PITCH_LIMIT))
 
@@ -842,18 +831,18 @@ func _process(delta: float) -> void:
 
 	# Teclado WASD / Flechas para rotar la cámara libre
 	if _fl_camera:
-		var fl_turn  := 0.0
+		var fl_turn := 0.0
 		var fl_pitch := 0.0
-		if Input.is_key_pressed(KEY_LEFT)  or Input.is_key_pressed(KEY_A):
+		if Input.is_key_pressed(KEY_LEFT) or Input.is_key_pressed(KEY_A):
 			fl_turn += FL_KEY_SPEED * delta
 		if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D):
 			fl_turn -= FL_KEY_SPEED * delta
-		if Input.is_key_pressed(KEY_UP)    or Input.is_key_pressed(KEY_W):
+		if Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_W):
 			fl_pitch += FL_KEY_SPEED * delta
-		if Input.is_key_pressed(KEY_DOWN)  or Input.is_key_pressed(KEY_S):
+		if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S):
 			fl_pitch -= FL_KEY_SPEED * delta
-		_fl_yaw   += fl_turn
-		_fl_pitch  = clamp(_fl_pitch + fl_pitch, deg_to_rad(-FL_PITCH_LIMIT), deg_to_rad(FL_PITCH_LIMIT))
+		_fl_yaw += fl_turn
+		_fl_pitch = clamp(_fl_pitch + fl_pitch, deg_to_rad(-FL_PITCH_LIMIT), deg_to_rad(FL_PITCH_LIMIT))
 
 	# La FlatCamera ahora está en la raíz de la escena (no es hija del PathFollow3D).
 	# Copiamos SOLO la posición global del carro, y aplicamos nuestra propia rotación libre.

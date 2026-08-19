@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://eawhk3jxl62w" path="res://assets/models/ZONA1/Vegetacion Acuática/Ceratophyllum.glb" id="13_trceg"]
 [ext_resource type="PackedScene" uid="uid://csnwpeupmawsr" path="res://assets/models/ZONA1/Vegetacion Acuática/Rama_grupo.glb" id="14_og1vs"]
 [ext_resource type="PackedScene" uid="uid://dp0g423eqdvl" path="res://assets/models/ZONA1/Vegetación ribereña/Ceibo.glb" id="15_jkv2x"]
+[ext_resource type="PackedScene" uid="uid://bi5a73r8ogo4t" path="res://assets/models/ZONA1/Vegetacion Acuática/Potamogeton.glb" id="15_y6deb"]
 [ext_resource type="PackedScene" uid="uid://cp6pivt8jpkia" path="res://assets/models/ZONA1/Vegetación ribereña/Junco.glb" id="16_0ld40"]
 [ext_resource type="PackedScene" uid="uid://b0jgyhgjk6j03" path="res://assets/models/ZONA1/Vegetacion Acuática/Rama_sola.glb" id="16_2wyq8"]
 [ext_resource type="PackedScene" uid="uid://cfk4gm0gunuei" path="res://assets/models/ZONA1/Vegetación ribereña/Pastizales_altos_pampeanos.glb" id="17_gqmmt"]
@@ -350,9 +351,6 @@ transform = Transform3D(8.98026, 0, -4.399384, 0, 10, 0, 4.399384, 0, 8.98026, -
 [node name="bagre_animacion6" parent="Zona1/FaunaAcuatica/Bagres" unique_id=1356560356 instance=ExtResource("11_pm3ni")]
 transform = Transform3D(1.2360116, 0, -9.923295, 0, 10, 0, 9.923295, 0, 1.2360116, 1.1912564, -2.6534133, -25.653517)
 
-[node name="bagre_animacion4" parent="Zona1/FaunaAcuatica/Bagres" unique_id=800327709 instance=ExtResource("11_pm3ni")]
-transform = Transform3D(9.316901, 0, 3.6325061, 0, 10, 0, -3.6325061, 0, 9.316901, 0.88277507, -3.097476, 10.210239)
-
 [node name="Dientudos" type="Node3D" parent="Zona1/FaunaAcuatica" unique_id=2000000005]
 
 [node name="dientudo_animacion" parent="Zona1/FaunaAcuatica/Dientudos" unique_id=780454754 instance=ExtResource("11_jscy8")]
@@ -379,29 +377,124 @@ transform = Transform3D(5.4150043, 0, -5.888773, 0, 8, 0, 5.888773, 0, 5.4150043
 
 [node name="Ceratophyllum" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=2000000011]
 
-[node name="Ceratophyllum" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1476020544 instance=ExtResource("13_trceg")]
-transform = Transform3D(0.99999905, 0, 0, 0, 1, 0, 0, 0, 0.99999905, -4.1887283, -4.3050766, -1.3724185)
+[node name="conjunto2" type="Node3D" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=265392441]
+transform = Transform3D(0.99999976, 0, 0, 0, 1, 0, 0, 0, 0.99999976, 14.615091, 0, 2.2140038)
 
-[node name="Ceratophyllum2" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1416239034 instance=ExtResource("13_trceg")]
-transform = Transform3D(0.9999987, 0, 0, 0, 1, 0, 0, 0, 0.9999987, -2.5201516, -3.7498062, -5.4226384)
+[node name="Ceratophyllum" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=38932397 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999984, 0, 0, 0, 0.73524004, 0, 0, 0, 0.9999984, -8.650858, -3.6821692, -13.884927)
 
-[node name="Ceratophyllum3" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1617393520 instance=ExtResource("13_trceg")]
-transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, 5.993567, -3.517565, 1.2464222)
+[node name="Ceratophyllum2" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=1924330235 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.19907677, 0, -0.979982, 0, 1, 0, 0.979982, 0, -0.19907677, -10.293499, -3.8933737, -14.909511)
 
-[node name="Ceratophyllum4" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=737344427 instance=ExtResource("13_trceg")]
-transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, 3.2337582, -3.7498062, -1.3724183)
+[node name="Ceratophyllum3" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=311319605 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033792, 0, -0.90736455, 0, 0.7474462, 0, 0.90736455, 0, 0.42033792, -7.4648705, -3.6270173, -13.013466)
 
-[node name="Ceratophyllum5" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1714188299 instance=ExtResource("13_trceg")]
-transform = Transform3D(0.9999988, 0, 0, 0, 1, 0, 0, 0, 0.9999988, -4.1887264, -3.7498062, -11.632003)
+[node name="Ceratophyllum4" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=2077134581 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.8042493, 0, 0, 0, 0.76948214, 0, 0, 0, 0.730645, -7.3528233, -3.7498062, -14.592783)
 
-[node name="Ceratophyllum6" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1567952954 instance=ExtResource("13_trceg")]
-transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, -2.520151, -3.7498062, -15.682223)
+[node name="Ceratophyllum5" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=472207109 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -8.832457, -3.7498062, -17.02851)
 
-[node name="Ceratophyllum7" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1421972747 instance=ExtResource("13_trceg")]
-transform = Transform3D(0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 5.9935656, -3.7498062, -9.013164)
+[node name="Ceratophyllum6" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=774700281 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -9.246114, -4.0452952, -15.477699)
 
-[node name="Ceratophyllum8" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=658406024 instance=ExtResource("13_trceg")]
-transform = Transform3D(0.9999988, 0, 0, 0, 1, 0, 0, 0, 0.9999988, 3.2337577, -3.7498062, -11.632005)
+[node name="Ceratophyllum7" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=1994905737 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999756, 0, 0, 0, 1, 0, 0, 0, 0.99999756, -9.8701315, -3.7498062, -13.275535)
+
+[node name="Ceratophyllum8" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=1003252920 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.18748379, 0, -0.9822659, 0, 1, 0, 0.9822659, 0, -0.18748379, -9.8456, -3.7498062, -16.695309)
+
+[node name="conjunto3" type="Node3D" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1136757554]
+
+[node name="Ceratophyllum" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto3" unique_id=1476020544 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999984, 0, 0, 0, 0.73524004, 0, 0, 0, 0.9999984, -8.650858, -3.6821692, -13.884927)
+
+[node name="Ceratophyllum2" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto3" unique_id=1416239034 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.19907677, 0, -0.979982, 0, 1, 0, 0.979982, 0, -0.19907677, -10.293499, -3.8933737, -14.909511)
+
+[node name="Ceratophyllum3" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto3" unique_id=1617393520 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033792, 0, -0.90736455, 0, 0.7474462, 0, 0.90736455, 0, 0.42033792, -7.4648705, -3.6270173, -13.013466)
+
+[node name="Ceratophyllum4" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto3" unique_id=737344427 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.8042493, 0, 0, 0, 0.76948214, 0, 0, 0, 0.730645, -7.3528233, -3.7498062, -14.592783)
+
+[node name="Ceratophyllum5" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto3" unique_id=1714188299 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -8.832457, -3.7498062, -17.02851)
+
+[node name="Ceratophyllum6" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto3" unique_id=1567952954 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -9.246114, -4.0452952, -15.477699)
+
+[node name="Ceratophyllum7" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto3" unique_id=1421972747 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999756, 0, 0, 0, 1, 0, 0, 0, 0.99999756, -9.8701315, -3.7498062, -13.275535)
+
+[node name="Ceratophyllum8" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto3" unique_id=658406024 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.18748379, 0, -0.9822659, 0, 1, 0, 0.9822659, 0, -0.18748379, -9.8456, -3.7498062, -16.695309)
+
+[node name="conjunto4" type="Node3D" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=969466642]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, -1.235126, 0, -25.348347)
+
+[node name="Ceratophyllum" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto4" unique_id=1602467467 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999984, 0, 0, 0, 0.73524004, 0, 0, 0, 0.9999984, -8.650858, -3.6821692, -13.884927)
+
+[node name="Ceratophyllum2" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto4" unique_id=859463354 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.19907677, 0, -0.979982, 0, 1, 0, 0.979982, 0, -0.19907677, -10.293499, -3.8933737, -14.909511)
+
+[node name="Ceratophyllum3" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto4" unique_id=1757471713 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033792, 0, -0.90736455, 0, 0.7474462, 0, 0.90736455, 0, 0.42033792, -7.4648705, -3.6270173, -13.013466)
+
+[node name="Ceratophyllum4" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto4" unique_id=2091544156 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.8042493, 0, 0, 0, 0.76948214, 0, 0, 0, 0.730645, -7.3528233, -3.7498062, -14.592783)
+
+[node name="Ceratophyllum5" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto4" unique_id=1627585922 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -8.832457, -3.7498062, -17.02851)
+
+[node name="Ceratophyllum6" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto4" unique_id=396298666 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -9.246114, -4.0452952, -15.477699)
+
+[node name="Ceratophyllum7" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto4" unique_id=1693807197 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999756, 0, 0, 0, 1, 0, 0, 0, 0.99999756, -9.8701315, -3.7498062, -13.275535)
+
+[node name="Ceratophyllum8" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto4" unique_id=200353858 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.18748379, 0, -0.9822659, 0, 1, 0, 0.9822659, 0, -0.18748379, -9.8456, -3.7498062, -16.695309)
+
+[node name="conjunto5" type="Node3D" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=967887350]
+transform = Transform3D(0.9999996, 0, 0, 0, 1, 0, 0, 0, 0.9999996, 11.756382, 0, -55.857006)
+
+[node name="Ceratophyllum" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto5" unique_id=387432548 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999984, 0, 0, 0, 0.73524004, 0, 0, 0, 0.9999984, -8.650858, -3.6821692, -13.884927)
+
+[node name="Ceratophyllum2" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto5" unique_id=1515281484 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.19907677, 0, -0.979982, 0, 1, 0, 0.979982, 0, -0.19907677, -10.293499, -3.8933737, -14.909511)
+
+[node name="Ceratophyllum3" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto5" unique_id=1827627526 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033792, 0, -0.90736455, 0, 0.7474462, 0, 0.90736455, 0, 0.42033792, -7.4648705, -3.6270173, -13.013466)
+
+[node name="Ceratophyllum4" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto5" unique_id=1499318200 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.8042493, 0, 0, 0, 0.76948214, 0, 0, 0, 0.730645, -7.3528233, -3.7498062, -14.592783)
+
+[node name="Ceratophyllum5" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto5" unique_id=594791438 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -8.832457, -3.7498062, -17.02851)
+
+[node name="Ceratophyllum6" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto5" unique_id=1041421289 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -9.246114, -4.0452952, -15.477699)
+
+[node name="Ceratophyllum7" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto5" unique_id=2140944251 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999756, 0, 0, 0, 1, 0, 0, 0, 0.99999756, -9.8701315, -3.7498062, -13.275535)
+
+[node name="Ceratophyllum8" parent="Zona1/VegetacionAcuatica/Ceratophyllum/conjunto5" unique_id=1881501011 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.18748379, 0, -0.9822659, 0, 1, 0, 0.9822659, 0, -0.18748379, -9.8456, -3.7498062, -16.695309)
+
+[node name="Ceratophyllum" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1512176231 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999976, 0, 0, 0, 1, 0, 0, 0, 0.99999976, -8.161655, -4.2166405, 0)
+
+[node name="Ceratophyllum2" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=1288096863 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999995, 0, 0, 0, 1, 0, 0, 0, 0.9999995, -10.002955, -3.7709916, -76.12633)
+
+[node name="Ceratophyllum3" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=685408513 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.999356, 0, 0.035858747, 0, 1, 0, -0.035858747, 0, -0.999356, -10.700618, -3.8526769, -74.75757)
+
+[node name="Ceratophyllum4" parent="Zona1/VegetacionAcuatica/Ceratophyllum" unique_id=142759216 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.99935573, 0, 0.03585873, 0, 1, 0, -0.03585873, 0, -0.99935573, 3.735914, -3.827439, -55.901684)
 
 [node name="LentejaDeAgua" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=2000000012]
 
@@ -409,6 +502,110 @@ transform = Transform3D(0.9999988, 0, 0, 0, 1, 0, 0, 0, 0.9999988, 3.2337577, -3
 transform = Transform3D(1.643739, 0, 0, 0, 1.6437399, 0, 0, 0, 1.643739, 8.822773, 0.31855202, -100.956635)
 
 [node name="Potamogeton" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=2000000013]
+
+[node name="Conjunto1" type="Node3D" parent="Zona1/VegetacionAcuatica/Potamogeton" unique_id=303046510]
+
+[node name="Potamogeton1" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=1025226076 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999887, 0, 0, 0, 1.0433121, 0, 0, 0, 0.99999887, -2.4017165, -0.3725673, -99.41631)
+
+[node name="Potamogeton8" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=966309650 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999988, 0, 0, 0, 1, 0, 0, 0, 0.9999988, -2.4017162, -0.3725673, -98.20682)
+
+[node name="Potamogeton9" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=1435273541 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999875, 0, 0, 0, 1, 0, 0, 0, 0.99999875, -3.3231966, -0.3725673, -98.20681)
+
+[node name="Potamogeton10" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=433466146 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999987, 0, 0, 0, 1, 0, 0, 0, 0.9999987, -4.3286314, -0.3725673, -98.2068)
+
+[node name="Potamogeton11" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=1388756719 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999857, 0, 0, 0, 1, 0, 0, 0, 0.99999857, -3.4610946, -0.3725673, -97.426445)
+
+[node name="Potamogeton12" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=25861582 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999984, 0, 0, 0, 1.229492, 0, 0, 0, 0.9999984, -4.4679193, -0.3725673, -97.42642)
+
+[node name="Potamogeton13" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=1041392206 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999845, 0, 0, 0, 1, 0, 0, 0, 0.99999845, -4.46792, -0.3725673, -100.90981)
+
+[node name="Potamogeton14" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=1219262719 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999984, 0, 0, 0, 1, 0, 0, 0, 0.9999984, -5.381461, -0.3725673, -100.909805)
+
+[node name="Potamogeton15" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=577177245 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1.1944225, 0, 0, 0, 0.9999983, -5.38146, -0.3725673, -99.265816)
+
+[node name="Potamogeton16" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=288551882 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -5.38146, -0.3725673, -97.5228)
+
+[node name="Potamogeton17" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=912385531 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999982, 0, 0, 0, 1, 0, 0, 0, 0.9999982, -2.5453405, -0.3725673, -97.52279)
+
+[node name="Potamogeton18" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=528608177 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999982, 0, 0, 0, 1, 0, 0, 0, 0.9999982, -2.5453405, -0.3725673, -97.52279)
+
+[node name="Potamogeton2" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=1464267298 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -4.154846, -0.57468307, -99.45756)
+
+[node name="Potamogeton3" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=2138114344 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.4389718, -0.3725673, -98.49198)
+
+[node name="Potamogeton4" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=856979485 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.64001, 0, 0, 0, 0.93611276, 0, 0, 0, 1.4534312, -3.4389706, -0.6854379, -100.88562)
+
+[node name="Potamogeton5" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=381152854 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -3.0550938, -0.9294138, -99.45756)
+
+[node name="Potamogeton6" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=1019625660 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999987, 0, 0, 0, 1.1797881, 0, 0, 0, 0.9999987, -5.936064, -0.3433445, -99.090836)
+
+[node name="Potamogeton7" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto1" unique_id=1550013613 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.4389718, -0.3725673, -100.78551)
+
+[node name="Conjunto2" type="Node3D" parent="Zona1/VegetacionAcuatica/Potamogeton" unique_id=322047066]
+transform = Transform3D(0.99999964, 0, 0, 0, 1, 0, 0, 0, 0.99999964, -2.1223094, 0, 73.30778)
+
+[node name="Potamogeton1" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1191997903 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -2.4017167, -0.3725673, -99.41632)
+
+[node name="Potamogeton2" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=465948597 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -4.154846, -0.57468307, -99.45756)
+
+[node name="Potamogeton3" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1412233605 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.4389718, -0.3725673, -98.49198)
+
+[node name="Potamogeton4" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=82089060 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.6400101, 0, 0, 0, 1, 0, 0, 0, 1.4534314, -3.4389708, -0.6854379, -100.88563)
+
+[node name="Potamogeton5" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=449067674 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -3.0550938, -0.9294138, -99.45756)
+
+[node name="Potamogeton6" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=335473712 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999875, 0, 0, 0, 1, 0, 0, 0, 0.99999875, -5.9360642, -0.3433445, -99.09084)
+
+[node name="Potamogeton7" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1289694520 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.4389718, -0.3725673, -100.78551)
+
+[node name="Conjunto3" type="Node3D" parent="Zona1/VegetacionAcuatica/Potamogeton" unique_id=2020602481]
+transform = Transform3D(0.99999964, 0, 0, 0, 1, 0, 0, 0, 0.99999964, 9.931059, 0, 26.66965)
+
+[node name="Potamogeton1" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto3" unique_id=1522662224 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -2.4017167, -0.3725673, -99.41632)
+
+[node name="Potamogeton2" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto3" unique_id=1871665291 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -4.154846, -0.57468307, -99.45756)
+
+[node name="Potamogeton3" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto3" unique_id=1661025211 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.4389718, -0.3725673, -98.49198)
+
+[node name="Potamogeton4" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto3" unique_id=1974113690 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.6400101, 0, 0, 0, 1, 0, 0, 0, 1.4534314, -3.4389708, -0.6854379, -100.88563)
+
+[node name="Potamogeton5" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto3" unique_id=1159302491 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -3.0550938, -0.9294138, -99.45756)
+
+[node name="Potamogeton6" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto3" unique_id=1863934217 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999875, 0, 0, 0, 1, 0, 0, 0, 0.99999875, -5.9360642, -0.3433445, -99.09084)
+
+[node name="Potamogeton7" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto3" unique_id=615866526 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.4389718, -0.3725673, -100.78551)
 
 [node name="Ramas" type="Node3D" parent="Zona1/VegetacionAcuatica" unique_id=2000000014]
 
@@ -568,6 +765,54 @@ transform = Transform3D(5.4149995, 0, -5.888768, 0, 8, 0, 5.888768, 0, 5.4149995
 
 [node name="Ceratophyllum" type="Node3D" parent="Zona2/VegetacionAcuatica" unique_id=730128464]
 
+[node name="conjunto1" type="Node3D" parent="Zona2/VegetacionAcuatica/Ceratophyllum" unique_id=125649216]
+transform = Transform3D(0.9999991, 0, 0, 0, 1, 0, 0, 0, 0.9999991, 19.366486, 0.16753578, -93.626175)
+
+[node name="Ceratophyllum" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto1" unique_id=1330253939 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999984, 0, 0, 0, 0.73524004, 0, 0, 0, 0.9999984, -8.650858, -3.6821692, -13.884927)
+
+[node name="Ceratophyllum2" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto1" unique_id=1799873088 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.19907677, 0, -0.979982, 0, 1, 0, 0.979982, 0, -0.19907677, -10.293499, -3.8933737, -14.909511)
+
+[node name="Ceratophyllum3" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto1" unique_id=1064473345 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033792, 0, -0.90736455, 0, 0.7474462, 0, 0.90736455, 0, 0.42033792, -7.4648705, -3.6270173, -13.013466)
+
+[node name="Ceratophyllum4" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto1" unique_id=814099751 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.8042493, 0, 0, 0, 0.76948214, 0, 0, 0, 0.730645, -7.3528233, -3.7498062, -14.592783)
+
+[node name="Ceratophyllum5" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto1" unique_id=2135466303 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -8.832457, -3.7498062, -17.02851)
+
+[node name="Ceratophyllum6" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto1" unique_id=710454584 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -9.246114, -4.0452952, -15.477699)
+
+[node name="Ceratophyllum7" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto1" unique_id=1267161542 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999756, 0, 0, 0, 1, 0, 0, 0, 0.99999756, -9.8701315, -3.7498062, -13.275535)
+
+[node name="conjunto2" type="Node3D" parent="Zona2/VegetacionAcuatica/Ceratophyllum" unique_id=1775776513]
+transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, 5.221462, -0.30297613, -112.721535)
+
+[node name="Ceratophyllum" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=1330501283 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999984, 0, 0, 0, 0.73524004, 0, 0, 0, 0.9999984, -8.650858, -3.6821692, -13.884927)
+
+[node name="Ceratophyllum2" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=1942271828 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.19907677, 0, -0.979982, 0, 1, 0, 0.979982, 0, -0.19907677, -10.293499, -3.8933737, -14.909511)
+
+[node name="Ceratophyllum5" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=287387182 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -8.832457, -3.7498062, -17.02851)
+
+[node name="Ceratophyllum6" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=700278707 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -9.246114, -4.0452952, -15.477699)
+
+[node name="Ceratophyllum7" parent="Zona2/VegetacionAcuatica/Ceratophyllum/conjunto2" unique_id=105320820 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999756, 0, 0, 0, 1, 0, 0, 0, 0.99999756, -9.8701315, -3.7498062, -13.275535)
+
+[node name="Ceratophyllum" parent="Zona2/VegetacionAcuatica/Ceratophyllum" unique_id=336202078 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999803, 0, 0, 0, 0.73524004, 0, 0, 0, 0.99999803, 9.431646, -3.6821692, -145.50189)
+
+[node name="Ceratophyllum2" parent="Zona2/VegetacionAcuatica/Ceratophyllum" unique_id=1238774094 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9503449, 0.22879973, 0, -0.31118992, 0.6987336, 0, 0, 0, 0.9999972, -9.590085, -3.5872838, -158.8364)
+
 [node name="LentejaDeAgua" type="Node3D" parent="Zona2/VegetacionAcuatica" unique_id=787409138]
 
 [node name="Potamogeton" type="Node3D" parent="Zona2/VegetacionAcuatica" unique_id=1912820531]
@@ -713,3 +958,128 @@ transform = Transform3D(-5.1204195, 0, 8.589583, 0, 10, 0, -8.589583, 0, -5.1204
 [node name="Sauces" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=1665924968]
 
 [node name="Totoras" type="Node3D" parent="Zona4/VegetacionRiberena" unique_id=331523810]
+
+[node name="Principio" type="Node3D" parent="." unique_id=1615760739]
+
+[node name="Banco4" type="Node3D" parent="Principio" unique_id=1395189602]
+transform = Transform3D(0.99999887, 0, 0, 0, 1, 0, 0, 0, 0.99999887, 6.361177, -0.6596794, 33.831543)
+
+[node name="Mojarra_animacion" parent="Principio/Banco4" unique_id=2034574984 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 3.5652118, -1.3979514, -8.50889)
+
+[node name="Mojarra_animacion2" parent="Principio/Banco4" unique_id=1786947014 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999987, 0, 0, 0, 3.6, 0, 0, 0, 3.5999987, 4.4791217, -1.3979514, -9.105835)
+
+[node name="Mojarra_animacion3" parent="Principio/Banco4" unique_id=1738296879 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999985, 0, 0, 0, 3.6, 0, 0, 0, 3.5999985, 2.2780979, -1.3104575, -8.550016)
+
+[node name="Mojarra_animacion4" parent="Principio/Banco4" unique_id=90217179 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.6195228, -1.6874204, -8.244474)
+
+[node name="Mojarra_animacion5" parent="Principio/Banco4" unique_id=753422763 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999982, 0, 0, 0, 3.6, 0, 0, 0, 3.5999982, 3.797589, -1.177015, -10.319651)
+
+[node name="Mojarra_animacion6" parent="Principio/Banco4" unique_id=314245740 instance=ExtResource("10_choun")]
+transform = Transform3D(3.599998, 0, 0, 0, 3.6, 0, 0, 0, 3.599998, 2.8904362, -1.4885879, -9.926125)
+
+[node name="Mojarra_animacion7" parent="Principio/Banco4" unique_id=1384979378 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999978, 0, 0, 0, 3.6, 0, 0, 0, 3.5999978, 2.3305807, -1.8202362, -9.926125)
+
+[node name="Mojarra_animacion8" parent="Principio/Banco4" unique_id=1053912169 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5709184, -1.9521985, -9.16795)
+
+[node name="Mojarra_animacion9" parent="Principio/Banco4" unique_id=1909733064 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 1.5910639, -1.0676374, -8.251875)
+
+[node name="Mojarra_animacion10" parent="Principio/Banco4" unique_id=889319234 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 3.607742, -1.8202362, -10.28507)
+
+[node name="Mojarra_animacion11" parent="Principio/Banco4" unique_id=20315348 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999968, 0, 0, 0, 3.6, 0, 0, 0, 3.5999968, 0.38623857, -1.3662434, -9.955155)
+
+[node name="Mojarra_animacion12" parent="Principio/Banco4" unique_id=1015866869 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999968, 0, 0, 0, 3.6, 0, 0, 0, 3.5999968, 1.5721886, -1.4529843, -8.251875)
+
+[node name="Mojarra_animacion13" parent="Principio/Banco4" unique_id=1674763588 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 2.5524178, -1.8202362, -7.900816)
+
+[node name="Mojarra_animacion14" parent="Principio/Banco4" unique_id=135373057 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 4.7017612, -1.8202362, -7.900816)
+
+[node name="Mojarra_animacion15" parent="Principio/Banco4" unique_id=1899458260 instance=ExtResource("10_choun")]
+transform = Transform3D(3.5999973, 0, 0, 0, 3.6, 0, 0, 0, 3.5999973, 0.7155895, -1.8202362, -7.900816)
+
+[node name="conjunto1" type="Node3D" parent="Principio" unique_id=1581361359]
+transform = Transform3D(0.9999994, 0, 0, 0, 1, 0, 0, 0, 0.9999994, 19.366495, 0, 25.60073)
+
+[node name="Ceratophyllum" parent="Principio/conjunto1" unique_id=373061131 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999984, 0, 0, 0, 0.73524004, 0, 0, 0, 0.9999984, -8.650858, -3.6821692, -13.884927)
+
+[node name="Ceratophyllum2" parent="Principio/conjunto1" unique_id=1045776247 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.19907677, 0, -0.979982, 0, 1, 0, 0.979982, 0, -0.19907677, -10.293499, -3.8933737, -14.909511)
+
+[node name="Ceratophyllum3" parent="Principio/conjunto1" unique_id=46196853 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033792, 0, -0.90736455, 0, 0.7474462, 0, 0.90736455, 0, 0.42033792, -7.4648705, -3.6270173, -13.013466)
+
+[node name="Ceratophyllum4" parent="Principio/conjunto1" unique_id=823842647 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.8042493, 0, 0, 0, 0.76948214, 0, 0, 0, 0.730645, -7.3528233, -3.7498062, -14.592783)
+
+[node name="Ceratophyllum5" parent="Principio/conjunto1" unique_id=991697884 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -8.832457, -3.7498062, -17.02851)
+
+[node name="Ceratophyllum6" parent="Principio/conjunto1" unique_id=1756168454 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -9.246114, -4.0452952, -15.477699)
+
+[node name="Ceratophyllum7" parent="Principio/conjunto1" unique_id=403561420 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999756, 0, 0, 0, 1, 0, 0, 0, 0.99999756, -9.8701315, -3.7498062, -13.275535)
+
+[node name="Ceratophyllum8" parent="Principio/conjunto1" unique_id=482165341 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.18748379, 0, -0.9822659, 0, 1, 0, 0.9822659, 0, -0.18748379, -9.8456, -3.7498062, -16.695309)
+
+[node name="conjunto2" type="Node3D" parent="Principio" unique_id=1009717128]
+transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, 4.0644317, 0, 47.92203)
+
+[node name="Ceratophyllum" parent="Principio/conjunto2" unique_id=969668320 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999984, 0, 0, 0, 0.73524004, 0, 0, 0, 0.9999984, -8.650858, -3.6821692, -13.884927)
+
+[node name="Ceratophyllum2" parent="Principio/conjunto2" unique_id=152308450 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.19907677, 0, -0.979982, 0, 1, 0, 0.979982, 0, -0.19907677, -10.293499, -3.8933737, -14.909511)
+
+[node name="Ceratophyllum3" parent="Principio/conjunto2" unique_id=1925626550 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033792, 0, -0.90736455, 0, 0.7474462, 0, 0.90736455, 0, 0.42033792, -7.4648705, -3.6270173, -13.013466)
+
+[node name="Ceratophyllum4" parent="Principio/conjunto2" unique_id=707782159 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.8042493, 0, 0, 0, 0.76948214, 0, 0, 0, 0.730645, -7.3528233, -3.7498062, -14.592783)
+
+[node name="Ceratophyllum5" parent="Principio/conjunto2" unique_id=625728661 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, -8.832457, -3.7498062, -17.02851)
+
+[node name="Ceratophyllum6" parent="Principio/conjunto2" unique_id=473825858 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -9.246114, -4.0452952, -15.477699)
+
+[node name="Ceratophyllum7" parent="Principio/conjunto2" unique_id=1005493603 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.99999756, 0, 0, 0, 1, 0, 0, 0, 0.99999756, -9.8701315, -3.3483746, -13.275532)
+
+[node name="Ceratophyllum8" parent="Principio/conjunto2" unique_id=1267576218 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.18748379, 0, -0.9822659, 0, 1, 0, 0.9822659, 0, -0.18748379, -9.8456, -3.7498062, -16.695309)
+
+[node name="bagre_animacion4" parent="Principio" unique_id=800327709 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(9.3169, 0, 3.632506, 0, 10, 0, -3.632506, 0, 9.3169, 0.882775, -3.097476, 10.210238)
+
+[node name="dientudo_animacion2" parent="Principio" unique_id=1519393744 instance=ExtResource("11_jscy8")]
+transform = Transform3D(7.0371842, 0, 3.8049912, 0, 8, 0, -3.8049912, 0, 7.0371842, 0.7398958, -2.520381, 38.15114)
+
+[node name="dientudo_animacion3" parent="Principio" unique_id=789472440 instance=ExtResource("11_jscy8")]
+transform = Transform3D(-7.9026527, 0, -1.2441645, 0, 8, 0, 1.2441645, 0, -7.9026527, 5.6224136, -2.520381, 23.9247)
+
+[node name="Ceratophyllum9" parent="Principio" unique_id=1929857743 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033744, 0, -0.90736353, 0, 0.7474462, 0, 0.90736353, 0, 0.42033744, 8.247763, -3.8665888, 34.90858)
+
+[node name="Ceratophyllum10" parent="Principio" unique_id=992921794 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033723, 0, -0.9073631, 0, 0.7474462, 0, 0.9073631, 0, 0.42033723, 12.3126135, -4.0748167, 26.572346)
+
+[node name="Ceratophyllum11" parent="Principio" unique_id=1972228650 instance=ExtResource("13_trceg")]
+transform = Transform3D(-0.29565668, 0, -0.95528936, 0, 0.7474461, 0, 0.95528936, 0, -0.29565668, 11.262485, -4.198271, 27.254868)
+
+[node name="Ceratophyllum12" parent="Principio" unique_id=567016315 instance=ExtResource("13_trceg")]
+transform = Transform3D(0.42033723, 0, -0.9073631, 0, 0.7474462, 0, 0.9073631, 0, 0.42033723, 12.3126135, -3.6270173, 27.852665)
