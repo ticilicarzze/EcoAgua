@@ -98,7 +98,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_pm3ni"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_y6deb"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -136,7 +136,7 @@ current = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_pm3ni")
+mesh = SubResource("PlaneMesh_y6deb")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true

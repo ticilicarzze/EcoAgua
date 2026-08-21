@@ -105,6 +105,7 @@ var _particle_proc: ParticleProcessMaterial = null
 var _particle_mat: StandardMaterial3D = null
 var _water_mat: ShaderMaterial = null # ShaderMaterial del nodo TopWater
 var _water_mats: Array[ShaderMaterial] = [] # alias array para _update_water_zone
+var _webxr_interface: WebXRInterface = null # Interfaz WebXR (navegador/emulador)
 
 func _get_active_camera_y() -> float:
 	var vp_cam := get_viewport().get_camera_3d()
@@ -134,7 +135,8 @@ func _ready() -> void:
 		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 		env.ambient_light_color = ZONE_UW_AMBIENT_COLOR[1]
 		env.ambient_light_energy = ZONE_UW_AMBIENT_ENERGY[1]
-		env.tonemap_mode = Environment.TONE_MAPPER_AGX # AgX: Excelente compresión de rango dinámico sin distorsión de color
+		env.tonemap_mode = Environment.TONE_MAPPER_FILMIC # Filmic: Totalmente compatible con WebGL2 / GL Compatibility
+		env.glow_enabled = false
 		env.background_energy_multiplier = 0.7 # Ajuste fino de brillo del cielo
 
 	_alinear_mvp()
@@ -151,20 +153,19 @@ func _ready() -> void:
 		return
 
 	var xr_interface = XRServer.find_interface("OpenXR")
-	if not xr_interface or not xr_interface.is_initialized():
-		xr_interface = XRServer.find_interface("WebXR")
-
-	if xr_interface:
-		if not xr_interface.is_initialized():
-			xr_interface.initialize()
-		if xr_interface.is_initialized():
-			get_viewport().use_xr = true
-			print("XR Mode: Visor detectado (%s)." % xr_interface.get_name())
-		else:
-			print("XR Mode: Modo Pantalla (sin visor activo). FreeLook activado.")
-			_setup_free_look()
+	if xr_interface and xr_interface.is_initialized():
+		get_viewport().use_xr = true
+		print("XR Mode: Visor OpenXR detectado (Quest 3).")
 	else:
-		print("XR Mode: Modo Pantalla (sin interfaz XR). FreeLook activado.")
+		_webxr_interface = XRServer.find_interface("WebXR") as WebXRInterface
+		if _webxr_interface:
+			_webxr_interface.session_started.connect(_on_webxr_session_started)
+			_webxr_interface.session_ended.connect(_on_webxr_session_ended)
+			_webxr_interface.session_failed.connect(_on_webxr_session_failed)
+			_create_vr_button()
+			print("WebXR detectado y listo para inicio por botón.")
+		# FreeLook solo en modo pantalla plana (no VR)
+		print("XR Mode: Modo Pantalla (FreeLook) activado.")
 		_setup_free_look()
 
 	WaterManager.zone_changed.connect(_on_zone_changed)
@@ -196,6 +197,50 @@ func _setup_free_look() -> void:
 	print("FreeLook integrado: mouse (izq/der) + WASD + flechas.")
 
 # =========================================================
+# GESTIÓN DE SESIÓN WEBXR (Navegador / Emulador VR)
+# =========================================================
+
+func _create_vr_button() -> void:
+	if not has_node("CanvasLayer"):
+		return
+	var canvas = $CanvasLayer
+	var existing = canvas.get_node_or_null("EnterVRButton")
+	if existing:
+		return
+	var btn := Button.new()
+	btn.name = "EnterVRButton"
+	btn.text = "🥽 ENTRAR A VR"
+	btn.position = Vector2(20, 20)
+	btn.custom_minimum_size = Vector2(200, 48)
+	btn.pressed.connect(_on_enter_vr_pressed)
+	canvas.add_child(btn)
+
+func _on_enter_vr_pressed() -> void:
+	if _webxr_interface:
+		# Solo configurar reference spaces — Godot maneja session_mode internamente.
+		_webxr_interface.requested_reference_space_types = "local-floor, local"
+		_webxr_interface.optional_features = "local-floor"
+		print("WebXR: Solicitando sesión VR al navegador...")
+		if not _webxr_interface.initialize():
+			push_error("WebXR: No se pudo iniciar la interfaz WebXR.")
+
+
+func _on_webxr_session_started() -> void:
+	get_viewport().use_xr = true
+	print("WebXR: Sesión iniciada con éxito en el visor / emulador.")
+	if has_node("CanvasLayer/EnterVRButton"):
+		$CanvasLayer/EnterVRButton.visible = false
+
+func _on_webxr_session_ended() -> void:
+	get_viewport().use_xr = false
+	print("WebXR: Sesión finalizada.")
+	if has_node("CanvasLayer/EnterVRButton"):
+		$CanvasLayer/EnterVRButton.visible = true
+
+func _on_webxr_session_failed(message: String) -> void:
+	push_error("WebXR session failed: " + message)
+
+# =========================================================
 # _setup_camera_fx — Partículas subacuáticas
 # =========================================================
 func _setup_camera_fx() -> void:
@@ -224,8 +269,8 @@ func _setup_camera_fx() -> void:
 	var target_cameras: Array[Node] = []
 	if has_node("RiverPath/UserCart/XROrigin3D/XRCamera3D"):
 		target_cameras.append($RiverPath/UserCart/XROrigin3D/XRCamera3D)
-	if has_node("RiverPath/UserCart/FlatCamera"):
-		target_cameras.append($RiverPath/UserCart/FlatCamera)
+	if has_node("FlatCamera"):
+		target_cameras.append($FlatCamera)
 
 	_particle_nodes.clear()
 
@@ -834,8 +879,8 @@ func _process(delta: float) -> void:
 					p.visible = false
 					p.restart()
 
-	# Restaurar FOV fijo de la cámara
-	if has_node("RiverPath/UserCart/XROrigin3D/XRCamera3D"):
+	# Restaurar FOV fijo de la cámara (solo en modo pantalla, no en VR)
+	if not get_viewport().use_xr and has_node("RiverPath/UserCart/XROrigin3D/XRCamera3D"):
 		$RiverPath/UserCart/XROrigin3D/XRCamera3D.fov = _base_fov
 
 	# Teclado WASD / Flechas para rotar la cámara libre
