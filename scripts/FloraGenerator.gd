@@ -8,9 +8,9 @@ extends Node3D
 
 @export_group("Configuración General")
 @export var generate_on_ready: bool = true
-@export var river_path_nodepath: NodePath = NodePath("../RiverPath")
-@export var river_channel_half_width: float = 4.5 # Ancho medio del canal de agua
-@export var water_level_y: float = 0.0
+@export var river_path_nodepath: NodePath = NodePath("RiverPath")
+@export var river_channel_half_width: float = 4.5 # Ancho medio del canal de agua (metros)
+@export var water_level_y: float = -1.25 # Nivel del agua del río (mismo que RiverPath Y)
 
 @export_group("Acciones Inspector")
 @export var regenerar_flora: bool = false:
@@ -115,10 +115,11 @@ func _sample_bank_position(z_min: float, z_max: float, config: FloraConfig) -> V
 	var right_vec := Vector3.RIGHT
 	
 	if _river_curve:
-		# Muestrear la curva del río
+		# Muestrear la curva del río en el espacio GLOBAL
+		# La curva va de Z+200 a Z-494, mapeamos a la longitud total horneada
 		var curve_length := _river_curve.get_baked_length()
-		# Mapear Z (de +150 a -450) a la distancia horneada de la curva
-		var t_ratio := clampf(remap(target_z, 150.0, -450.0, 0.0, curve_length), 0.0, curve_length)
+		# Rango Z total del río: de +200 a -494 (longitud ~700 unidades en Z)
+		var t_ratio := clampf(remap(target_z, 200.0, -494.0, 0.0, curve_length), 0.0, curve_length)
 		var xform_center := _river_curve.sample_baked_with_rotation(t_ratio)
 		center_pos = xform_center.origin
 		
@@ -180,13 +181,13 @@ func clear_generated_flora() -> void:
 		node.queue_free()
 
 
-## Devuelve los límites Z para cada Zona Ecológica
+## Devuelve los límites Z para cada Zona Ecológica (basado en RiverPath real Z+200 → Z-494)
 func _get_z_bounds_for_zone(zone_id: int) -> Vector2:
 	match zone_id:
-		1: return Vector2(150.0, -20.0)   # Zona 1: Ribera Natural / Conservada
-		2: return Vector2(-20.0, -140.0)  # Zona 2: Ribera Antropizada / Agrícola
-		3: return Vector2(-140.0, -260.0) # Zona 3: Ribera Urbana / Degradada
-		4: return Vector2(-260.0, -450.0) # Zona 4: Zona Crítica / Eutrofizada
+		1: return Vector2(200.0, -65.0)   # Zona 1: Ribera Natural / Conservada  (Z+200 → -65)
+		2: return Vector2(-65.0, -145.0)  # Zona 2: Ribera Antropizada / Agrícola (Z-65 → -145)
+		3: return Vector2(-145.0, -260.0) # Zona 3: Ribera Urbana / Degradada     (Z-145 → -260)
+		4: return Vector2(-260.0, -494.0) # Zona 4: Zona Crítica / Eutrofizada     (Z-260 → -494)
 		_: return Vector2(100.0, -100.0)
 
 

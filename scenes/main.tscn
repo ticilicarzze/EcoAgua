@@ -12,9 +12,6 @@
 [ext_resource type="PackedScene" uid="uid://dxjetpy830q13" path="res://assets/models/ZONA1/Fauna acuática/Mojarra_animacion.glb" id="10_choun"]
 [ext_resource type="PackedScene" uid="uid://dkh3yeivu0uci" path="res://assets/models/ZONA1/Fauna acuática/dientudo_animacion.glb" id="11_jscy8"]
 [ext_resource type="PackedScene" uid="uid://dhmnjpdihg8ky" path="res://assets/models/ZONA1/Fauna acuática/bagre_animacion.glb" id="11_pm3ni"]
-[ext_resource type="PackedScene" uid="uid://djagkkvhtpc6b" path="res://assets/models/ZONA1/Fauna terrestre/Tero_dos.glb" id="27_yq6so"]
-[ext_resource type="PackedScene" uid="uid://bk81xrno873xe" path="res://assets/models/ZONA1/Fauna terrestre/Tortuga_de_agua_dos.glb" id="28_fv21b"]
-[ext_resource type="PackedScene" uid="uid://fteeu00jwu5d" path="res://assets/models/ZONA1/Fauna terrestre/Rana_criolla_dos.glb" id="29_tel4y"]
 [ext_resource type="Script" uid="uid://d1b4rxaeyuj7k" path="res://scripts/FloraGenerator.gd" id="FloraGenScript"]
 
 [sub_resource type="Curve3D" id="Curve3D_7dm0k"]
@@ -90,7 +87,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_jbj1t"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_trceg"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -128,7 +125,7 @@ current = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_jbj1t")
+mesh = SubResource("PlaneMesh_trceg")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true
@@ -365,7 +362,7 @@ transform = Transform3D(5.4150043, 0, -5.888773, 0, 8, 0, 5.888773, 0, 5.4150043
 
 [node name="Tortugas" type="Node3D" parent="Zona1/FaunaTerrestre" unique_id=2000000009]
 
-[node name="FloraGenerator" type="Node3D" parent="Zona1" unique_id=111307190]
+[node name="FloraGenerator" type="Node3D" parent="." unique_id=111307190]
 script = ExtResource("FloraGenScript")
 
 [node name="Zona2" type="Node3D" parent="." unique_id=125977905]
@@ -591,12 +588,3 @@ transform = Transform3D(7.0371842, 0, 3.8049912, 0, 8, 0, -3.8049912, 0, 7.03718
 
 [node name="dientudo_animacion3" parent="Principio" unique_id=789472440 instance=ExtResource("11_jscy8")]
 transform = Transform3D(-7.9026527, 0, -1.2441645, 0, 8, 0, 1.2441645, 0, -7.9026527, 5.6224136, -2.520381, 23.9247)
-
-[node name="Tero_dos" parent="." unique_id=135868694 instance=ExtResource("27_yq6so")]
-transform = Transform3D(-0.19849369, 0, -0.28827074, 0, 0.34999993, 0, 0.28827074, 0, -0.19849369, -12.149993, 1.4440084, -104.23249)
-
-[node name="Tortuga_de_agua_dos" parent="." unique_id=965818841 instance=ExtResource("28_fv21b")]
-transform = Transform3D(-0.020295298, 0, 0.25920638, 0, 0.25999996, 0, -0.25920638, 0, -0.020295298, -13.722631, 0.92179096, -107.85844)
-
-[node name="Rana_criolla_dos" parent="." unique_id=1758408527 instance=ExtResource("29_tel4y")]
-transform = Transform3D(-0.069838315, 0, 0.19273703, 0, 0.20499998, 0, -0.19273703, 0, -0.069838315, -13.882699, 0.9603938, -105.83575)
