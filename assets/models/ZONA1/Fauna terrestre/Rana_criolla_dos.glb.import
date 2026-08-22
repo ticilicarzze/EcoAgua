@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bn6iyhhyjvkof"
-path="res://.godot/imported/Tortuga_de_agua.glb-ef226fcd8949d7b2e8681c6f4799d42b.scn"
+uid="uid://fteeu00jwu5d"
+path="res://.godot/imported/Rana_criolla_dos.glb-ce597e0a9696334fcf7898ed08902d92.scn"
 
 [deps]
 
-source_file="res://assets/models/ZONA1/Fauna terrestre/Tortuga_de_agua.glb"
-dest_files=["res://.godot/imported/Tortuga_de_agua.glb-ef226fcd8949d7b2e8681c6f4799d42b.scn"]
+source_file="res://assets/models/ZONA1/Fauna terrestre/Rana_criolla_dos.glb"
+dest_files=["res://.godot/imported/Rana_criolla_dos.glb-ce597e0a9696334fcf7898ed08902d92.scn"]
 
 [params]
 

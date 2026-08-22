@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Especificaciones Técnicas y de Diseño UI/UX: HUD EcoAgua</title>
+<style>
+  body { font-family: Arial, sans-serif; line-height: 1.6; color: #222; margin: 30px; }
+  h1 { color: #1a5276; border-bottom: 2px solid #1a5276; padding-bottom: 5px; }
+  h2 { color: #2E86C1; margin-top: 25px; }
+  h3 { color: #2874A6; }
+  table { border-collapse: collapse; width: 100%; margin-top: 15px; margin-bottom: 20px; }
+  th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+  th { background-color: #ebf5fb; color: #1b4f72; font-weight: bold; }
+  tr:nth-child(even) { background-color: #fcfcfc; }
+  .zona-1 { color: #1e8449; font-weight: bold; }
+  .zona-2 { color: #d4ac0d; font-weight: bold; }
+  .zona-3 { color: #d35400; font-weight: bold; }
+  .zona-4 { color: #c0392b; font-weight: bold; }
+  ul { margin-top: 5px; }
+  li { margin-bottom: 5px; }
+</style>
+</head>
+<body>
+
+<h1>Especificaciones Técnicas y de Diseño UI/UX: HUD EcoAgua</h1>
+
+<p><strong>Proyecto:</strong> EcoAgua<br>
+<strong>Motor:</strong> Godot Engine 4 (Soporte PC, Web y VR/WebXR)<br>
+<strong>Objetivo:</strong> Diseño del sistema de interfaz de usuario (HUD) para visualización de parámetros de calidad de agua por zonas.</p>
+
+<hr>
+
+<h2>1. Visión General del HUD</h2>
+<p>El HUD mostrará en tiempo real los parámetros físico-químicos y biológicos del agua según la zona del río en la que se encuentre la sonda o jugador. Dado que los parámetros <strong>varían por zona</strong>, la interfaz debe ser <strong>modular y dinámica</strong> (mostrar u ocultar tarjetas/filas según los datos disponibles).</p>
+
+<h3>Estructura y Jerarquía Visual Sugerida</h3>
+<ol>
+  <li><strong>Elemento Principal / Destacado:</strong>
+    <ul>
+      <li><strong>Índice de Calidad del Agua (ICA):</strong> Es el indicador global (valor numérico de 0 a 100). Debe ser el elemento visualmente más llamativo (por ejemplo: indicador circular tipo dona o tarjeta principal con código de color dinámico según la gravedad).</li>
+    </ul>
+  </li>
+  <li><strong>Encabezado de Ubicación:</strong>
+    <ul>
+      <li>Indicador textual de la zona actual (ejemplo: <em>"Sonda de Medición - Zona 1"</em>).</li>
+    </ul>
+  </li>
+  <li><strong>Panel de Parámetros Específicos:</strong>
+    <ul>
+      <li>Lista o grilla modular de tarjetas/filas compactas conteniendo: <code>[Icono] [Nombre Parámetro] [Valor + Unidad]</code>.</li>
+    </ul>
+  </li>
+</ol>
+
+<hr>
+
+<h2>2. Parámetros por Zona (Datos a Representar)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Zona</th>
+      <th>Parámetros a Mostrar</th>
+      <th>Unidades</th>
+      <th>Rango ICA Esperado</th>
+      <th>Estado / Color Sugerido</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Zona 1</strong></td>
+      <td>• Nitratos (NO3-)<br>• Amonio (NH4+)<br>• Fosfatos (PO43-)<br>• Oxígeno Disuelto<br>• ICA</td>
+      <td>mg/L<br>mg/L<br>mg/L<br>ppm o mg/L<br>Score (0-100)</td>
+      <td><strong>ICA: 90 - 95</strong></td>
+      <td class="zona-1">Verde (Excelente)</td>
+    </tr>
+    <tr>
+      <td><strong>Zona 2</strong></td>
+      <td>• Nitratos (NO3-)<br>• Fosfatos (PO43-)<br>• Oxígeno Disuelto<br>• ICA</td>
+      <td>mg/L<br>mg/L<br>ppm o mg/L<br>Score (0-100)</td>
+      <td><strong>ICA: 70 - 75</strong></td>
+      <td class="zona-2">Verde Claro / Amarillo (Bueno)</td>
+    </tr>
+    <tr>
+      <td><strong>Zona 3</strong></td>
+      <td>• DBO (Demanda Bioquímica de Oxígeno)<br>• Amonio (NH4+)<br>• Coliformes Fecales<br>• Oxígeno Disuelto<br>• ICA</td>
+      <td>mg/L<br>mg/L<br>UFC / 100 mL<br>ppm o mg/L<br>Score (0-100)</td>
+      <td><strong>ICA: 40 - 45</strong></td>
+      <td class="zona-3">Naranja (Regular / Deficiente)</td>
+    </tr>
+    <tr>
+      <td><strong>Zona 4</strong></td>
+      <td>• DBO (Demanda Bioquímica de Oxígeno)<br>• Amonio (NH4+)<br>• Coliformes Fecales<br>• Oxígeno Disuelto<br>• Cromo (Cr)<br>• ICA</td>
+      <td>mg/L<br>mg/L<br>UFC / 100 mL<br>ppm o mg/L<br>ug/L<br>Score (0-100)</td>
+      <td><strong>ICA: 10 - 20</strong></td>
+      <td class="zona-4">Rojo / Púrpura (Muy Malo / Crítico)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>3. Requerimientos de Assets y Formatos de Entrega</h2>
+
+<p>Para poder integrar los diseños en <strong>Godot 4</strong>, los elementos deben entregarse <strong>despiezados (export por capas/assets individuales)</strong> y no montados en una sola imagen fija.</p>
+
+<h3>A. Archivos y Formatos Principales</h3>
+<ul>
+  <li><strong>Assets gráficos:</strong> Archivos <code>.png</code> individuales con fondo transparente (canal Alpha).</li>
+  <li><strong>Tipografías:</strong> Archivos <code>.ttf</code> o <code>.otf</code> de las fuentes utilizadas en la interfaz (para poder generar los textos numéricos dinámicos desde código).</li>
+  <li><strong>Mockup de referencia:</strong> Un archivo <code>.png</code> o PDF del HUD completo armado en resolución <strong>1920x1080 px</strong> (sirve como guía de posición, fuentes y espaciado).</li>
+</ul>
+
+<h3>B. Listado Desglosado de Assets Solicitados</h3>
+<ol>
+  <li><strong>Iconografía (256x256 px o 128x128 px, PNG transparente):</strong>
+    <ul>
+      <li>Icono para <strong>Oxígeno Disuelto</strong> (ejemplo: moléculas de O2, burbujas).</li>
+      <li>Icono para <strong>Nutrientes / Nitratos / Fosfatos / Amonio</strong> (ejemplo: frasco de laboratorio, compuesto químico).</li>
+      <li>Icono para <strong>DBO</strong> (ejemplo: curva de demanda de oxígeno / prueba biológica).</li>
+      <li>Icono para <strong>Coliformes Fecales / Bacterias</strong> (ejemplo: microorganismo / germen).</li>
+      <li>Icono para <strong>Metales Pesados / Cromo (Cr)</strong> (ejemplo: símbolo de toxicidad química / gota de metal).</li>
+    </ul>
+  </li>
+  <li><strong>Fondos y Paneles (Compatibles con 9-Slice / NinePatchRect):</strong>
+    <ul>
+      <li>Fondo para la tarjeta principal (Panel del ICA).</li>
+      <li>Fondo para las tarjetas o filas de los parámetros.</li>
+      <li><em>Nota:</em> Si tienen bordes redondeados o sombras, enviar la textura limpia sin deformación previa para configurar las zonas de estiramiento en Godot.</li>
+    </ul>
+  </li>
+  <li><strong>Componentes del Indicador ICA:</strong>
+    <ul>
+      <li>Anillo / Barra de fondo (estado base deshabilitado).</li>
+      <li>Anillo / Barra de progreso (relleno que se pueda manipular por código).</li>
+      <li>Iconos opcionales de estado o alertas (verde / amarillo / naranja / rojo).</li>
+    </ul>
+  </li>
+  <li><strong>Paleta de Colores (Guía de Estilos):**
+    <ul>
+      <li>Definición de códigos HEX o RGB para la escala de gravedad del ICA.</li>
+    </ul>
+  </li>
+</ol>
+
+</body>
+</html>

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://d1xn0spvsgqxg"
-path="res://.godot/imported/Rana_criolla.glb-be8084febad1161c4671a29692ddf3f4.scn"
+uid="uid://djagkkvhtpc6b"
+path="res://.godot/imported/Tero_dos.glb-c801c93ddcf4c615504761874c5a85f0.scn"
 
 [deps]
 
-source_file="res://assets/models/ZONA1/Fauna terrestre/Rana_criolla.glb"
-dest_files=["res://.godot/imported/Rana_criolla.glb-be8084febad1161c4671a29692ddf3f4.scn"]
+source_file="res://assets/models/ZONA1/Fauna terrestre/Tero_dos.glb"
+dest_files=["res://.godot/imported/Tero_dos.glb-c801c93ddcf4c615504761874c5a85f0.scn"]
 
 [params]
 
