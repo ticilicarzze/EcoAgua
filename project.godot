@@ -53,3 +53,5 @@ textures/vram_compression/import_etc2_astc=true
 
 openxr/enabled=true
 shaders/enabled=true
+openxr/extensions/meta=true
+openxr/extensions/meta_xr=true

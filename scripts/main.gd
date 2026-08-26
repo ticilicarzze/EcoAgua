@@ -153,20 +153,16 @@ func _ready() -> void:
 		return
 
 	var xr_interface = XRServer.find_interface("OpenXR")
-	if xr_interface and xr_interface.is_initialized():
-		get_viewport().use_xr = true
-		print("XR Mode: Visor OpenXR detectado (Quest 3).")
+	if xr_interface:
+		if xr_interface.is_initialized() or xr_interface.initialize():
+			get_viewport().use_xr = true
+			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+			print("XR Mode: Visor OpenXR detectado e inicializado con éxito (Meta Quest).")
+		else:
+			push_error("XR Mode: OpenXR detectado pero falló al inicializarse.")
+			_setup_fallback_mode()
 	else:
-		_webxr_interface = XRServer.find_interface("WebXR") as WebXRInterface
-		if _webxr_interface:
-			_webxr_interface.session_started.connect(_on_webxr_session_started)
-			_webxr_interface.session_ended.connect(_on_webxr_session_ended)
-			_webxr_interface.session_failed.connect(_on_webxr_session_failed)
-			_create_vr_button()
-			print("WebXR detectado y listo para inicio por botón.")
-		# FreeLook solo en modo pantalla plana (no VR)
-		print("XR Mode: Modo Pantalla (FreeLook) activado.")
-		_setup_free_look()
+		_setup_fallback_mode()
 
 	WaterManager.zone_changed.connect(_on_zone_changed)
 	WaterManager.metrics_updated.connect(_on_metrics_updated)
@@ -183,6 +179,20 @@ func _ready() -> void:
 	var moving_time: float = max(10.0, target_total_duration - total_pauses) # 90s
 	speed = active_distance / moving_time # 3.27 m/s
 	print("Velocidad de riel calibrada: %.2f m/s (294m activos en 90s + 30s pausas = 120s / 2 min)" % speed)
+
+# =========================================================
+# _setup_fallback_mode — WebXR / Pantalla Plana fallback
+# =========================================================
+func _setup_fallback_mode() -> void:
+	_webxr_interface = XRServer.find_interface("WebXR") as WebXRInterface
+	if _webxr_interface:
+		_webxr_interface.session_started.connect(_on_webxr_session_started)
+		_webxr_interface.session_ended.connect(_on_webxr_session_ended)
+		_webxr_interface.session_failed.connect(_on_webxr_session_failed)
+		_create_vr_button()
+		print("WebXR detectado y listo para inicio por botón.")
+	print("XR Mode: Modo Pantalla / Fallback (FreeLook) activado.")
+	_setup_free_look()
 
 # =========================================================
 # _setup_free_look — Control de cámara para modo web/flat
