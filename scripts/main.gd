@@ -105,7 +105,6 @@ var _particle_proc: ParticleProcessMaterial = null
 var _particle_mat: StandardMaterial3D = null
 var _water_mat: ShaderMaterial = null # ShaderMaterial del nodo TopWater
 var _water_mats: Array[ShaderMaterial] = [] # alias array para _update_water_zone
-var _webxr_interface: WebXRInterface = null # Interfaz WebXR (navegador/emulador)
 
 func _get_active_camera_y() -> float:
 	var vp_cam := get_viewport().get_camera_3d()
@@ -181,16 +180,9 @@ func _ready() -> void:
 	print("Velocidad de riel calibrada: %.2f m/s (294m activos en 90s + 30s pausas = 120s / 2 min)" % speed)
 
 # =========================================================
-# _setup_fallback_mode — WebXR / Pantalla Plana fallback
+# _setup_fallback_mode — Pantalla Plana fallback
 # =========================================================
 func _setup_fallback_mode() -> void:
-	_webxr_interface = XRServer.find_interface("WebXR") as WebXRInterface
-	if _webxr_interface:
-		_webxr_interface.session_started.connect(_on_webxr_session_started)
-		_webxr_interface.session_ended.connect(_on_webxr_session_ended)
-		_webxr_interface.session_failed.connect(_on_webxr_session_failed)
-		_create_vr_button()
-		print("WebXR detectado y listo para inicio por botón.")
 	print("XR Mode: Modo Pantalla / Fallback (FreeLook) activado.")
 	_setup_free_look()
 
@@ -205,50 +197,6 @@ func _setup_free_look() -> void:
 	_fl_yaw = 0.0
 	_fl_pitch = 0.0
 	print("FreeLook integrado: mouse (izq/der) + WASD + flechas.")
-
-# =========================================================
-# GESTIÓN DE SESIÓN WEBXR (Navegador / Emulador VR)
-# =========================================================
-
-func _create_vr_button() -> void:
-	if not has_node("CanvasLayer"):
-		return
-	var canvas = $CanvasLayer
-	var existing = canvas.get_node_or_null("EnterVRButton")
-	if existing:
-		return
-	var btn := Button.new()
-	btn.name = "EnterVRButton"
-	btn.text = "🥽 ENTRAR A VR"
-	btn.position = Vector2(20, 20)
-	btn.custom_minimum_size = Vector2(200, 48)
-	btn.pressed.connect(_on_enter_vr_pressed)
-	canvas.add_child(btn)
-
-func _on_enter_vr_pressed() -> void:
-	if _webxr_interface:
-		# Solo configurar reference spaces — Godot maneja session_mode internamente.
-		_webxr_interface.requested_reference_space_types = "local-floor, local"
-		_webxr_interface.optional_features = "local-floor"
-		print("WebXR: Solicitando sesión VR al navegador...")
-		if not _webxr_interface.initialize():
-			push_error("WebXR: No se pudo iniciar la interfaz WebXR.")
-
-
-func _on_webxr_session_started() -> void:
-	get_viewport().use_xr = true
-	print("WebXR: Sesión iniciada con éxito en el visor / emulador.")
-	if has_node("CanvasLayer/EnterVRButton"):
-		$CanvasLayer/EnterVRButton.visible = false
-
-func _on_webxr_session_ended() -> void:
-	get_viewport().use_xr = false
-	print("WebXR: Sesión finalizada.")
-	if has_node("CanvasLayer/EnterVRButton"):
-		$CanvasLayer/EnterVRButton.visible = true
-
-func _on_webxr_session_failed(message: String) -> void:
-	push_error("WebXR session failed: " + message)
 
 # =========================================================
 # _setup_camera_fx — Partículas subacuáticas
