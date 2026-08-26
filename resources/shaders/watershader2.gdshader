@@ -295,16 +295,19 @@ void fragment() {
     // Calculate UV coordinates based on world position
     vec2 uv = world_position.xz;
 
+    // Calculate flow time based on river_flow_speed
+    float flow_time = TIME * river_flow_speed / time_factor;
+
     // Sample UV offset texture
     vec2 uv_offset = texture(uv_sampler, uv * uv_sampler_scale).rg;
 
     // Calculate base UV coordinates for normal maps
-    vec2 base_uv_a = (uv + uv_speed_text_a * TIME + uv_offset) * uv_scale_text_a;
-    vec2 base_uv_b = (uv + uv_speed_text_b * TIME + uv_offset) * uv_scale_text_b;
+    vec2 base_uv_a = (uv + uv_speed_text_a * flow_time + uv_offset) * uv_scale_text_a;
+    vec2 base_uv_b = (uv + uv_speed_text_b * flow_time + uv_offset) * uv_scale_text_b;
 
     // Apply noise-based perturbation to UVs
-    vec2 animated_uv_a = perturb_uv(base_uv_a, world_position.xz, TIME, perturbation_strength);
-    vec2 animated_uv_b = perturb_uv(base_uv_b, world_position.xz, TIME + 0.0, perturbation_time);
+    vec2 animated_uv_a = perturb_uv(base_uv_a, world_position.xz, flow_time, perturbation_strength);
+    vec2 animated_uv_b = perturb_uv(base_uv_b, world_position.xz, flow_time + 0.0, perturbation_time);
 
     // Sample normal maps
     vec3 normal_sample_a = texture(normalmap_a, animated_uv_a).rgb;
