@@ -910,6 +910,14 @@ const WATER_FRESNEL_COLOR: Array[Color] = [
 const WATER_BEERS_LAW: Array[float] = [
 	0.0, 0.35, 0.65, 1.10, 1.80
 ]
+# Velocidad de corriente del agua por zona (animación del shader)
+# Zona 1: flujo libre y rápido (1.20)
+# Zona 2: flujo moderado (0.95)
+# Zona 3: flujo lento (0.60)
+# Zona 4: agua muy lenta / remanso estancado (0.20)
+const WATER_FLOW_SPEED: Array[float] = [
+	0.0, 1.20, 0.95, 0.60, 0.20
+]
 
 func _update_water_zone(zone: int) -> void:
 	if _water_mats.is_empty():
@@ -926,7 +934,8 @@ func _update_water_zone(zone: int) -> void:
 		mat.set_shader_parameter("fresnel_water_color", Vector3(fc.r, fc.g, fc.b))
 		mat.set_shader_parameter("beers_law", WATER_BEERS_LAW[z])
 		mat.set_shader_parameter("roughness", roughness_by_zone[z])
-	print("Water: zona %d — superficie actualizada en watershader2.gdshader." % z)
+		mat.set_shader_parameter("river_flow_speed", WATER_FLOW_SPEED[z])
+	print("Water: zona %d — velocidad de agua = %.2f, superficie actualizada en watershader2.gdshader." % [z, WATER_FLOW_SPEED[z]])
 
 func _on_metrics_updated(wqi: float, do_val: float, _turb_val: float) -> void:
 	var vis_m: float = WaterManager.get_metric_value("visibility", WaterManager.progress_ratio)
