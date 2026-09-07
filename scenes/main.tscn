@@ -1382,9 +1382,6 @@ transform = Transform3D(3.599993, 0, 0, 0, 3.6, 0, 0, 0, 3.599993, -6.37351, -1.
 [node name="bagre_animacion2" parent="Zona3/FaunaAcuatica/Bagres" unique_id=632686119 instance=ExtResource("11_pm3ni")]
 transform = Transform3D(5.4610143, 0, -8.377179, 0, 10, 0, 8.377179, 0, 5.4610143, 0, -2.7632613, -178.8231)
 
-[node name="bagre_animacion4" parent="Zona3/FaunaAcuatica/Bagres" unique_id=841521020 instance=ExtResource("11_pm3ni")]
-transform = Transform3D(6.5209746, 0, 7.5813336, 0, 10, 0, -7.5813336, 0, 6.5209746, -2.8995574, -2.785825, -223.73172)
-
 [node name="bagre_animacion3" parent="Zona3/FaunaAcuatica/Bagres" unique_id=761005772 instance=ExtResource("11_pm3ni")]
 transform = Transform3D(1.2360129, 0, -9.923305, 0, 10, 0, 9.923305, 0, 1.2360129, -5.4051657, -2.805956, -153.0253)
 
@@ -1433,7 +1430,10 @@ transform = Transform3D(1.2360129, 0, -9.923305, 0, 10, 0, 9.923305, 0, 1.236012
 [node name="Bagres" type="Node3D" parent="Zona4/FaunaAcuatica" unique_id=1999246507]
 
 [node name="bagre_animacion5" parent="Zona4/FaunaAcuatica/Bagres" unique_id=725750177 instance=ExtResource("11_pm3ni")]
-transform = Transform3D(-5.1204195, 0, 8.589583, 0, 10, 0, -8.589583, 0, -5.1204195, -0.27515355, -2.718752, -279.09082)
+transform = Transform3D(-1.6562208, 1.9479772, 9.667569, 7.37649, 6.7511406, -0.09660268, -6.5455303, 7.115296, -2.555061, 6.2209244, -1.4047801, -279.09067)
+
+[node name="bagre_animacion4" parent="Zona4/FaunaAcuatica/Bagres" unique_id=841521020 instance=ExtResource("11_pm3ni")]
+transform = Transform3D(8.279369, -1.7819358, 5.317554, 3.0936215, 9.359824, -1.6802201, -4.6777325, 3.036174, 8.300608, -2.8995554, -0.54724073, -223.7316)
 
 [node name="Dientudos" type="Node3D" parent="Zona4/FaunaAcuatica" unique_id=1181622995]
 

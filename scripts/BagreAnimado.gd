@@ -4,12 +4,44 @@
 class_name BagreAnimado
 extends PezAnimado
 
-## ── Auto-Brillo del Material ──────────────────────────────────────────────────
+## ── Visibilidad del Material ──────────────────────────────────────────────────
 @export_group("Visibilidad del Material")
 ## Brillo propio del modelo para destacar bajo el agua (0 = normal, 0.25 = recomendado)
 @export var auto_brillo: Color = Color(0.25, 0.25, 0.25)
 
+## ── Comportamiento Zona 4 / Estático ──────────────────────────────────────────
+@export_group("Zona 4 / Estático")
+## Fuerza comportamiento estático manteniendo la posición y rotación 3D del editor
+@export var forzar_estatico: bool = false
+## Velocidad de reproducción de animación en Zona 4 (0.0 = congelado, 0.10 = respiración/aleteo letárgico muy lento)
+@export var anim_speed_zona4: float = 0.10
+## Oscilación vertical opcional en metros (0.0 = quieto absoluto respetando el editor 3D exacto)
+@export var micro_flote: float = 0.0
+
+var _es_estatico_zona4: bool = false
+var _initial_transform: Transform3D
+
+## Detecta si este bagre pertenece a la Zona 4 (por jerarquía de nodos o Z <= -210m)
+func _detectar_zona_4() -> bool:
+	if forzar_estatico:
+		return true
+	var curr: Node = self
+	while curr != null:
+		if curr.name.to_lower() == "zona4":
+			return true
+		curr = curr.get_parent()
+	return global_position.z <= -210.0
+
 func _setup_species_params() -> void:
+	if _detectar_zona_4():
+		patrol_range_x = 0.0
+		patrol_range_z = 0.0
+		patrol_speed = 0.0
+		swim_amplitude = 0.0
+		bob_amplitude = 0.0
+		turn_speed = 0.0
+		return
+
 	patrol_range_x = 4.5
 	patrol_range_z = 8.5
 	patrol_speed = 0.16 ## Velocidad base (Bagre - 1.0x)
@@ -25,14 +57,44 @@ func _setup_species_params() -> void:
 	wall_deflection_strength = 1.0 ## Viraje completo hacia el interior
 	turn_speed = 1.6 ## Giro más ágil y fluido en virajes de orilla
 
-	# Reducción a 0.7x de velocidad en Zonas 3 y 4 (Z <= -140.0)
+	# Reducción a 0.7x de velocidad en Zona 3 (Z <= -140.0)
 	if global_position.z <= -140.0:
 		patrol_speed *= 0.7 ## 0.112 rad/s
 		swim_frequency *= 0.7 ## 0.224 Hz
 
 func _ready() -> void:
+	_es_estatico_zona4 = _detectar_zona_4()
+	if _es_estatico_zona4:
+		if _is_initialized:
+			return
+		_is_initialized = true
+		_initial_transform = transform
+		_origin = global_position
+		_setup_species_params()
+		_start_animation()
+		if _anim_player:
+			if anim_speed_zona4 <= 0.0:
+				_anim_player.pause()
+			else:
+				_anim_player.speed_scale = anim_speed_zona4
+		_ajustar_brillo_material()
+		transform = _initial_transform
+		set_process(true)
+		return
+
 	super._ready()
 	_ajustar_brillo_material()
+
+func _process(delta: float) -> void:
+	if _es_estatico_zona4:
+		_time += delta
+		if micro_flote > 0.0:
+			var flote := Vector3(0.0, sin(_time * 0.8) * micro_flote, 0.0)
+			transform.origin = _initial_transform.origin + flote
+		else:
+			transform = _initial_transform
+		return
+	super._process(delta)
 
 ## Aplica brillo HDR y auto-emisión multiplicativa basada en la propia textura del bagre
 ## para mantener 100% sus colores y detalles originales sin verse gris plano.
