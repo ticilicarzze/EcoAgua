@@ -15,7 +15,8 @@ const ZONE_METRICS = {
 		"wqi_max": 90.0,
 		"do_min": 8.0,
 		"do_max": 8.5,
-		"flow_speed": 2.0,
+		"flow_speed": 1.8,
+		"wave_amplitude": 1.0,
 		"visibility_min": 120.0,
 		"visibility_max": 160.0,
 		"turbidez": 1.0
@@ -27,6 +28,7 @@ const ZONE_METRICS = {
 		"do_min": 6.0,
 		"do_max": 8.0,
 		"flow_speed": 1.2,
+		"wave_amplitude": 0.85,
 		"visibility_min": 70.0,
 		"visibility_max": 90.0,
 		"turbidez": 0.75
@@ -37,7 +39,8 @@ const ZONE_METRICS = {
 		"wqi_max": 45.0,
 		"do_min": 3.0,
 		"do_max": 5.0,
-		"flow_speed": 0.6,
+		"flow_speed": 0.35,
+		"wave_amplitude": 0.30,
 		"visibility_min": 40.0,
 		"visibility_max": 60.0,
 		"turbidez": 0.50
@@ -48,7 +51,8 @@ const ZONE_METRICS = {
 		"wqi_max": 20.0,
 		"do_min": 0.5,
 		"do_max": 2.0,
-		"flow_speed": 0.1,
+		"flow_speed": 0.02,
+		"wave_amplitude": 0.02,
 		"visibility_min": 15.0,
 		"visibility_max": 20.0,
 		"turbidez": 0.30
@@ -63,7 +67,8 @@ const ZONE_METRICS = {
 var current_zone: int = 1
 var water_quality_index: float = 90.0
 var dissolved_oxygen: float = 8.0
-var water_flow_speed: float = 2.0
+var water_flow_speed: float = 1.8
+var wave_amplitude: float = 1.0
 var turbidity_visibility: float = 0.6
 var turbidez: float = 1.0 # Factor de campo de visión (1.0 = 100% en Z1, 0.3 = 30% en Z4)
 
@@ -163,6 +168,7 @@ func _update_metrics() -> void:
 	water_quality_index = get_metric_value("wqi", progress_ratio)
 	dissolved_oxygen = get_metric_value("do", progress_ratio)
 	water_flow_speed = get_metric_value("flow_speed", progress_ratio)
+	wave_amplitude = get_metric_value("wave_amplitude", progress_ratio)
 	turbidity_visibility = get_metric_value("visibility", progress_ratio)
 	turbidez = get_metric_value("turbidez", progress_ratio)
 	

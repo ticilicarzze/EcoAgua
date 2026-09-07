@@ -13,12 +13,24 @@ extends PezAnimado
 @export_group("Zona 4 / Estático")
 ## Fuerza comportamiento estático manteniendo la posición y rotación 3D del editor
 @export var forzar_estatico: bool = false
-## Velocidad de reproducción de animación en Zona 4 (0.0 = congelado, 0.10 = respiración/aleteo letárgico muy lento)
-@export var anim_speed_zona4: float = 0.10
+## Velocidad de reproducción de animación en Zona 4 (0.70 = aleteo suave y orgánico de cola)
+@export var anim_speed_zona4: float = 0.70
 ## Oscilación vertical opcional en metros (0.0 = quieto absoluto respetando el editor 3D exacto)
 @export var micro_flote: float = 0.0
 
+## ── Aleteo de Cola (Zonas 3 y 4) ──────────────────────────────────────────────
+@export_group("Aleteo de Cola")
+## Activa el aleteo suave de cola para evitar que los bagres parezcan estáticos
+@export var aleteo_activo: bool = true
+## Amplitud del aleteo lateral de la cola en grados
+@export var aleteo_amplitud_grados: float = 4.0
+## Frecuencia del aleteo de cola en Hz (0.25 Hz = 1 aleteo cada 4 segundos)
+@export var aleteo_frecuencia: float = 0.25
+## Velocidad de la animación del modelo en Zona 3 (0.75 = aleteo pausado y natural)
+@export var anim_speed_zona3: float = 0.75
+
 var _es_estatico_zona4: bool = false
+var _es_zona_3: bool = false
 var _initial_transform: Transform3D
 
 ## Detecta si este bagre pertenece a la Zona 4 (por jerarquía de nodos o Z <= -210m)
@@ -31,6 +43,16 @@ func _detectar_zona_4() -> bool:
 			return true
 		curr = curr.get_parent()
 	return global_position.z <= -210.0
+
+## Detecta si este bagre pertenece a la Zona 3 (por jerarquía o Z entre -140m y -210m)
+func _detectar_zona_3() -> bool:
+	var curr: Node = self
+	while curr != null:
+		if curr.name.to_lower() == "zona3":
+			return true
+		curr = curr.get_parent()
+	var z := global_position.z
+	return z <= -140.0 and z > -210.0
 
 func _setup_species_params() -> void:
 	if _detectar_zona_4():
@@ -70,6 +92,7 @@ func _ready() -> void:
 		_is_initialized = true
 		_initial_transform = transform
 		_origin = global_position
+		_phase = randf() * TAU
 		_setup_species_params()
 		_start_animation()
 		if _anim_player:
@@ -77,24 +100,43 @@ func _ready() -> void:
 				_anim_player.pause()
 			else:
 				_anim_player.speed_scale = anim_speed_zona4
+				if _anim_player.current_animation_length > 0.0:
+					_anim_player.seek(randf() * _anim_player.current_animation_length, true)
 		_ajustar_brillo_material()
 		transform = _initial_transform
 		set_process(true)
 		return
 
+	_es_zona_3 = _detectar_zona_3()
 	super._ready()
 	_ajustar_brillo_material()
+
+	if _es_zona_3 and _anim_player:
+		_anim_player.speed_scale = anim_speed_zona3
+		if _anim_player.current_animation_length > 0.0:
+			_anim_player.seek(randf() * _anim_player.current_animation_length, true)
 
 func _process(delta: float) -> void:
 	if _es_estatico_zona4:
 		_time += delta
+		if aleteo_activo:
+			var flutter := sin(_time * aleteo_frecuencia * TAU + _phase) * deg_to_rad(aleteo_amplitud_grados)
+			transform.basis = _initial_transform.basis.rotated(_initial_transform.basis.y.normalized(), flutter)
+		else:
+			transform.basis = _initial_transform.basis
+
 		if micro_flote > 0.0:
 			var flote := Vector3(0.0, sin(_time * 0.8) * micro_flote, 0.0)
 			transform.origin = _initial_transform.origin + flote
 		else:
-			transform = _initial_transform
+			transform.origin = _initial_transform.origin
 		return
+
 	super._process(delta)
+
+	if _es_zona_3 and aleteo_activo:
+		var flutter := sin(_time * aleteo_frecuencia * TAU + _phase) * deg_to_rad(aleteo_amplitud_grados)
+		rotation.y += flutter
 
 ## Aplica brillo HDR y auto-emisión multiplicativa basada en la propia textura del bagre
 ## para mantener 100% sus colores y detalles originales sin verse gris plano.

@@ -916,6 +916,9 @@ func _update_water_zone(zone: int) -> void:
 		return
 	var z: int = clamp(zone, 1, 4)
 	var roughness_by_zone: Array[float] = [0.0, 0.22, 0.28, 0.35, 0.45]
+	var wave_amp_by_zone: Array[float] = [0.0, 1.00, 0.85, 0.30, 0.02]
+	var flow_speed_by_zone: Array[float] = [0.0, 1.80, 1.20, 0.35, 0.02]
+	var normal_strength_by_zone: Array[float] = [0.0, 1.00, 0.85, 0.50, 0.12]
 	for mat in _water_mats:
 		mat.set_shader_parameter("metallic", 0.0)
 		mat.set_shader_parameter("shallow_water_color", WATER_SHALLOW_COLOR[z])
@@ -926,7 +929,10 @@ func _update_water_zone(zone: int) -> void:
 		mat.set_shader_parameter("fresnel_water_color", Vector3(fc.r, fc.g, fc.b))
 		mat.set_shader_parameter("beers_law", WATER_BEERS_LAW[z])
 		mat.set_shader_parameter("roughness", roughness_by_zone[z])
-	print("Water: zona %d — superficie actualizada en watershader2.gdshader." % z)
+		mat.set_shader_parameter("wave_amplitude_scale", wave_amp_by_zone[z])
+		mat.set_shader_parameter("river_flow_speed", flow_speed_by_zone[z])
+		mat.set_shader_parameter("normal_strength_scale", normal_strength_by_zone[z])
+	print("Water: zona %d — superficie, olas y velocidad actualizadas en watershader2.gdshader." % z)
 
 func _on_metrics_updated(wqi: float, do_val: float, _turb_val: float) -> void:
 	var vis_m: float = WaterManager.get_metric_value("visibility", WaterManager.progress_ratio)

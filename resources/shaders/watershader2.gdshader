@@ -28,10 +28,37 @@ uniform vec4 wave_8 = vec4(-0.05, 0.97, 0.04, 1.52); // fine ripple
 // River flow speed — scales overall animation rate
 uniform float river_flow_speed = 1.2;
 
+// Dynamic zone modifiers for waves, ripple normal strength, and flow time
+uniform float wave_amplitude_scale = 1.0;
+uniform float normal_strength_scale = 1.0;
+uniform float custom_water_time = -1.0;
+
 // Uniforms for time factor, noise zoom, and noise amplitude
 uniform float time_factor = 2.5;
 uniform float noise_zoom = 2.0;
 uniform float noise_amp = 0.4;
+
+// Spatial wave amplitude scale based on river world Z
+// Z1: > -70m, Z2: -70 to -140m, Z3: -140 to -210m, Z4: < -210m
+float get_spatial_wave_factor(float world_z) {
+    float z12 = smoothstep(-60.0, -85.0, world_z);
+    float z23 = smoothstep(-130.0, -155.0, world_z);
+    float z34 = smoothstep(-200.0, -225.0, world_z);
+
+    float factor = mix(1.0, 0.85, z12);
+    factor = mix(factor, 0.30, z23);
+    factor = mix(factor, 0.02, z34);
+    return factor;
+}
+
+// Spatial normal ripple reduction in critical/stagnant zones
+float get_spatial_normal_factor(float world_z) {
+    float z23 = smoothstep(-130.0, -155.0, world_z);
+    float z34 = smoothstep(-200.0, -225.0, world_z);
+    float factor = mix(1.0, 0.55, z23);
+    factor = mix(factor, 0.12, z34);
+    return factor;
+}
 
 // Group uniforms for water colors
 group_uniforms Water_colours;
@@ -141,8 +168,8 @@ struct WaveResult {
 };
 
 // Gerstner wave function to calculate wave displacement and normals
-WaveResult gerstner_wave(vec4 params, vec2 pos, float time) {
-    float steepness = params.z * dynamic_amplitude(pos, time);
+WaveResult gerstner_wave(vec4 params, vec2 pos, float time, float amp_scale) {
+    float steepness = params.z * dynamic_amplitude(pos, time) * amp_scale;
     float wavelength = params.w;
     float k = 2.0 * PI / wavelength;
     float c = sqrt(9.81 / k);
@@ -160,7 +187,7 @@ WaveResult gerstner_wave(vec4 params, vec2 pos, float time) {
 }
 
 // Function to combine multiple Gerstner waves
-WaveResult wave(vec2 pos, float time) {
+WaveResult wave(vec2 pos, float time, float amp_scale) {
     WaveResult waveResult;
     waveResult.displacement = vec3(0.0);
     waveResult.tangent = vec3(1.0, 0.0, 0.0);
@@ -168,56 +195,56 @@ WaveResult wave(vec2 pos, float time) {
     waveResult.normal = vec3(0.0, 1.0, 0.0);
 
     WaveResult wr;
-    wr = gerstner_wave(wave_1, pos, time);
+    wr = gerstner_wave(wave_1, pos, time, amp_scale);
     waveResult.displacement += wr.displacement;
     waveResult.tangent += wr.tangent;
     waveResult.binormal += wr.binormal;
     waveResult.normal += wr.normal;
 
-    wr = gerstner_wave(wave_2, pos, time);
+    wr = gerstner_wave(wave_2, pos, time, amp_scale);
     waveResult.displacement += wr.displacement;
     waveResult.tangent += wr.tangent;
     waveResult.binormal += wr.binormal;
     waveResult.normal += wr.normal;
 
-    wr = gerstner_wave(wave_3, pos, time);
+    wr = gerstner_wave(wave_3, pos, time, amp_scale);
     waveResult.displacement += wr.displacement;
     waveResult.tangent += wr.tangent;
     waveResult.binormal += wr.binormal;
     waveResult.normal += wr.normal;
 
-    wr = gerstner_wave(wave_4, pos, time);
+    wr = gerstner_wave(wave_4, pos, time, amp_scale);
     waveResult.displacement += wr.displacement;
     waveResult.tangent += wr.tangent;
     waveResult.binormal += wr.binormal;
     waveResult.normal += wr.normal;
 
-    wr = gerstner_wave(wave_5, pos, time);
+    wr = gerstner_wave(wave_5, pos, time, amp_scale);
     waveResult.displacement += wr.displacement;
     waveResult.tangent += wr.tangent;
     waveResult.binormal += wr.binormal;
     waveResult.normal += wr.normal;
 
-    wr = gerstner_wave(wave_6, pos, time);
+    wr = gerstner_wave(wave_6, pos, time, amp_scale);
     waveResult.displacement += wr.displacement;
     waveResult.tangent += wr.tangent;
     waveResult.binormal += wr.binormal;
     waveResult.normal += wr.normal;
 
-    wr = gerstner_wave(wave_7, pos, time);
+    wr = gerstner_wave(wave_7, pos, time, amp_scale);
     waveResult.displacement += wr.displacement;
     waveResult.tangent += wr.tangent;
     waveResult.binormal += wr.binormal;
     waveResult.normal += wr.normal;
 
-    wr = gerstner_wave(wave_8, pos, time);
+    wr = gerstner_wave(wave_8, pos, time, amp_scale);
     waveResult.displacement += wr.displacement;
     waveResult.tangent += wr.tangent;
     waveResult.binormal += wr.binormal;
     waveResult.normal += wr.normal;
 
-    // Add noise to the wave displacement for more natural look
-    waveResult.displacement.y += fbm(pos.xy * (noise_zoom / 50.0)) * noise_amp;
+    // Add noise to the wave displacement scaled with amp_scale
+    waveResult.displacement.y += fbm(pos.xy * (noise_zoom / 50.0)) * noise_amp * amp_scale;
 
     return waveResult;
 }
@@ -230,10 +257,17 @@ varying mat4 inv_mvp;
 
 // Vertex shader function
 void vertex() {
-    // Calculate time based on the global TIME variable and time_factor
-    float time = TIME * river_flow_speed / time_factor;
-    // Calculate wave displacement and normals
-    WaveResult waveResult = wave(VERTEX.xz, time);
+    // Determine world position before wave offset to obtain world Z coordinate
+    vec3 initial_world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    float spatial_wave = get_spatial_wave_factor(initial_world_pos.z);
+    float effective_wave_scale = clamp(wave_amplitude_scale * spatial_wave, 0.0, 2.0);
+
+    // Flow time: uses custom_water_time if set by controller, or fallback to TIME * river_flow_speed
+    float flow_time = (custom_water_time >= 0.0) ? custom_water_time : (TIME * river_flow_speed);
+    float time = flow_time / time_factor;
+
+    // Calculate wave displacement and normals scaled by effective wave factor
+    WaveResult waveResult = wave(VERTEX.xz, time, effective_wave_scale);
     // Apply wave displacement to the vertex position
     VERTEX += waveResult.displacement;
     // Store the height of the wave displacement
@@ -295,16 +329,19 @@ void fragment() {
     // Calculate UV coordinates based on world position
     vec2 uv = world_position.xz;
 
+    // Flow time for consistent surface texture movement without jitter
+    float flow_time = (custom_water_time >= 0.0) ? custom_water_time : (TIME * river_flow_speed);
+
     // Sample UV offset texture
     vec2 uv_offset = texture(uv_sampler, uv * uv_sampler_scale).rg;
 
-    // Calculate base UV coordinates for normal maps
-    vec2 base_uv_a = (uv + uv_speed_text_a * TIME + uv_offset) * uv_scale_text_a;
-    vec2 base_uv_b = (uv + uv_speed_text_b * TIME + uv_offset) * uv_scale_text_b;
+    // Calculate base UV coordinates for normal maps driven by flow_time
+    vec2 base_uv_a = (uv + uv_speed_text_a * flow_time + uv_offset) * uv_scale_text_a;
+    vec2 base_uv_b = (uv + uv_speed_text_b * flow_time + uv_offset) * uv_scale_text_b;
 
-    // Apply noise-based perturbation to UVs
-    vec2 animated_uv_a = perturb_uv(base_uv_a, world_position.xz, TIME, perturbation_strength);
-    vec2 animated_uv_b = perturb_uv(base_uv_b, world_position.xz, TIME + 0.0, perturbation_time);
+    // Apply noise-based perturbation to UVs driven by flow_time
+    vec2 animated_uv_a = perturb_uv(base_uv_a, world_position.xz, flow_time, perturbation_strength);
+    vec2 animated_uv_b = perturb_uv(base_uv_b, world_position.xz, flow_time + 0.0, perturbation_time);
 
     // Sample normal maps
     vec3 normal_sample_a = texture(normalmap_a, animated_uv_a).rgb;
@@ -315,8 +352,12 @@ void fragment() {
     normal_sample_b = normalize(normal_sample_b * 2.0 - 1.0);
     vec3 combined_normal = normalize(mix(normal_sample_a, normal_sample_b, blend_factor));
 
+    // Spatial and uniform normal attenuation: in Zone 4 ripples become almost flat (estancada)
+    float spatial_normal = get_spatial_normal_factor(world_position.z);
+    float effective_normal_strength = normal_strength * normal_strength_scale * spatial_normal;
+
     // Perturb the normal using the TBN matrix
-    vec3 perturbed_normal = normalize(tbn_matrix * (combined_normal * normal_strength));
+    vec3 perturbed_normal = normalize(tbn_matrix * (combined_normal * effective_normal_strength));
 
     // Sample depth texture
     float depth_raw = texture(DEPTH_TEXTURE, SCREEN_UV).r;
@@ -352,7 +393,7 @@ void fragment() {
 	vec2 caustic_Uv = caustic_localPos.xz / vec2(1024.0) + 0.5;
 	caustic_Uv += perturbed_normal.xz * caustic_distortion_strength;
 
-	float caustic_layer_index = floor(mod(TIME * 26.0, num_caustic_layers)); // Use floor for integer index
+	float caustic_layer_index = floor(mod(flow_time * 26.0, num_caustic_layers)); // Use floor for integer index
 
 	vec4 caustic_color = texture(caustic_sampler, vec3(caustic_Uv * 660.0, caustic_layer_index));
 	float caustic_intensity_multiplier = (1.0 - depth_blend_power) * caustics_intensity;
@@ -363,20 +404,21 @@ void fragment() {
     float fresnel = fresnel(5.0, NORMAL, VIEW);
     vec3 surface_color = mix(base_water_color, fresnel_water_color, fresnel);
 
-    // Calculate edge foam effect
-    vec2 edge_uv = world_position.xz * edge_texture_scale + edge_texture_offset + TIME * edge_texture_speed;
+    // Calculate edge foam effect (gradually calm in stagnant water)
+    float edge_calm = smoothstep(-220.0, -180.0, world_position.z);
+    vec2 edge_uv = world_position.xz * edge_texture_scale + edge_texture_offset + flow_time * edge_texture_speed;
     float edge_fade = smoothstep(edge_fade_start, edge_fade_end, z_dif);
-    vec3 depth_color_adj = mix(texture(edge_foam_texture, edge_uv).rgb * edge_foam_intensity, color, edge_fade);
+    vec3 depth_color_adj = mix(texture(edge_foam_texture, edge_uv).rgb * (edge_foam_intensity * edge_calm), color, edge_fade);
 
     // Apply peak color effect based on height with noise
     float peak_factor = smoothstep(peak_height_threshold, peak_height_threshold + 0.2, height);
-    float noise_factor = fbm(world_position.xz * 0.1 + TIME * 0.1);
+    float noise_factor = fbm(world_position.xz * 0.1 + flow_time * 0.1);
     peak_factor = peak_factor * noise_factor;
 
     vec3 final_color = mix(surface_color, peak_color * peak_intensity, peak_factor);
 
     // Sample the foam texture and blend it with the final color
-    vec2 foam_uv = world_position.xz * foam_scale + TIME * 0.1;
+    vec2 foam_uv = world_position.xz * foam_scale + flow_time * 0.1;
     float foam_sample = texture(foam_texture, foam_uv).r;
     float foam_blend_factor = smoothstep(0.0, 1.0, peak_factor) * foam_sample * foam_intensity;
 

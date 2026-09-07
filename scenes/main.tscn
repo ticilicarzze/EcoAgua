@@ -63,7 +63,10 @@ shader_parameter/wave_5 = Vector4(0.1, 0.92, 0.05, 1.81)
 shader_parameter/wave_6 = Vector4(-0.2, 0.85, 0.03, 0.33)
 shader_parameter/wave_7 = Vector4(0.18, 0.9, 0.04, 0.73)
 shader_parameter/wave_8 = Vector4(-0.05, 0.97, 0.04, 1.52)
-shader_parameter/river_flow_speed = 1.2
+shader_parameter/river_flow_speed = 1.8
+shader_parameter/wave_amplitude_scale = 1.0
+shader_parameter/normal_strength_scale = 1.0
+shader_parameter/custom_water_time = 95.0250000000025
 shader_parameter/time_factor = 2.5
 shader_parameter/noise_zoom = 2.0
 shader_parameter/noise_amp = 0.4
@@ -828,10 +831,10 @@ transform = Transform3D(0.041022733, 0, -0.24154101, 0, 0.24499997, 0, 0.2415410
 transform = Transform3D(0.041022733, 0, -0.24154101, 0, 0.24499997, 0, 0.24154101, 0, 0.041022733, 16.330791, 0.1207273, -135.76985)
 
 [node name="Alga_filamentosa3" parent="Zona1/VegetacionAcuatica/AlgaFilamentosa" unique_id=1063700542 instance=ExtResource("17_og1vs")]
-transform = Transform3D(0.32057098, 0, -1.0313265, 0, 1.08, 0, 1.0313265, 0, 0.32057098, 13.505814, 0.31603765, -273.91437)
+transform = Transform3D(0.32057092, 0, -1.0313263, 0, 1.08, 0, 1.0313263, 0, 0.32057092, 13.505812, 0.17459297, -273.9143)
 
 [node name="Alga_filamentosa4" parent="Zona1/VegetacionAcuatica/AlgaFilamentosa" unique_id=1247372042 instance=ExtResource("17_og1vs")]
-transform = Transform3D(0.32057098, 0, -1.0313265, 0, 1.08, 0, 1.0313265, 0, 0.32057098, 13.505784, 0.21443248, -273.91437)
+transform = Transform3D(0.32057095, 0, -1.0313264, 0, 1.08, 0, 1.0313264, 0, 0.32057095, 13.505783, 0.27617145, -273.91434)
 
 [node name="Alga_filamentosa5" parent="Zona1/VegetacionAcuatica/AlgaFilamentosa" unique_id=156897317 instance=ExtResource("17_og1vs")]
 transform = Transform3D(-0.09752652, 0, 1.0755869, 0, 1.08, 0, -1.0755869, 0, -0.09752652, -7.4165335, 0.28186655, -248.51001)
