@@ -81,6 +81,7 @@ var _param_panel: PanelContainer
 var _zone_title:   Label
 var _param_rows:   Array = []     # Array de Dictionary {row, dot, name_lbl, val_lbl}
 var _separator:    HSeparator
+var _sep_style:    StyleBoxLine
 
 # Panel ICA (inferior-centro)
 var _ica_panel:       PanelContainer
@@ -174,8 +175,11 @@ func _build_param_panel() -> void:
 
 	# Separador horizontal con el color de zona
 	_separator = HSeparator.new()
-	_separator.add_theme_color_override("color", ZONE_COLORS[1])
-	_separator.add_theme_constant_override("separation", 2)
+	_sep_style = StyleBoxLine.new()
+	_sep_style.color = ZONE_COLORS[1]
+	_sep_style.thickness = 1
+	_separator.add_theme_stylebox_override("separator", _sep_style)
+	_separator.add_theme_constant_override("separation", 4)
 	vbox.add_child(_separator)
 
 	# Filas de parámetros (se construyen todas, la visibilidad se gestiona por zona)
@@ -292,7 +296,8 @@ func _on_zone_changed(new_zone: int) -> void:
 	_zone_title.add_theme_color_override("font_color", col)
 
 	# Separador
-	_separator.add_theme_color_override("color", col)
+	if _sep_style:
+		_sep_style.color = col
 
 	# Color de la barra ICA y número
 	_ica_bar_fill.bg_color = col
