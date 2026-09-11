@@ -116,16 +116,16 @@ func _ready() -> void:
 
 # ─── Carga de fuentes ─────────────────────────────────────────────────────────
 func _load_fonts() -> void:
-	var bold_path    := "res://assets/fonts/Cousine-Bold.ttf"
-	var regular_path := "res://assets/fonts/Cousine-Regular.ttf"
+	var bold_path    := "res://assets/fonts/Cousine/Cousine/Cousine-Bold.ttf"
+	var regular_path := "res://assets/fonts/Cousine/Cousine/Cousine-Regular.ttf"
 	if ResourceLoader.exists(bold_path):
 		_font_bold = load(bold_path)
 	else:
-		push_warning("HUD: Cousine-Bold.ttf no encontrada en assets/fonts/. Usando fuente por defecto.")
+		push_warning("HUD: Cousine-Bold.ttf no encontrada en assets/fonts/Cousine/Cousine/. Usando fuente por defecto.")
 	if ResourceLoader.exists(regular_path):
 		_font_regular = load(regular_path)
 	else:
-		push_warning("HUD: Cousine-Regular.ttf no encontrada en assets/fonts/. Usando fuente por defecto.")
+		push_warning("HUD: Cousine-Regular.ttf no encontrada en assets/fonts/Cousine/Cousine/. Usando fuente por defecto.")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTRUCCIÓN DEL HUD
