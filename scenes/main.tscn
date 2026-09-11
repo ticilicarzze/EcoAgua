@@ -69,7 +69,7 @@ shader_parameter/wave_8 = Vector4(-0.05, 0.97, 0.04, 1.52)
 shader_parameter/river_flow_speed = 1.2
 shader_parameter/wave_amplitude_scale = 1.0
 shader_parameter/normal_strength_scale = 1.0
-shader_parameter/custom_water_time = 4465.125918189682
+shader_parameter/custom_water_time = 4688.808848989589
 shader_parameter/time_factor = 2.5
 shader_parameter/noise_zoom = 2.0
 shader_parameter/noise_amp = 0.4
@@ -113,7 +113,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_pibwh"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_kmb1v"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -154,7 +154,7 @@ current = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_pibwh")
+mesh = SubResource("PlaneMesh_kmb1v")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true
