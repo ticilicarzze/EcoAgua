@@ -910,6 +910,13 @@ const WATER_FRESNEL_COLOR: Array[Color] = [
 const WATER_BEERS_LAW: Array[float] = [
 	0.0, 0.35, 0.65, 1.10, 1.80
 ]
+# Velocidad de corriente del agua por zona:
+# Zona 1 & 2: 1.20 (100%)
+# Zona 3: 0.90 (3/4 de Zona 1)
+# Zona 4: 0.60 (1/2 de Zona 1)
+const WATER_FLOW_SPEED: Array[float] = [
+	0.0, 1.20, 1.20, 0.90, 0.60
+]
 
 func _update_water_zone(zone: int) -> void:
 	if _water_mats.is_empty():
