@@ -31,15 +31,17 @@ const ZONE_STATUS_LABELS: Array[String] = [
 	"ESTADO PÉSIMO",
 ]
 
-# Constantes de estilo
-const PANEL_BG_COLOR    := Color(0.0, 0.0, 0.0, 0.55)
-const BORDER_WIDTH      := 2
-const CORNER_RADIUS     := 10
-const MARGIN_SCREEN     := 35         # Margen desde el borde de pantalla
-const MARGIN_BOTTOM     := 30         # Margen desde el borde inferior
-const PARAM_FONT_SIZE   := 12
-const TITLE_FONT_SIZE   := 13
-const ICA_NUM_FONT_SIZE := 14
+# Constantes de estilo (declaradas como var para que HUDControllerVR pueda sobreescribirlas)
+var PANEL_BG_COLOR:       Color = Color(0.0, 0.0, 0.0, 0.55)
+var BORDER_WIDTH:         int   = 2
+var CORNER_RADIUS:        int   = 10
+var MARGIN_SCREEN:        int   = 35   # Margen desde el borde de pantalla
+var MARGIN_BOTTOM:        int   = 30   # Margen desde el borde inferior
+var PARAM_FONT_SIZE:      int   = 12
+var TITLE_FONT_SIZE:      int   = 13
+var ICA_NUM_FONT_SIZE:    int   = 14
+var PARAM_PANEL_WIDTH:    int   = 260  # Ancho del panel de parámetros (px)
+var ICA_PANEL_HALF_W:     int   = 160  # Semiancho del panel ICA (px)
 
 # ─── Definición de parámetros por zona ───────────────────────────────────────
 # Formato: [nombre_display, clave_en_diccionario, unidad]
@@ -158,7 +160,7 @@ func _build_param_panel() -> void:
 	_param_panel.grow_horizontal = Control.GROW_DIRECTION_END
 	_param_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
 	_param_panel.offset_left     = MARGIN_SCREEN
-	_param_panel.offset_right    = MARGIN_SCREEN + 260
+	_param_panel.offset_right    = MARGIN_SCREEN + PARAM_PANEL_WIDTH
 	_param_panel.offset_bottom   = -MARGIN_BOTTOM
 	_param_panel.offset_top      = -MARGIN_BOTTOM
 	_param_panel_base_y = _param_panel.offset_top
@@ -225,8 +227,8 @@ func _build_ica_panel() -> void:
 	_ica_panel.anchor_top    = 1.0
 	_ica_panel.anchor_right  = 0.5
 	_ica_panel.anchor_bottom = 1.0
-	_ica_panel.offset_left   = -160
-	_ica_panel.offset_right  =  160
+	_ica_panel.offset_left   = -ICA_PANEL_HALF_W
+	_ica_panel.offset_right  =  ICA_PANEL_HALF_W
 	_ica_panel.offset_bottom = -MARGIN_BOTTOM
 	_ica_panel.offset_top    = -MARGIN_BOTTOM - 52
 	_ica_panel_base_y = _ica_panel.offset_top
@@ -256,7 +258,7 @@ func _build_ica_panel() -> void:
 	_ica_bar.max_value       = 100.0
 	_ica_bar.value           = 95.0
 	_ica_bar.show_percentage = false
-	_ica_bar.custom_minimum_size = Vector2(300, 10)
+	_ica_bar.custom_minimum_size = Vector2(ICA_PANEL_HALF_W * 2 - 20, 10)
 
 	# Estilo del fondo de la barra
 	var bar_bg := StyleBoxFlat.new()

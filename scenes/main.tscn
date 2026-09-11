@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://dpwv0qf6tb7we" path="res://assets/textures/water/normal_B.png" id="6_4c57u"]
 [ext_resource type="Script" uid="uid://bynsjwun060cg" path="res://scripts/WaterVisualController.gd" id="7_water_ctrl"]
 [ext_resource type="Script" uid="uid://242lg4sampay" path="res://scripts/HUDController.gd" id="8_hud_ctrl"]
+[ext_resource type="Script" path="res://scripts/HUDControllerVR.gd" id="9_hud_vr"]
 [ext_resource type="PackedScene" uid="uid://dxjetpy830q13" path="res://assets/models/ZONA1/Fauna acuática/Mojarra_animacion.glb" id="10_choun"]
 [ext_resource type="PackedScene" uid="uid://dkh3yeivu0uci" path="res://assets/models/ZONA1/Fauna acuática/dientudo_animacion.glb" id="11_jscy8"]
 [ext_resource type="PackedScene" uid="uid://dhmnjpdihg8ky" path="res://assets/models/ZONA1/Fauna acuática/bagre_animacion.glb" id="11_pm3ni"]
@@ -453,6 +454,11 @@ mesh = SubResource("PlaneMesh_foam")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1559939218]
 script = ExtResource("8_hud_ctrl")
+visible = true
+
+[node name="CanvasLayerVR" type="CanvasLayer" parent="." unique_id=1559939219]
+script = ExtResource("9_hud_vr")
+visible = false
 
 [node name="Zona1" type="Node3D" parent="." unique_id=2000000001]
 

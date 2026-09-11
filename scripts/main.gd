@@ -157,6 +157,9 @@ func _ready() -> void:
 			get_viewport().use_xr = true
 			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 			print("XR Mode: Visor OpenXR detectado e inicializado con éxito (Meta Quest).")
+			# Activar HUD VR — desactivar HUD de pantalla plana
+			if has_node("CanvasLayer"):    $CanvasLayer.visible   = false
+			if has_node("CanvasLayerVR"): $CanvasLayerVR.visible  = true
 		else:
 			push_error("XR Mode: OpenXR detectado pero falló al inicializarse.")
 			_setup_fallback_mode()
