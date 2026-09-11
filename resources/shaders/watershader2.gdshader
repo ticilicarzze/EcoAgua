@@ -47,7 +47,7 @@ float get_spatial_wave_factor(float world_z) {
 
     float factor = mix(1.0, 0.85, z12);
     factor = mix(factor, 0.30, z23);
-    factor = mix(factor, 0.02, z34);
+    factor = mix(factor, 0.15, z34);
     return factor;
 }
 
@@ -56,7 +56,7 @@ float get_spatial_normal_factor(float world_z) {
     float z23 = smoothstep(-130.0, -155.0, world_z);
     float z34 = smoothstep(-200.0, -225.0, world_z);
     float factor = mix(1.0, 0.55, z23);
-    factor = mix(factor, 0.12, z34);
+    factor = mix(factor, 0.38, z34);
     return factor;
 }
 
@@ -404,11 +404,23 @@ void fragment() {
     float fresnel = fresnel(5.0, NORMAL, VIEW);
     vec3 surface_color = mix(base_water_color, fresnel_water_color, fresnel);
 
-    // Calculate edge foam effect (gradually calm in stagnant water)
-    float edge_calm = smoothstep(-220.0, -180.0, world_position.z);
-    vec2 edge_uv = world_position.xz * edge_texture_scale + edge_texture_offset + flow_time * edge_texture_speed;
+    // Zone 4 transition factor (0.0 in Z1-Z2, 1.0 in Z4)
+    float z4_blend = smoothstep(-190.0, -225.0, world_position.z);
+
+    // Edge foam movement: in Zone 4 foam stays attached/anchored to moss and objects (very low drift)
+    float foam_speed = edge_texture_speed * mix(1.0, 0.03, z4_blend);
+    vec2 edge_uv = world_position.xz * edge_texture_scale + edge_texture_offset + flow_time * foam_speed;
+
+    // Contact foam mask around objects (moss, rocks, banks) — pronounced collar within ~1.4m
+    float object_contact = clamp(1.0 - smoothstep(0.0, 1.4, z_dif), 0.0, 1.0);
+
+    // In Zone 4, make foam pronounced, thick, and attached to touching objects
     float edge_fade = smoothstep(edge_fade_start, edge_fade_end, z_dif);
-    vec3 depth_color_adj = mix(texture(edge_foam_texture, edge_uv).rgb * (edge_foam_intensity * edge_calm), color, edge_fade);
+    float effective_edge_fade = mix(edge_fade, edge_fade * (1.0 - object_contact * 0.90), z4_blend);
+    float effective_foam_intensity = edge_foam_intensity * mix(1.0, 1.5 + object_contact * 1.5, z4_blend);
+
+    vec3 foam_rgb = texture(edge_foam_texture, edge_uv).rgb * effective_foam_intensity;
+    vec3 depth_color_adj = mix(foam_rgb, color, effective_edge_fade);
 
     // Apply peak color effect based on height with noise
     float peak_factor = smoothstep(peak_height_threshold, peak_height_threshold + 0.2, height);

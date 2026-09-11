@@ -1,0 +1,360 @@
+[gd_scene format=3 uid="uid://lo4dtwlsuwbx"]
+
+[ext_resource type="Material" path="res://resources/materials/foam_patch_material.tres" id="1_foam_mat"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_foam"]
+size = Vector2(1, 1)
+
+[node name="FoamPatches" type="Node3D" unique_id=319798403]
+
+[node name="Zona3" type="Node3D" parent="." unique_id=650570164]
+
+[node name="Foam_Z3_01_LBank" type="MeshInstance3D" parent="Zona3" unique_id=1824546804]
+transform = Transform3D(-2.216444, 0, -2.407984, 0, 1, 0, 1.691256, 0, -1.556727, -8.547, 0.04, -155.784)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_02_LBank" type="MeshInstance3D" parent="Zona3" unique_id=83545426]
+transform = Transform3D(-2.199369, 0, -0.985804, 0, 1, 0, 0.868856, 0, -1.938453, -10.591, 0.04, -169.894)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_04_LBank" type="MeshInstance3D" parent="Zona3" unique_id=2044737892]
+transform = Transform3D(1.633707, 0, -2.194392, 0, 1, 0, 2.008446, 0, 1.495271, -11.137, 0.04, -195.234)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_05_LBank" type="MeshInstance3D" parent="Zona3" unique_id=1833590628]
+transform = Transform3D(-1.409971, 0, -2.23671, 0, 1, 0, 1.711793, 0, -1.079075, -8.906, 0.04, -208.496)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_06_RBank" type="MeshInstance3D" parent="Zona3" unique_id=622684173]
+transform = Transform3D(2.947173, 0, 1.161763, 0, 1, 0, -0.734729, 0, 1.863868, 10.469, 0.04, -151.234)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_07_RBank" type="MeshInstance3D" parent="Zona3" unique_id=800706539]
+transform = Transform3D(-2.090139, 0, -1.244407, 0, 1, 0, 1.074036, 0, -1.80398, 8.695, 0.04, -165.567)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_08_RBank" type="MeshInstance3D" parent="Zona3" unique_id=818956654]
+transform = Transform3D(-3.122914, 0, 0.466451, 0, 1, 0, -0.329815, 0, -2.208126, 7.292, 0.04, -177.875)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_09_RBank" type="MeshInstance3D" parent="Zona3" unique_id=1270419219]
+transform = Transform3D(2.271297, 0, 2.323556, 0, 1, 0, -1.596329, 0, 1.560427, 7.113, 0.04, -191.48)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_10_RBank" type="MeshInstance3D" parent="Zona3" unique_id=272660926]
+transform = Transform3D(-2.480389, 0, 1.543852, 0, 1, 0, -1.155046, 0, -1.855724, 8.983, 0.04, -211.517)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_11_Mid" type="MeshInstance3D" parent="Zona3" unique_id=1410935887]
+transform = Transform3D(2.419837, 0, 0.25496, 0, 1, 0, -0.244281, 0, 2.318477, -0.185, 0.04, -161.266)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_12_Mid" type="MeshInstance3D" parent="Zona3" unique_id=303362278]
+transform = Transform3D(1.425321, 0, -2.154495, 0, 1, 0, 2.194545, 0, 1.451816, -1.339, 0.04, -185.56)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z3_13_Mid" type="MeshInstance3D" parent="Zona3" unique_id=20003289]
+transform = Transform3D(2.967636, 0, 0.100649, 0, 1, 0, -0.076702, 0, 2.26155, -1.789, 0.04, -202.721)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Zona4" type="Node3D" parent="." unique_id=51243414]
+
+[node name="Foam_Z4_01_LBank" type="MeshInstance3D" parent="Zona4" unique_id=1056951314]
+transform = Transform3D(-1.751892, 0, 3.645734, 0, 1, 0, -2.579582, 0, -1.239572, -6.327, 0.04, -223.711)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_02_LBank" type="MeshInstance3D" parent="Zona4" unique_id=5886113]
+transform = Transform3D(-1.201999, 0, -2.331435, 0, 1, 0, 2.957113, 0, -1.524574, -6.213, 0.04, -227.019)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_03_LBank" type="MeshInstance3D" parent="Zona4" unique_id=1001544647]
+transform = Transform3D(0.520683, 0, 4.374181, 0, 1, 0, -2.544904, 0, 0.302934, -5.839, 0.04, -232.079)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_04_LBank" type="MeshInstance3D" parent="Zona4" unique_id=625558771]
+transform = Transform3D(2.604082, 0, 0.543001, 0, 1, 0, -0.509691, 0, 2.444338, -4.959, 0.04, -237.943)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_05_LBank" type="MeshInstance3D" parent="Zona4" unique_id=692139501]
+transform = Transform3D(-3.053259, 0, 0.378182, 0, 1, 0, -0.389273, 0, -3.142801, -5.339, 0.04, -241.336)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_06_LBank" type="MeshInstance3D" parent="Zona4" unique_id=1918785832]
+transform = Transform3D(-2.725355, 0, 2.183445, 0, 1, 0, -1.583586, 0, -1.976617, -4.964, 0.04, -247.497)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_07_LBank" type="MeshInstance3D" parent="Zona4" unique_id=1617733979]
+transform = Transform3D(0.882665, 0, 3.397551, 0, 1, 0, -2.836877, 0, 0.737005, -3.641, 0.04, -252.404)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_08_LBank" type="MeshInstance3D" parent="Zona4" unique_id=1541643826]
+transform = Transform3D(2.942785, 0, -0.509326, 0, 1, 0, 0.644857, 0, 3.725859, -3.868, 0.04, -255.083)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_09_LBank" type="MeshInstance3D" parent="Zona4" unique_id=1808420563]
+transform = Transform3D(-2.837179, 0, 0.327061, 0, 1, 0, -0.392098, 0, -3.401357, -5.662, 0.04, -260.105)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_10_LBank" type="MeshInstance3D" parent="Zona4" unique_id=1443136553]
+transform = Transform3D(3.537606, 0, -1.602805, 0, 1, 0, 1.149325, 0, 2.536714, -6.747, 0.04, -266.087)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_11_LBank" type="MeshInstance3D" parent="Zona4" unique_id=303310159]
+transform = Transform3D(2.474588, 0, -2.807785, 0, 1, 0, 1.92311, 0, 1.694896, -7.204, 0.04, -271.305)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_12_LBank" type="MeshInstance3D" parent="Zona4" unique_id=764812154]
+transform = Transform3D(-1.074325, 0, 2.891478, 0, 1, 0, -2.970459, 0, -1.10367, -7.306, 0.04, -276.17)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_13_LBank" type="MeshInstance3D" parent="Zona4" unique_id=161572703]
+transform = Transform3D(-1.982237, 0, -2.278238, 0, 1, 0, 2.239389, 0, -1.948435, -8.458, 0.04, -280.702)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_14_LBank" type="MeshInstance3D" parent="Zona4" unique_id=2006732432]
+transform = Transform3D(-2.593804, 0, -2.720125, 0, 1, 0, 1.680687, 0, -1.602638, -9.501, 0.04, -285.926)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_15_LBank" type="MeshInstance3D" parent="Zona4" unique_id=1941239457]
+transform = Transform3D(-3.256189, 0, -2.310216, 0, 1, 0, 1.987418, 0, -2.801214, -9.989, 0.04, -291.465)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_16_RBank" type="MeshInstance3D" parent="Zona4" unique_id=1931482513]
+transform = Transform3D(-0.377247, 0, -3.956498, 0, 1, 0, 3.050893, 0, -0.290899, 10.396, 0.04, -223.236)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_17_RBank" type="MeshInstance3D" parent="Zona4" unique_id=1456796133]
+transform = Transform3D(-3.058602, 0, 3.081846, 0, 1, 0, -2.425356, 0, -2.407063, 10.093, 0.04, -226.155)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_18_RBank" type="MeshInstance3D" parent="Zona4" unique_id=1321131292]
+transform = Transform3D(-2.954977, 0, -2.234836, 0, 1, 0, 1.531132, 0, -2.024515, 12.033, 0.04, -230.469)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_19_RBank" type="MeshInstance3D" parent="Zona4" unique_id=1876910924]
+transform = Transform3D(2.44731, 0, 3.538981, 0, 1, 0, -2.883414, 0, 1.993966, 11.568, 0.04, -236.151)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_20_RBank" type="MeshInstance3D" parent="Zona4" unique_id=1963678962]
+transform = Transform3D(1.504242, 0, -3.780012, 0, 1, 0, 2.111745, 0, 0.840361, 12.259, 0.04, -243.199)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_21_RBank" type="MeshInstance3D" parent="Zona4" unique_id=226453429]
+transform = Transform3D(2.953265, 0, -0.257764, 0, 1, 0, 0.257698, 0, 2.9525, 12.885, 0.04, -247.682)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_22_RBank" type="MeshInstance3D" parent="Zona4" unique_id=1949587796]
+transform = Transform3D(-1.723159, 0, -3.701151, 0, 1, 0, 2.550929, 0, -1.187646, 12.705, 0.04, -252.986)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_23_RBank" type="MeshInstance3D" parent="Zona4" unique_id=512431769]
+transform = Transform3D(-2.531958, 0, 1.188513, 0, 1, 0, -1.09258, 0, -2.327588, 11.793, 0.04, -258.4)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_24_RBank" type="MeshInstance3D" parent="Zona4" unique_id=274081742]
+transform = Transform3D(2.572096, 0, -1.672811, 0, 1, 0, 2.03978, 0, 3.136343, 11.347, 0.04, -263.522)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_25_RBank" type="MeshInstance3D" parent="Zona4" unique_id=463550361]
+transform = Transform3D(-3.771342, 0, 0.572793, 0, 1, 0, -0.441202, 0, -2.904931, 10.821, 0.04, -268.951)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_26_RBank" type="MeshInstance3D" parent="Zona4" unique_id=1530938133]
+transform = Transform3D(0.704968, 0, 3.492806, 0, 1, 0, -3.194136, 0, 0.644686, 10.426, 0.04, -274.348)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_27_RBank" type="MeshInstance3D" parent="Zona4" unique_id=1033195151]
+transform = Transform3D(1.721865, 0, 1.879704, 0, 1, 0, -2.501663, 0, 2.291599, 8.648, 0.04, -279.085)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_28_RBank" type="MeshInstance3D" parent="Zona4" unique_id=879753140]
+transform = Transform3D(-3.749538, 0, -0.709405, 0, 1, 0, 0.414681, 0, -2.191786, 8.157, 0.04, -283.684)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_29_RBank" type="MeshInstance3D" parent="Zona4" unique_id=27583587]
+transform = Transform3D(-3.760175, 0, 1.637549, 0, 1, 0, -0.968579, 0, -2.224072, 7.028, 0.04, -288.187)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_30_RBank" type="MeshInstance3D" parent="Zona4" unique_id=365847515]
+transform = Transform3D(2.021336, 0, -3.913095, 0, 1, 0, 2.108803, 0, 1.089317, 6.409, 0.04, -292.39)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_31_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=586899782]
+transform = Transform3D(2.826318, 0, -1.096303, 0, 1, 0, 1.265198, 0, 3.261736, -2.806, 0.04, -225.454)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_32_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=81695939]
+transform = Transform3D(-4.510922, 0, 1.257722, 0, 1, 0, -0.877268, 0, -3.146391, -0.101, 0.04, -229.273)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_33_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=263314140]
+transform = Transform3D(4.499413, 0, 2.087792, 0, 1, 0, -1.518381, 0, 3.272272, 6.62, 0.04, -233.322)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_34_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=2114622072]
+transform = Transform3D(-2.276247, 0, 3.158289, 0, 1, 0, -3.25968, 0, -2.349321, 6.303, 0.04, -238.724)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_35_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=1309273773]
+transform = Transform3D(-0.396682, 0, -4.12637, 0, 1, 0, 2.732025, 0, -0.262639, 0.103, 0.04, -243.571)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_36_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=1988590542]
+transform = Transform3D(-3.772775, 0, -1.312048, 0, 1, 0, 1.303499, 0, -3.748192, 1.533, 0.04, -249.356)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_37_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=8993012]
+transform = Transform3D(3.787184, 0, -3.071279, 0, 1, 0, 2.726042, 0, 3.361474, 4.597, 0.04, -252.759)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_38_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=742086167]
+transform = Transform3D(-4.4301, 0, -0.188952, 0, 1, 0, 0.126887, 0, -2.974962, -0.598, 0.04, -256.936)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_39_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=956622687]
+transform = Transform3D(-3.108419, 0, 1.372963, 0, 1, 0, -1.255513, 0, -2.842511, -1.503, 0.04, -262.622)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_40_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=1157565145]
+transform = Transform3D(3.66926, 0, 3.410653, 0, 1, 0, -2.059116, 0, 2.215245, -1.043, 0.04, -266.813)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_41_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=793990549]
+transform = Transform3D(3.994735, 0, -0.60071, 0, 1, 0, 0.586042, 0, 3.897188, 6.358, 0.04, -271.793)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_42_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=965594875]
+transform = Transform3D(3.232748, 0, -0.577273, 0, 1, 0, 0.659424, 0, 3.692794, 1.342, 0.04, -275.69)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_43_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=455824851]
+transform = Transform3D(4.527876, 0, 2.488073, 0, 1, 0, -1.425916, 0, 2.594928, 0.068, 0.04, -279.302)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_44_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=1998895646]
+transform = Transform3D(0.693232, 0, 2.753801, 0, 1, 0, -3.517192, 0, 0.885406, -3.708, 0.04, -283.904)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_45_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=131103530]
+transform = Transform3D(-4.800366, 0, 0.308124, 0, 1, 0, -0.239951, 0, -3.738279, 3.015, 0.04, -288.459)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")
+
+[node name="Foam_Z4_46_Swirl" type="MeshInstance3D" parent="Zona4" unique_id=1568133006]
+transform = Transform3D(-2.687653, 0, 3.530736, 0, 1, 0, -2.628252, 0, -2.000668, -6.53, 0.04, -292.171)
+material_override = ExtResource("1_foam_mat")
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_foam")

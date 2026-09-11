@@ -51,14 +51,19 @@ const ZONE_PROFILES = {
 		"fresnel":         Color(0.28, 0.26, 0.24, 1.0), # Reflejo opaco apagado
 		"beers_law":       1.80,                         # Máxima absorción, muy opaca
 		"roughness":       0.45,
-		"wave_amplitude":  0.02,                         # Olas prácticamente nulas (agua plana)
-		"flow_speed":      0.02,                         # Velocidad prácticamente nula (estancada)
-		"normal_strength": 0.12                          # Casi sin ondulaciones superficiales
+		"wave_amplitude":  0.15,                         # Oleaje suave pero visible como agua líquida
+		"flow_speed":      0.18,                         # Corriente lenta pero perceptible
+		"normal_strength": 0.38                          # Ondulaciones con reflejos líquidos evidentes
 	}
 }
 
 # Alias for backwards compatibility
 const ZONE_COLORS = ZONE_PROFILES
+
+@export_group("Editor Preview")
+## Previsualización en la vista 3D del editor.
+## 'Auto (Cámara 3D)' adapta automáticamente la velocidad y colores a la zona que estás mirando en el editor.
+@export_enum("Auto (Cámara 3D)", "Zona 1 (Limpia)", "Zona 2 (Agro)", "Zona 3 (Periurbano)", "Zona 4 (Crítica)") var editor_preview_zone: int = 0
 
 @export_group("Color Override")
 ## Activá esto para editar el color del río directamente desde el Inspector.
@@ -88,6 +93,48 @@ func _ready() -> void:
 				if not Engine.is_editor_hint():
 					push_warning("WaterVisualController: MeshInstance3D is missing a ShaderMaterial. Uniforms will not be updated.")
 
+	if water_material:
+		var current_t = water_material.get_shader_parameter("custom_water_time")
+		if current_t is float and current_t > 0.0:
+			_water_flow_time = current_t
+
+func _get_editor_camera_z() -> float:
+	if not Engine.is_editor_hint():
+		return 0.0
+	# 1. EditorInterface en Godot 4
+	if Engine.has_singleton("EditorInterface"):
+		var ei = Engine.get_singleton("EditorInterface")
+		if ei and ei.has_method("get_editor_viewport_3d"):
+			var vp = ei.get_editor_viewport_3d(0)
+			if vp and vp.has_method("get_camera_3d"):
+				var cam = vp.get_camera_3d()
+				if cam:
+					return cam.global_position.z
+	# 2. Viewport 3D directo
+	var vp = get_viewport()
+	if vp:
+		var cam = vp.get_camera_3d()
+		if cam:
+			return cam.global_position.z
+	return 0.0
+
+func _get_editor_progress() -> float:
+	match editor_preview_zone:
+		1:
+			return 0.10 # Zona 1
+		2:
+			return 0.37 # Zona 2
+		3:
+			return 0.62 # Zona 3
+		4:
+			return 0.88 # Zona 4
+		_:
+			# Auto: según coordenada Z de la cámara del editor
+			var cam_z: float = _get_editor_camera_z()
+			if cam_z > 0.0:
+				return 0.0
+			return clamp(-cam_z / 294.0, 0.0, 1.0)
+
 func _apply_colors(shallow: Color, deep: Color, base: Color, fresnel: Color, beers: float, rough: float) -> void:
 	water_material.set_shader_parameter("metallic", 0.0)
 	water_material.set_shader_parameter("shallow_water_color", shallow)
@@ -97,6 +144,9 @@ func _apply_colors(shallow: Color, deep: Color, base: Color, fresnel: Color, bee
 	water_material.set_shader_parameter("beers_law", beers)
 	water_material.set_shader_parameter("roughness", rough)
 
+@export var use_interpolation: bool = true
+@export var transition_window: float = 0.05
+
 func _process(delta: float) -> void:
 	if not water_material:
 		var active_mat = material_override
@@ -105,21 +155,25 @@ func _process(delta: float) -> void:
 		else:
 			return
 
-	var visuals: Dictionary
+	var progress: float = 0.0
 	if Engine.is_editor_hint():
+		progress = _get_editor_progress()
+	elif has_node("/root/WaterManager"):
+		progress = get_node("/root/WaterManager").progress_ratio
+
+	var visuals: Dictionary = get_interpolated_visuals(progress)
+	if visuals.is_empty():
 		visuals = ZONE_PROFILES[1].duplicate()
-	else:
-		var progress: float = WaterManager.progress_ratio
-		visuals = get_interpolated_visuals(progress)
 
 	# Continuous flow time integration based on current flow speed
-	var current_flow_speed: float = visuals["flow_speed"]
+	var current_flow_speed: float = visuals.get("flow_speed", 1.0)
 	_water_flow_time += delta * current_flow_speed
 
 	# Update dynamic wave, ripple and velocity parameters in watershader2.gdshader
+	# wave_amplitude_scale y normal_strength_scale son 1.0 para que el shader use sus factores espaciales exactos
 	water_material.set_shader_parameter("custom_water_time", _water_flow_time)
-	water_material.set_shader_parameter("wave_amplitude_scale", visuals["wave_amplitude"])
-	water_material.set_shader_parameter("normal_strength_scale", visuals["normal_strength"])
+	water_material.set_shader_parameter("wave_amplitude_scale", 1.0)
+	water_material.set_shader_parameter("normal_strength_scale", 1.0)
 	water_material.set_shader_parameter("river_flow_speed", current_flow_speed)
 
 	# Apply water colors
@@ -132,24 +186,40 @@ func _process(delta: float) -> void:
 
 ## Computes interpolated visuals (colors, wave amplitude, flow speed, normal strength)
 func get_interpolated_visuals(ratio: float) -> Dictionary:
-	var use_interpolation = WaterManager.use_interpolation
-	var window = WaterManager.transition_window
-	var half_window = window / 2.0
+	var interp: bool = use_interpolation
+	var window: float = transition_window
 	
-	var current_zone = WaterManager.current_zone
-	var z = ZONE_PROFILES[current_zone]
-	var target_shallow = z["shallow"]
-	var target_deep = z["deep"]
-	var target_base = z["base"]
-	var target_fresnel = z["fresnel"]
-	var target_beers = z["beers_law"]
-	var target_roughness = z["roughness"]
-	var target_wave_amp = z["wave_amplitude"]
-	var target_flow_speed = z["flow_speed"]
-	var target_normal_strength = z["normal_strength"]
+	if not Engine.is_editor_hint() and has_node("/root/WaterManager"):
+		var wm = get_node("/root/WaterManager")
+		interp = wm.use_interpolation
+		window = wm.transition_window
+	
+	var half_window: float = window / 2.0
+	
+	# Determine base zone from progress ratio
+	var current_zone: int = 1
+	if ratio < 0.25:
+		current_zone = 1
+	elif ratio < 0.50:
+		current_zone = 2
+	elif ratio < 0.75:
+		current_zone = 3
+	else:
+		current_zone = 4
+	
+	var z: Dictionary = ZONE_PROFILES.get(current_zone, ZONE_PROFILES[1])
+	var target_shallow: Color = z["shallow"]
+	var target_deep: Color = z["deep"]
+	var target_base: Color = z["base"]
+	var target_fresnel: Color = z["fresnel"]
+	var target_beers: float = z["beers_law"]
+	var target_roughness: float = z["roughness"]
+	var target_wave_amp: float = z["wave_amplitude"]
+	var target_flow_speed: float = z["flow_speed"]
+	var target_normal_strength: float = z["normal_strength"]
 	
 	# Interpolate visuals inside transition windows to avoid pops
-	if use_interpolation:
+	if interp:
 		if ratio >= 0.25 - half_window and ratio <= 0.25 + half_window:
 			var t = (ratio - (0.25 - half_window)) / window
 			var z1 = ZONE_PROFILES[1]

@@ -20,14 +20,8 @@ extends PezAnimado
 
 ## ── Aleteo de Cola (Zonas 3 y 4) ──────────────────────────────────────────────
 @export_group("Aleteo de Cola")
-## Activa el aleteo suave de cola para evitar que los bagres parezcan estáticos
-@export var aleteo_activo: bool = true
-## Amplitud del aleteo lateral de la cola en grados
-@export var aleteo_amplitud_grados: float = 4.0
-## Frecuencia del aleteo de cola en Hz (0.25 Hz = 1 aleteo cada 4 segundos)
-@export var aleteo_frecuencia: float = 0.25
-## Velocidad de la animación del modelo en Zona 3 (0.75 = aleteo pausado y natural)
-@export var anim_speed_zona3: float = 0.75
+## Velocidad de la animación del modelo en Zona 3 (0.85 = aleteo natural y fluido acorde a su velocidad de nado)
+@export var anim_speed_zona3: float = 0.85
 
 var _es_estatico_zona4: bool = false
 var _es_zona_3: bool = false
@@ -119,24 +113,15 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _es_estatico_zona4:
 		_time += delta
-		if aleteo_activo:
-			var flutter := sin(_time * aleteo_frecuencia * TAU + _phase) * deg_to_rad(aleteo_amplitud_grados)
-			transform.basis = _initial_transform.basis.rotated(_initial_transform.basis.y.normalized(), flutter)
-		else:
-			transform.basis = _initial_transform.basis
-
 		if micro_flote > 0.0:
 			var flote := Vector3(0.0, sin(_time * 0.8) * micro_flote, 0.0)
 			transform.origin = _initial_transform.origin + flote
 		else:
-			transform.origin = _initial_transform.origin
+			transform = _initial_transform
 		return
 
+	# Zona 3 y demás zonas conservan su movimiento y navegación 100% natural y suave
 	super._process(delta)
-
-	if _es_zona_3 and aleteo_activo:
-		var flutter := sin(_time * aleteo_frecuencia * TAU + _phase) * deg_to_rad(aleteo_amplitud_grados)
-		rotation.y += flutter
 
 ## Aplica brillo HDR y auto-emisión multiplicativa basada en la propia textura del bagre
 ## para mantener 100% sus colores y detalles originales sin verse gris plano.

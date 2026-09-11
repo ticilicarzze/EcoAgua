@@ -51,8 +51,8 @@ const ZONE_METRICS = {
 		"wqi_max": 20.0,
 		"do_min": 0.5,
 		"do_max": 2.0,
-		"flow_speed": 0.02,
-		"wave_amplitude": 0.02,
+		"flow_speed": 0.18,
+		"wave_amplitude": 0.15,
 		"visibility_min": 15.0,
 		"visibility_max": 20.0,
 		"turbidez": 0.30

@@ -1,0 +1,22 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://foam_mat_pbr01"]
+
+[ext_resource type="Shader" path="res://resources/shaders/foam_patch.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://b1s2vtfllbr64" path="res://assets/textures/Foam/Foam003_1K-PNG_Color.png" id="2_color"]
+[ext_resource type="Texture2D" uid="uid://byiqcatnhm4pb" path="res://assets/textures/Foam/Foam003_1K-PNG_Opacity.png" id="3_opacity"]
+[ext_resource type="Texture2D" uid="uid://c7d4r6napn3yr" path="res://assets/textures/Foam/Foam003_1K-PNG_NormalGL.png" id="4_normal"]
+
+[resource]
+render_priority = 2
+shader = ExtResource("1_shader")
+shader_parameter/foam_color = Color(0.96, 0.94, 0.88, 1)
+shader_parameter/foam_contrast = 1.6
+shader_parameter/foam_strength = 1.5
+shader_parameter/roughness_val = 0.6
+shader_parameter/normal_depth = 1.0
+shader_parameter/emission_boost = 0.08
+shader_parameter/uv_scale = Vector2(1, 1)
+shader_parameter/drift_speed = Vector2(0, 0.012)
+shader_parameter/edge_falloff_power = 1.5
+shader_parameter/albedo_texture = ExtResource("2_color")
+shader_parameter/opacity_texture = ExtResource("3_opacity")
+shader_parameter/normal_texture = ExtResource("4_normal")
