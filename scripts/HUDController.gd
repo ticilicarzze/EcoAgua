@@ -131,6 +131,9 @@ func _load_fonts() -> void:
 # CONSTRUCCIÓN DEL HUD
 # ─────────────────────────────────────────────────────────────────────────────
 func _build_hud() -> void:
+	for child in get_children():
+		child.queue_free()
+
 	_root = Control.new()
 	_root.name = "HUDRoot"
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
