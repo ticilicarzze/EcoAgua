@@ -1,6 +1,6 @@
 [gd_resource type="Environment" format=3 uid="uid://f4l4385p8yxx"]
 
-[ext_resource type="Texture2D" uid="uid://da67dbthgwn1k" path="res://assets/hdris/grasslands_sunset_4k.exr" id="1_xkefj"]
+[ext_resource type="Texture2D" uid="uid://cjfbuktu63wf3" path="res://assets/hdris/grasslands_sunset_2k.hdr" id="1_xkefj"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_tipki"]
 panorama = ExtResource("1_xkefj")
