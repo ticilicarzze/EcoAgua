@@ -169,18 +169,18 @@ func get_metric_value(metric_name: String, ratio: float) -> float:
 
 	if ratio >= 0.25 - half_w and ratio <= 0.25 + half_w:
 		var t := (ratio - (0.25 - half_w)) / transition_window
-		var val_start := ZONE_METRICS[1][metric_name + "_min"] if use_range else ZONE_METRICS[1][metric_name]
-		var val_end   := ZONE_METRICS[2][metric_name + "_max"] if use_range else ZONE_METRICS[2][metric_name]
+		var val_start: float = ZONE_METRICS[1][metric_name + "_min"] if use_range else ZONE_METRICS[1][metric_name]
+		var val_end:   float = ZONE_METRICS[2][metric_name + "_max"] if use_range else ZONE_METRICS[2][metric_name]
 		return lerp(val_start, val_end, t)
 	elif ratio >= 0.50 - half_w and ratio <= 0.50 + half_w:
 		var t := (ratio - (0.50 - half_w)) / transition_window
-		var val_start := ZONE_METRICS[2][metric_name + "_min"] if use_range else ZONE_METRICS[2][metric_name]
-		var val_end   := ZONE_METRICS[3][metric_name + "_max"] if use_range else ZONE_METRICS[3][metric_name]
+		var val_start: float = ZONE_METRICS[2][metric_name + "_min"] if use_range else ZONE_METRICS[2][metric_name]
+		var val_end:   float = ZONE_METRICS[3][metric_name + "_max"] if use_range else ZONE_METRICS[3][metric_name]
 		return lerp(val_start, val_end, t)
 	elif ratio >= 0.75 - half_w and ratio <= 0.75 + half_w:
 		var t := (ratio - (0.75 - half_w)) / transition_window
-		var val_start := ZONE_METRICS[3][metric_name + "_min"] if use_range else ZONE_METRICS[3][metric_name]
-		var val_end   := ZONE_METRICS[4][metric_name + "_max"] if use_range else ZONE_METRICS[4][metric_name]
+		var val_start: float = ZONE_METRICS[3][metric_name + "_min"] if use_range else ZONE_METRICS[3][metric_name]
+		var val_end:   float = ZONE_METRICS[4][metric_name + "_max"] if use_range else ZONE_METRICS[4][metric_name]
 		return lerp(val_start, val_end, t)
 
 	if use_range:
