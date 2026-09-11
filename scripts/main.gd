@@ -638,10 +638,18 @@ func _build_valley_terrain() -> CSGPolygon3D:
 	if tex_bank: terrain_mat.set_shader_parameter("tex_bank", tex_bank)
 	if tex_top: terrain_mat.set_shader_parameter("tex_top", tex_top)
 
-	# Normal map desactivado — el bump_strength alto generaba sombras oscuras artificiales.
-	# La rugosidad visual se logra únicamente con roughness=0.95 (material PBR mate).
-	terrain_mat.set_shader_parameter("normal_scale", 0.0)
+	# Generar un normal map procedural para darle volumen y relieve a la tierra
+	var noise_normal = NoiseTexture2D.new()
+	var noise_lite = FastNoiseLite.new()
+	noise_lite.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	noise_lite.frequency = 0.02
+	noise_normal.noise = noise_lite
+	noise_normal.as_normal_map = true
+	noise_normal.bump_strength = 1.5
+	terrain_mat.set_shader_parameter("normal_map", noise_normal)
 
+	# Normal map activado para que la iluminación le de volumen a la tierra.
+	terrain_mat.set_shader_parameter("normal_scale", 0.5)
 	# Parámetros de mezcla
 	terrain_mat.set_shader_parameter("uv_scale", 0.2)
 	terrain_mat.set_shader_parameter("z_blend_z1z2", -70.0) # centro transición Z1→Z2
