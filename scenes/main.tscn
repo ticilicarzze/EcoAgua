@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://dpwv0qf6tb7we" path="res://assets/textures/water/normal_B.png" id="6_4c57u"]
 [ext_resource type="Script" uid="uid://bynsjwun060cg" path="res://scripts/WaterVisualController.gd" id="7_water_ctrl"]
 [ext_resource type="Script" uid="uid://242lg4sampay" path="res://scripts/HUDController.gd" id="8_hud_ctrl"]
+[ext_resource type="Script" path="res://scripts/HUDControllerVR.gd" id="9_hud_vr"]
 [ext_resource type="PackedScene" uid="uid://dxjetpy830q13" path="res://assets/models/ZONA1/Fauna acuática/Mojarra_animacion.glb" id="10_choun"]
 [ext_resource type="PackedScene" uid="uid://dkh3yeivu0uci" path="res://assets/models/ZONA1/Fauna acuática/dientudo_animacion.glb" id="11_jscy8"]
 [ext_resource type="PackedScene" uid="uid://dhmnjpdihg8ky" path="res://assets/models/ZONA1/Fauna acuática/bagre_animacion.glb" id="11_pm3ni"]
@@ -30,10 +31,12 @@
 [ext_resource type="PackedScene" uid="uid://dle4lhbmcy0io" path="res://assets/models/ZONA1/Vegetacion Acuática/Lenteja_de_agua_dispersa_2.glb" id="21_jscy8"]
 [ext_resource type="PackedScene" uid="uid://nh1jcutwi31o" path="res://assets/models/ZONA2/Infraestructura/fardo.glb" id="29_dgi5k"]
 [ext_resource type="PackedScene" uid="uid://bo2qto0rhc3te" path="res://assets/models/ZONA2/Infraestructura/granja.glb" id="30_j8jky"]
+[ext_resource type="PackedScene" uid="uid://fteeu00jwu5d" path="res://assets/models/ZONA1/Fauna terrestre/Rana_criolla_dos.glb" id="30_kmb1v"]
 [ext_resource type="PackedScene" uid="uid://ctrbusgvob0gu" path="res://assets/models/ZONA2/Vegetación ribereña/pasto_zona_dos.glb" id="31_kmb1v"]
 [ext_resource type="PackedScene" uid="uid://cjcmb5nshyb6x" path="res://assets/models/ZONA2/Vegetación ribereña/roca_dos.glb" id="32_fuf3a"]
 [ext_resource type="PackedScene" uid="uid://cye7p7o1k5ts6" path="res://assets/models/ZONA2/Vegetación ribereña/roca_tres.glb" id="33_pibwh"]
 [ext_resource type="Material" path="res://resources/materials/foam_patch_material.tres" id="34_foam_mat"]
+[ext_resource type="PackedScene" uid="uid://djagkkvhtpc6b" path="res://assets/models/ZONA1/Fauna terrestre/Tero_dos.glb" id="36_fuf3a"]
 
 [sub_resource type="Curve3D" id="Curve3D_7dm0k"]
 _data = {
@@ -64,10 +67,10 @@ shader_parameter/wave_5 = Vector4(0.1, 0.92, 0.05, 1.81)
 shader_parameter/wave_6 = Vector4(-0.2, 0.85, 0.03, 0.33)
 shader_parameter/wave_7 = Vector4(0.18, 0.9, 0.04, 0.73)
 shader_parameter/wave_8 = Vector4(-0.05, 0.97, 0.04, 1.52)
-shader_parameter/river_flow_speed = 0.18
+shader_parameter/river_flow_speed = 1.2
 shader_parameter/wave_amplitude_scale = 1.0
 shader_parameter/normal_strength_scale = 1.0
-shader_parameter/custom_water_time = 1813.4662247061874
+shader_parameter/custom_water_time = 4688.808848989589
 shader_parameter/time_factor = 2.5
 shader_parameter/noise_zoom = 2.0
 shader_parameter/noise_amp = 0.4
@@ -111,7 +114,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_dgi5k"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_kmb1v"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -152,7 +155,7 @@ current = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_dgi5k")
+mesh = SubResource("PlaneMesh_kmb1v")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true
@@ -451,57 +454,11 @@ mesh = SubResource("PlaneMesh_foam")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1559939218]
 script = ExtResource("8_hud_ctrl")
+visible = true
 
-[node name="Control" type="Control" parent="CanvasLayer" unique_id=381401685]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control" unique_id=1582658439]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 0.035
-anchor_bottom = 0.062000003
-offset_right = -0.3199997
-offset_bottom = -0.1760025
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control" unique_id=1556278839]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer" unique_id=961922053]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CanvasLayer/Control/MarginContainer/VBoxContainer" unique_id=1898607913]
-layout_mode = 2
-text = "ICA"
-
-[node name="TextureProgressBar" type="TextureProgressBar" parent="CanvasLayer/Control/MarginContainer/VBoxContainer" unique_id=680236333]
-layout_mode = 2
-
-[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/Control" unique_id=1490284796]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer2" unique_id=183058597]
-layout_mode = 2
-
-[node name="TextureProgressBar" type="TextureProgressBar" parent="CanvasLayer/Control/MarginContainer2/VBoxContainer" unique_id=1711925957]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CanvasLayer/Control/MarginContainer2/VBoxContainer/TextureProgressBar" unique_id=573442946]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/MarginContainer2/VBoxContainer" unique_id=1650886572]
-layout_mode = 2
+[node name="CanvasLayerVR" type="CanvasLayer" parent="." unique_id=1559939219]
+script = ExtResource("9_hud_vr")
+visible = false
 
 [node name="Zona1" type="Node3D" parent="." unique_id=2000000001]
 
@@ -1566,6 +1523,9 @@ transform = Transform3D(5.4149995, 0, -5.888768, 0, 8, 0, 5.888768, 0, 5.4149995
 
 [node name="Tortugas" type="Node3D" parent="Zona2/FaunaTerrestre" unique_id=867215163]
 
+[node name="Rana_criolla_dos" parent="Zona2/FaunaTerrestre" unique_id=1758408527 instance=ExtResource("30_kmb1v")]
+transform = Transform3D(0.121420816, 0, -0.11172257, 0, 0.16499999, 0, 0.11172257, 0, 0.121420816, 0.4054427, 0.24885619, -110.4099)
+
 [node name="VegetacionAcuatica" type="Node3D" parent="Zona2" unique_id=1694644154]
 
 [node name="Ceratophyllum" type="Node3D" parent="Zona2/VegetacionAcuatica" unique_id=730128464]
@@ -1968,3 +1928,9 @@ transform = Transform3D(0.99999946, 0, 0, 0, 1, 0, 0, 0, 0.99999946, -3.4389863,
 
 [node name="roca_tres" parent="." unique_id=1315811968 instance=ExtResource("33_pibwh")]
 transform = Transform3D(0.99999964, 0, 0, 0, 1, 0, 0, 0, 0.99999964, 9.922895, -3.6934068, -104.36514)
+
+[node name="Tero_dos" parent="." unique_id=135868694 instance=ExtResource("36_fuf3a")]
+transform = Transform3D(0.30411553, 0, -0.023208149, 0, 0.30499992, 0, 0.023208149, 0, 0.30411553, 6.600145, 0.06248474, -100.41155)
+
+[node name="Rama_sola" parent="." unique_id=525660858 instance=ExtResource("16_2wyq8")]
+transform = Transform3D(-0.63847184, -0.06685965, -0.76673484, -0.086892255, 0.9961122, -0.014504923, 0.76472366, 0.057362355, -0.6417991, 7.4773726, 0.13356549, -102.18776)
