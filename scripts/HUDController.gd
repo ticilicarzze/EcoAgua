@@ -317,7 +317,7 @@ func _populate_param_rows(zone: int, col: Color) -> void:
 			var value:   float  = params_data.get(key, 0.0)
 
 			(rd["dot"]      as Label).add_theme_color_override("font_color", col)
-			(rd["name_lbl"] as Label).text = display.to_lower()
+			(rd["name_lbl"] as Label).text = display
 			(rd["val_lbl"]  as Label).text = _format_value(value, unit, key)
 			(rd["val_lbl"]  as Label).add_theme_color_override("font_color", col)
 			(rd["row"]      as Control).visible = true
