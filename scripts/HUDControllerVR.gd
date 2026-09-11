@@ -1,4 +1,5 @@
-extends HUDController
+extends "res://scripts/HUDController.gd"
+class_name HUDControllerVR
 
 ## HUDControllerVR — EcoAguaUNR
 ## HUD optimizado para visores de Realidad Virtual (Meta Quest / OpenXR / WebXR).

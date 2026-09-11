@@ -1,4 +1,5 @@
 extends CanvasLayer
+class_name HUDController
 
 ## HUDController — EcoAguaUNR
 ## Nuevo HUD dinámico construido completamente por código.
