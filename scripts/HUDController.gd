@@ -147,14 +147,16 @@ func _build_param_panel() -> void:
 	_param_panel.add_theme_stylebox_override("panel", _make_panel_style(ZONE_COLORS[1]))
 
 	# Ancla: esquina inferior-izquierda
-	_param_panel.anchor_left   = 0.0
-	_param_panel.anchor_top    = 1.0
-	_param_panel.anchor_right  = 0.0
-	_param_panel.anchor_bottom = 1.0
-	_param_panel.offset_left   = MARGIN_SCREEN
-	_param_panel.offset_right  = MARGIN_SCREEN + 260
-	_param_panel.offset_bottom = -MARGIN_BOTTOM
-	_param_panel.offset_top    = -MARGIN_BOTTOM - 160  # altura inicial (se ajusta dinámicamente)
+	_param_panel.anchor_left     = 0.0
+	_param_panel.anchor_top      = 1.0
+	_param_panel.anchor_right    = 0.0
+	_param_panel.anchor_bottom   = 1.0
+	_param_panel.grow_horizontal = Control.GROW_DIRECTION_END
+	_param_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
+	_param_panel.offset_left     = MARGIN_SCREEN
+	_param_panel.offset_right    = MARGIN_SCREEN + 260
+	_param_panel.offset_bottom   = -MARGIN_BOTTOM
+	_param_panel.offset_top      = -MARGIN_BOTTOM
 	_param_panel_base_y = _param_panel.offset_top
 
 	_root.add_child(_param_panel)
@@ -322,11 +324,18 @@ func _populate_param_rows(zone: int, col: Color) -> void:
 		else:
 			(rd["row"] as Control).visible = false
 
-	# Ajustar altura del panel al número de filas activas
-	# Título(20) + sep(10) + filas(20 c/u) + márgenes internos(16) + separación(vbox)
-	var panel_height: float = 20 + 10 + active_rows * 22 + 26
+	# Ajustar altura del panel exactamente al contenido visible
+	_update_param_panel_size()
+	_update_param_panel_size.call_deferred()
+
+func _update_param_panel_size() -> void:
+	if not _param_panel:
+		return
+	_param_panel.reset_size()
+	var panel_height: float = _param_panel.get_combined_minimum_size().y
 	_param_panel.offset_top = -MARGIN_BOTTOM - panel_height
-	_param_panel_base_y     = _param_panel.offset_top
+	_param_panel.offset_bottom = -MARGIN_BOTTOM
+	_param_panel_base_y = _param_panel.offset_top
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ACTUALIZACIÓN DE MÉTRICAS (cada frame activo de WaterManager)
@@ -365,8 +374,10 @@ func _process(delta: float) -> void:
 	var wave: float = sin(_floating_time) * 2.0
 	if _param_panel:
 		_param_panel.offset_top = _param_panel_base_y + wave
+		_param_panel.offset_bottom = -MARGIN_BOTTOM + wave
 	if _ica_panel:
 		_ica_panel.offset_top = _ica_panel_base_y + wave * 0.7
+		_ica_panel.offset_bottom = -MARGIN_BOTTOM + wave * 0.7
 
 # ─────────────────────────────────────────────────────────────────────────────
 # UTILIDADES
