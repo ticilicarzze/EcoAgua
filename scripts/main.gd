@@ -500,11 +500,14 @@ func _create_surface_checkpoint_visualizers() -> void:
 	var p2: float = p1 + (19.0 * 2.97) # Final Z1_UNDERWATER
 	var p3: float = p2 + (27.0 * 2.97) # Final Z2_UNDERWATER
 	var p4: float = p3 + (28.0 * 2.97) # Final Z3_UNDERWATER
+	var p5: float = p4 + (25.0 * 2.97) # Final Z4_UNDERWATER
 
 	var checkpoints_info: Array[Dictionary] = [
+		{"progress": p1, "name": "Zona 1 (Inicial)", "color": Color(0.2, 0.9, 0.2)},
 		{"progress": p2, "name": "Zona 2 (Transición)", "color": Color(0.2, 0.85, 1.0)},
 		{"progress": p3, "name": "Zona 3 (Turbia)", "color": Color(1.0, 0.85, 0.2)},
-		{"progress": p4, "name": "Zona 4 (Degradada)", "color": Color(1.0, 0.4, 0.3)}
+		{"progress": p4, "name": "Zona 4 (Degradada)", "color": Color(1.0, 0.4, 0.3)},
+		{"progress": p5, "name": "Cierre (Final)", "color": Color(0.8, 0.8, 0.8)}
 	]
 
 	for item in checkpoints_info:
