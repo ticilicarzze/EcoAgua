@@ -636,16 +636,17 @@ func _build_subtitle_panel() -> void:
 	style.content_margin_bottom = 10
 	_subtitle_panel.add_theme_stylebox_override("panel", style)
 
-	# Centrado en la franja inferior (25% inferior de pantalla)
-	_subtitle_panel.anchor_left   = 0.1
-	_subtitle_panel.anchor_right  = 0.9
-	_subtitle_panel.anchor_top    = 1.0
-	_subtitle_panel.anchor_bottom = 1.0
-	_subtitle_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	_subtitle_panel.offset_bottom = -110
-	_subtitle_panel.offset_top    = -110
+	# Posicionarlo en un bloque fijo entre el 80% y 95% de la pantalla (debajo del cartel grande que llega al 75%)
+	_subtitle_panel.anchor_left   = 0.15
+	_subtitle_panel.anchor_right  = 0.85
+	_subtitle_panel.anchor_top    = 0.80
+	_subtitle_panel.anchor_bottom = 0.95
+	_subtitle_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_subtitle_panel.offset_bottom = 0
+	_subtitle_panel.offset_top    = 0
 
 	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 4)
 	_subtitle_panel.add_child(vbox)
 
@@ -780,10 +781,10 @@ func _hide_big_card_animated() -> void:
 	await tw.finished
 	_big_card_panel.visible = false
 	# Restaurar anclas para la próxima vez que se muestre
-	_big_card_panel.anchor_left   = 0.15
-	_big_card_panel.anchor_right  = 0.85
-	_big_card_panel.anchor_top    = 0.15
-	_big_card_panel.anchor_bottom = 0.80
+	_big_card_panel.anchor_left   = 0.22
+	_big_card_panel.anchor_right  = 0.78
+	_big_card_panel.anchor_top    = 0.22
+	_big_card_panel.anchor_bottom = 0.75
 	_big_card_panel.modulate.a = 1.0
 
 # ─── Panel de créditos ────────────────────────────────────────────────────────
