@@ -472,22 +472,7 @@ func _format_value(value: float, unit: String, key: String) -> String:
 # ─── SISTEMA NARRATIVO ────────────────────────────────────────────────────────
 # ═════════════════════════════════════════════════════════════════════════════
 
-## Locuciones del guión, por estado narrativo.
-## Formato: [voz ("Arroyo"/"Intérprete"), texto]
-const NARRATIVE_TEXTS: Dictionary = {
-	# NarrativeState int values (matching the enum order in main.gd)
-	1:  ["Arroyo",      "Hace mucho tiempo que estoy acá.\nTal vez, cuando me mirás, ves solamente agua… pero debajo de mi superficie hay mucho más.\nHay peces, plantas, insectos y pequeños organismos que también forman parte de mí.\n¡Te invito a sumergirte y conocerme mejor!"],
-	4:  ["Arroyo",      "Hay peces, plantas, insectos y pequeños organismos\nque también forman parte de mí."],
-	4:  ["Intérprete",  "Un arroyo no es sólo el agua que vemos. Es un ecosistema en el que sus componentes\nestán muy relacionados y todo funciona como en una gran orquesta."],
-	5:  ["Arroyo",      "El paisaje empieza a cambiar, aparecen los cultivos.\nY cuando llueve, el agua arrastra y se lleva consigo parte de lo que encuentra en el suelo."],
-	8:  ["Intérprete",  "La escorrentía puede transportar sedimentos y nutrientes, como nitrógeno y fósforo,\ndesde los campos hacia el arroyo. Éste exceso favorece el crecimiento de algas\ny plantas acuáticas y se conoce como eutrofización.\n\nA simple vista puede parecer que hay más vida. Pero cuando éstas algas y plantas\nse descomponen, los microorganismos consumen el oxígeno del agua."],
-	9:  ["Arroyo",      "Esta zona está más urbanizada, hay casas, calles…\nel agua sigue corriendo, pero ya no llega sola.\nTrae sustancias que antes no formaban parte de mí.\nY a quienes viven en mi interior, les cuesta cada vez más respirar."],
-	12: ["Intérprete",  "Los efluentes urbanos e industriales pueden incorporar materia orgánica, amonio,\ncoliformes fecales, y otros contaminantes.\nCuando aumenta la materia orgánica, los microorganismos necesitan más oxígeno para degradarla.\nÉsto aumenta la Demanda Bioquímica de Oxígeno o DBO.\n\nUna consecuencia de todo esto es que queda menos oxígeno disponible para peces e invertebrados."],
-	13: ["Arroyo",      "Ahora el paisaje es muy diferente.\nAlgunos creen que sigo igual, porque aún me ven correr,\npero no todo lo que cambia puede verse.\nPor dentro soy diferente. Muchos seres vivos ya no pueden vivir en estas condiciones.\nLos peces que antes encontraba, los pequeños organismos que casi no vemos…\nNo todos pueden quedarse."],
-	16: ["Intérprete",  "El aumento de nutrientes, materia orgánica y otros contaminantes modifica\nlas condiciones del agua y afecta a las comunidades que viven en ella.\nLas especies sensibles suelen desaparecer primero.\nPor eso, observar quiénes están y quiénes ya no, también nos permite conocer\nla salud de un ecosistema.\nTe recomiendo que salgas de aquí, las condiciones no son aptas."],
-	18: ["Intérprete",  "La calidad de un arroyo no puede entenderse solamente mirando el agua.\nHay que aprender a leerlo en relación a todo lo que ocurre a su alrededor."],
-	18: ["Arroyo",      "Si aprendés a mirar todo lo que llevo dentro…\nNunca volverás a verme solamente como agua."],
-}
+
 
 ## Textos de subtítulos por estado (NarrativeState int → texto a mostrar)
 ## Usamos un Array de [voz, texto] porque algunos estados tienen secuencia doble.
