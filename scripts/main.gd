@@ -496,31 +496,25 @@ func _create_surface_checkpoint_visualizers() -> void:
 	if not curve:
 		return
 
+	var p1: float = 200.0
+	var p2: float = p1 + (19.0 * 2.97) # Final Z1_UNDERWATER
+	var p3: float = p2 + (27.0 * 2.97) # Final Z2_UNDERWATER
+	var p4: float = p3 + (28.0 * 2.97) # Final Z3_UNDERWATER
+
 	var checkpoints_info: Array[Dictionary] = [
-		{"z": - 105.0, "name": "Zona 2 (Transición)", "color": Color(0.2, 0.85, 1.0)},
-		{"z": - 175.0, "name": "Zona 3 (Turbia)", "color": Color(1.0, 0.85, 0.2)},
-		{"z": - 245.0, "name": "Zona 4 (Degradada)", "color": Color(1.0, 0.4, 0.3)}
+		{"progress": p2, "name": "Zona 2 (Transición)", "color": Color(0.2, 0.85, 1.0)},
+		{"progress": p3, "name": "Zona 3 (Turbia)", "color": Color(1.0, 0.85, 0.2)},
+		{"progress": p4, "name": "Zona 4 (Degradada)", "color": Color(1.0, 0.4, 0.3)}
 	]
 
-	var baked_points = curve.get_baked_points()
-	if baked_points.is_empty():
-		return
-
 	for item in checkpoints_info:
-		var target_z: float = item["z"]
-		var best_pt: Vector3 = baked_points[0]
-		var min_dist: float = 999999.0
-
-		for pt in baked_points:
-			var d: float = abs(pt.z - target_z)
-			if d < min_dist:
-				min_dist = d
-				best_pt = pt
+		var prog: float = item["progress"]
+		var best_pt: Vector3 = curve.sample_baked(prog)
 
 		# 1. Label3D flotante visible en el viewport 3D del editor
 		var label := Label3D.new()
-		label.text = "📍 EMERSIÓN %s\nZ = %.0fm" % [item["name"], target_z]
-		label.position = Vector3(best_pt.x, 3.8, target_z)
+		label.text = "📍 EMERSIÓN %s" % [item["name"]]
+		label.position = Vector3(best_pt.x, 3.8, best_pt.z)
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		label.font_size = 46
 		label.outline_size = 12
@@ -544,7 +538,7 @@ func _create_surface_checkpoint_visualizers() -> void:
 
 		var ring_inst := MeshInstance3D.new()
 		ring_inst.mesh = ring_mesh
-		ring_inst.position = Vector3(best_pt.x, 0.25, target_z)
+		ring_inst.position = Vector3(best_pt.x, 0.25, best_pt.z)
 		container.add_child(ring_inst)
 
 	print("Surface Checkpoints: Marcadores de emersión 3D agregados en el editor.")
