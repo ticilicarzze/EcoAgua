@@ -2,9 +2,8 @@
 extends Node3D
 
 @onready var cart = $RiverPath/UserCart
-@export var target_total_duration: float = 120.0 # Duración objetivo total: 120 segundos (2 minutos)
-@export var speed: float = 6.89 # Calculado dinámicamente según la longitud de la ruta y las pausas
-@export var surface_height_offset: float = 3.5 # Altura vertical de la cámara al emerger a la superficie
+@export var speed: float = 2.97           # m/s — 294m activos / 99s de rodaje bajo el agua
+@export var surface_height_offset: float = 3.5  # Altura vertical de la cámara al emerger
 
 # =========================================================
 # PALETA VISUAL POR ZONA (EcoAgua / Amaya 2018)
@@ -53,24 +52,123 @@ const ZONE_UW_FOG_DENSITY: Array[float] = [
 	0.075, # Z4: degradada y cargada / visibilidad de 15-20m garantizada
 ]
 
-# Estado en superficie (mismo para todas las zonas)
+# =========================================================
+# MÁQUINA DE ESTADOS NARRATIVA — Guión EcoAgua
+# Cada estado corresponde a una fase exacta del guión.
+# =========================================================
+enum NarrativeState {
+	WAITING_START,      # Pantalla de inicio — botón "Sumergirse"
+	Z1_SURFACE_INTRO,   # Z1: Afuera, pájaros/agua (2-3 s), luego Arroyo (15 s)
+	Z1_DIVING,          # Z1: Inmersión (1 s)
+	Z1_CARD,            # Z1: Cartel grande parámetros (3 s)
+	Z1_UNDERWATER,      # Z1: Rodaje bajo el agua — Arroyo 7 s + Intérprete 12 s = 19 s
+	Z2_SURFACE,         # Z2: Emersión cabeza, ambiente (2-3 s) + Arroyo (10 s) = 13 s
+	Z2_DIVING,          # Z2: Inmersión (1 s)
+	Z2_CARD,            # Z2: Cartel grande parámetros (3 s)
+	Z2_UNDERWATER,      # Z2: Rodaje bajo el agua — Intérprete 17 s + 10 s = 27 s
+	Z3_SURFACE,         # Z3: Emersión cabeza, ambiente (2-3 s) + Arroyo (15 s) = 18 s
+	Z3_DIVING,          # Z3: Inmersión (1 s)
+	Z3_CARD,            # Z3: Cartel grande parámetros (3 s)
+	Z3_UNDERWATER,      # Z3: Rodaje bajo el agua — Intérprete 20 s + 8 s = 28 s
+	Z4_SURFACE,         # Z4: Emersión cabeza, silencio (2-3 s) + Arroyo (20 s) = 23 s
+	Z4_DIVING,          # Z4: Inmersión (1 s)
+	Z4_CARD,            # Z4: Cartel grande parámetros (3 s)
+	Z4_UNDERWATER,      # Z4: Rodaje bajo el agua — Intérprete (25 s)
+	Z4_EMERGE,          # Z4: Saca cabeza, sale a tierra (2 s)
+	Z4_CLOSING,         # Z4: Intérprete cierre (9.75 s) + Arroyo cierre (6.75 s) = 16.5 s
+	CREDITS,            # Créditos (8 s)
+	DONE
+}
+
+# Duraciones exactas de cada estado (en segundos), extraídas del guión
+const NARRATIVE_DURATIONS: Dictionary = {
+	NarrativeState.WAITING_START:    0.0,   # Sin timer — espera interacción del usuario
+	NarrativeState.Z1_SURFACE_INTRO: 18.0,  # 3 s ambiente + 15 s locución Arroyo
+	NarrativeState.Z1_DIVING:        1.0,
+	NarrativeState.Z1_CARD:          3.0,
+	NarrativeState.Z1_UNDERWATER:   19.0,   # 7 s Arroyo + 12 s Intérprete
+	NarrativeState.Z2_SURFACE:       13.0,  # 3 s ambiente + 10 s locución Arroyo
+	NarrativeState.Z2_DIVING:        1.0,
+	NarrativeState.Z2_CARD:          3.0,
+	NarrativeState.Z2_UNDERWATER:   27.0,   # 17 s Intérprete + 10 s Intérprete
+	NarrativeState.Z3_SURFACE:       18.0,  # 3 s ambiente + 15 s locución Arroyo
+	NarrativeState.Z3_DIVING:        1.0,
+	NarrativeState.Z3_CARD:          3.0,
+	NarrativeState.Z3_UNDERWATER:   28.0,   # 20 s Intérprete + 8 s Intérprete
+	NarrativeState.Z4_SURFACE:       23.0,  # 3 s ambiente + 20 s locución Arroyo
+	NarrativeState.Z4_DIVING:        1.0,
+	NarrativeState.Z4_CARD:          3.0,
+	NarrativeState.Z4_UNDERWATER:   25.0,   # 25 s Intérprete
+	NarrativeState.Z4_EMERGE:        2.0,
+	NarrativeState.Z4_CLOSING:      16.5,   # 9.75 s Intérprete + 6.75 s Arroyo
+	NarrativeState.CREDITS:          8.0,
+	NarrativeState.DONE:             0.0,
+}
+
+# Zona activa para cada estado (usada para actualizar WaterManager y visuales)
+const NARRATIVE_ZONE: Dictionary = {
+	NarrativeState.WAITING_START:   1,
+	NarrativeState.Z1_SURFACE_INTRO:1,
+	NarrativeState.Z1_DIVING:       1,
+	NarrativeState.Z1_CARD:         1,
+	NarrativeState.Z1_UNDERWATER:   1,
+	NarrativeState.Z2_SURFACE:      2,
+	NarrativeState.Z2_DIVING:       2,
+	NarrativeState.Z2_CARD:         2,
+	NarrativeState.Z2_UNDERWATER:   2,
+	NarrativeState.Z3_SURFACE:      3,
+	NarrativeState.Z3_DIVING:       3,
+	NarrativeState.Z3_CARD:         3,
+	NarrativeState.Z3_UNDERWATER:   3,
+	NarrativeState.Z4_SURFACE:      4,
+	NarrativeState.Z4_DIVING:       4,
+	NarrativeState.Z4_CARD:         4,
+	NarrativeState.Z4_UNDERWATER:   4,
+	NarrativeState.Z4_EMERGE:       4,
+	NarrativeState.Z4_CLOSING:      4,
+	NarrativeState.CREDITS:         4,
+	NarrativeState.DONE:            4,
+}
+
+# Secuencia lineal de estados (para avanzar con next_state())
+const NARRATIVE_SEQUENCE: Array = [
+	NarrativeState.WAITING_START,
+	NarrativeState.Z1_SURFACE_INTRO,
+	NarrativeState.Z1_DIVING,
+	NarrativeState.Z1_CARD,
+	NarrativeState.Z1_UNDERWATER,
+	NarrativeState.Z2_SURFACE,
+	NarrativeState.Z2_DIVING,
+	NarrativeState.Z2_CARD,
+	NarrativeState.Z2_UNDERWATER,
+	NarrativeState.Z3_SURFACE,
+	NarrativeState.Z3_DIVING,
+	NarrativeState.Z3_CARD,
+	NarrativeState.Z3_UNDERWATER,
+	NarrativeState.Z4_SURFACE,
+	NarrativeState.Z4_DIVING,
+	NarrativeState.Z4_CARD,
+	NarrativeState.Z4_UNDERWATER,
+	NarrativeState.Z4_EMERGE,
+	NarrativeState.Z4_CLOSING,
+	NarrativeState.CREDITS,
+	NarrativeState.DONE,
+]
+
+# Estado interno de la máquina narrativa
+var _narrative_state: NarrativeState = NarrativeState.WAITING_START
+var _state_timer: float = 0.0
+
+# Referencia al HUDController para comunicar fases narrativas
+var _hud: Node = null
+
+# =========================================================
+# CONSTANTES VISUALES DE SUPERFICIE / AGUA
+# =========================================================
 const SF_AMBIENT_ENERGY: float = 1.2
 const SF_AMBIENT_COLOR: Color = Color(0.72, 0.72, 0.68, 1.0)
-
-# Umbral de superficie ajustado a +0.25 m para coincidir con la cresta de las olas en movimiento del shader
-const WATER_SURFACE_Y: float = 0.25
+const WATER_SURFACE_Y: float = 0.25   # Umbral: coincide con la cresta de las olas del shader
 const LERP_SPEED: float = 2.5
-const SURFACE_PAUSE_DURATION: float = 10.0
-
-# =========================================================
-# MÁQUINA DE ESTADOS
-# =========================================================
-enum State {UNDERWATER, SURFACE_PAUSE, DONE}
-var _state: State = State.UNDERWATER
-var _pause_timer: float = 0.0
-# Coordenadas Z exactas donde emerge a cada zona (Zona2, Zona3, Zona4) para recorrido activo de 294 m
-const SURFACE_Z_CHECKPOINTS: Array[float] = [-105.0, -175.0, -245.0]
-var _triggered_checkpoints: Dictionary = {} # z_checkpoint -> true si ya disparó
 
 # =========================================================
 # ESTADO VISUAL INTERPOLADO
@@ -79,8 +177,8 @@ var _current_ambient: float = 1.1
 var _current_ambient_col: Color = Color(0.62, 0.50, 0.34, 1.0)
 var _current_fog_density: float = 0.035
 var _current_fog_col: Color = Color(0.58, 0.46, 0.32, 1.0)
-var _is_underwater: bool = true
-var _was_underwater: bool = true
+var _is_underwater: bool = false    # Arranca en superficie (estado WAITING_START)
+var _was_underwater: bool = false
 var _base_fov: float = 75.0
 var _current_fov: float = 75.0
 var _current_v_offset: float = 0.0
@@ -171,16 +269,22 @@ func _ready() -> void:
 	_setup_camera_fx()
 	_setup_aquatic_fauna()
 
-	# Posicionar el carrito en Z=0 (después de la extensión de 200m del telón visual trasero)
+	# Posicionar el carrito en Z=0 y ARRIBA del agua (estado WAITING_START)
 	cart.progress = 200.0
+	cart.v_offset = surface_height_offset  # Empieza en superficie
+	_current_v_offset = surface_height_offset
 	WaterManager.progress_ratio = 0.0
 
-	# Calcular velocidad para recorrer los 294 m activos (Z=0 a Z=-294) + 3 pausas de 10s en 2 minutos (120 s)
-	var active_distance: float = 294.0 # metros reales de trayectoria activa (30% más lenta: 3.27 m/s)
-	var total_pauses: float = SURFACE_Z_CHECKPOINTS.size() * SURFACE_PAUSE_DURATION # 30s
-	var moving_time: float = max(10.0, target_total_duration - total_pauses) # 90s
-	speed = active_distance / moving_time # 3.27 m/s
-	print("Velocidad de riel calibrada: %.2f m/s (294m activos en 90s + 30s pausas = 120s / 2 min)" % speed)
+	# Buscar referencia al HUD para comunicar eventos narrativos
+	if has_node("CanvasLayer"):
+		_hud = $CanvasLayer
+	elif has_node("CanvasLayerVR"):
+		_hud = $CanvasLayerVR
+
+	# Entrar al primer estado narrativo
+	_enter_narrative_state(NarrativeState.WAITING_START)
+	print("Narrativa: estado WAITING_START — esperando botón 'Sumergirse'. Velocidad de riel: %.2f m/s" % speed)
+
 
 # =========================================================
 # _setup_fallback_mode — Pantalla Plana fallback
@@ -716,108 +820,120 @@ func _input(event: InputEvent) -> void:
 			_fl_dragging = false
 
 # =========================================================
-# _process — STATE MACHINE
+# _process — MÁQUINA DE ESTADOS NARRATIVA
 # =========================================================
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
-	if _state == State.DONE:
+	if _narrative_state == NarrativeState.DONE:
+		return
+	if _narrative_state == NarrativeState.WAITING_START:
+		# No hacer nada; el usuario debe presionar el botón "Sumergirse"
+		_apply_visual_state(delta)
+		_apply_freelook(delta)
 		return
 
-	# Calcular ratio relativo al trayecto activo de navegación (Z=0 a Z=-294)
-	# Ignorando los 200m del telón visual trasero (Z=+200 a Z=0)
-	var active_progress: float = max(0.0, cart.progress - 200.0)
-	var ratio: float = clamp(active_progress / 294.0, 0.0, 1.0)
-	var cur_zone: int = _zone_from_ratio(ratio)
+	# ── Avanzar timer del estado actual ──────────────────────────────────────
+	var duration: float = NARRATIVE_DURATIONS.get(_narrative_state, 0.0)
+	if duration > 0.0:
+		_state_timer += delta
+		if _state_timer >= duration:
+			_advance_narrative_state()
+			return
 
-	# Movimiento (calibrado para 2 minutos totales de recorrido activo)
-	if _state == State.UNDERWATER:
+	# ── Mover el carro solo en estados UNDERWATER ─────────────────────────────
+	var is_moving_state: bool = (
+		_narrative_state == NarrativeState.Z1_UNDERWATER or
+		_narrative_state == NarrativeState.Z2_UNDERWATER or
+		_narrative_state == NarrativeState.Z3_UNDERWATER or
+		_narrative_state == NarrativeState.Z4_UNDERWATER
+	)
+	if is_moving_state:
 		cart.progress += speed * delta
+		var active_progress: float = max(0.0, cart.progress - 200.0)
+		var ratio: float = clamp(active_progress / 294.0, 0.0, 1.0)
 		WaterManager.progress_ratio = ratio
-		# Chequear checkpoints de emersión por posición Z exacta
-		var cart_z: float = cart.global_position.z
-		for z_target in SURFACE_Z_CHECKPOINTS:
-			if not _triggered_checkpoints.has(z_target) and cart_z <= z_target:
-				_triggered_checkpoints[z_target] = true
-				_state = State.SURFACE_PAUSE
-				_pause_timer = 0.0
-				print("→ SURFACE_PAUSE en Z=%.0f (zona %d)" % [z_target, cur_zone])
-				break # solo una pausa a la vez
-		if ratio >= 1.0:
-			_state = State.DONE
-			set_process(false)
-			print("Experiencia completada.")
 
-	elif _state == State.SURFACE_PAUSE:
-		_pause_timer += delta
-		if _pause_timer >= SURFACE_PAUSE_DURATION:
-			_state = State.UNDERWATER
-			print("→ UNDERWATER")
-
-	# Animación suave de elevación vertical a la superficie durante pausas (sin modificar el terreno)
-	var target_v: float = surface_height_offset if _state == State.SURFACE_PAUSE else 0.0
+	# ── Target de v_offset según si estamos en superficie o bajo el agua ─────
+	var want_surface: bool = (
+		_narrative_state == NarrativeState.WAITING_START or
+		_narrative_state == NarrativeState.Z1_SURFACE_INTRO or
+		_narrative_state == NarrativeState.Z2_SURFACE or
+		_narrative_state == NarrativeState.Z3_SURFACE or
+		_narrative_state == NarrativeState.Z4_SURFACE or
+		_narrative_state == NarrativeState.Z4_EMERGE or
+		_narrative_state == NarrativeState.Z4_CLOSING or
+		_narrative_state == NarrativeState.CREDITS
+	)
+	var target_v: float = surface_height_offset if want_surface else 0.0
 	_current_v_offset = lerp(_current_v_offset, target_v, LERP_SPEED * delta)
 	cart.v_offset = _current_v_offset
+
+	# ── Aplicar visuales (fog, ambient, partículas) ───────────────────────────
+	_apply_visual_state(delta)
+	_apply_freelook(delta)
+
+
+# =========================================================
+# _apply_visual_state — Efectos visuales de agua/superficie
+# Se separa de _process para poder llamarlo también en WAITING_START
+# =========================================================
+func _apply_visual_state(delta: float) -> void:
+	var cur_zone: int = NARRATIVE_ZONE.get(_narrative_state, 1)
 
 	# Detectar posición respecto al agua usando la cámara activa
 	var cam_y: float = _get_active_camera_y()
 	_is_underwater = cam_y < WATER_SURFACE_Y
 
-	# Transición instantánea de estado al cruzar la superficie del agua (submerger/emerger)
+	# Transición instantánea al cruzar la superficie del agua
 	if _is_underwater != _was_underwater:
 		_was_underwater = _is_underwater
 		if _is_underwater:
-			# AL SUMERGIRSE: Iluminación subacuática e inicio de partículas INSTANTÁNEO
-			_current_ambient = ZONE_UW_AMBIENT_ENERGY[cur_zone]
+			_current_ambient     = ZONE_UW_AMBIENT_ENERGY[cur_zone]
 			_current_ambient_col = ZONE_UW_AMBIENT_COLOR[cur_zone]
 			for p in _particle_nodes:
 				p.emitting = true
-				p.visible = true
+				p.visible  = true
 		else:
-			# AL EMERGER: Restaurar iluminación de superficie y ocultar partículas
-			_current_ambient = SF_AMBIENT_ENERGY
+			_current_ambient     = SF_AMBIENT_ENERGY
 			_current_ambient_col = SF_AMBIENT_COLOR
 			for p in _particle_nodes:
 				p.emitting = false
-				p.visible = false
+				p.visible  = false
 				p.restart()
 
-	# Targets visuales (ambient y neblina WorldEnvironment)
+	# Targets visuales
+	var target_fog_density: float = ZONE_UW_FOG_DENSITY[cur_zone]
+	var target_fog_col: Color     = ZONE_UW_FOG_COLOR[cur_zone]
 	var t_amb: float
 	var t_amb_col: Color
-	var target_fog_density: float = ZONE_UW_FOG_DENSITY[cur_zone]
-	var target_fog_col: Color = ZONE_UW_FOG_COLOR[cur_zone]
-
 	if _is_underwater:
-		t_amb = ZONE_UW_AMBIENT_ENERGY[cur_zone]
+		t_amb     = ZONE_UW_AMBIENT_ENERGY[cur_zone]
 		t_amb_col = ZONE_UW_AMBIENT_COLOR[cur_zone]
 	else:
-		t_amb = SF_AMBIENT_ENERGY
+		t_amb     = SF_AMBIENT_ENERGY
 		t_amb_col = SF_AMBIENT_COLOR
 
-	# Interpolar ambient y neblina
-	_current_ambient = lerp(_current_ambient, t_amb, LERP_SPEED * delta)
+	_current_ambient     = lerp(_current_ambient, t_amb, LERP_SPEED * delta)
 	_current_ambient_col = _current_ambient_col.lerp(t_amb_col, LERP_SPEED * delta)
 	_current_fog_density = lerp(_current_fog_density, target_fog_density, LERP_SPEED * delta)
-	_current_fog_col = _current_fog_col.lerp(target_fog_col, LERP_SPEED * delta)
+	_current_fog_col     = _current_fog_col.lerp(target_fog_col, LERP_SPEED * delta)
 
 	# Aplicar Environment
 	var env = $WorldEnvironment.environment
 	if env:
-		env.ambient_light_color = _current_ambient_col
+		env.ambient_light_color  = _current_ambient_col
 		env.ambient_light_energy = _current_ambient
 		if _is_underwater:
-			env.background_mode = Environment.BG_COLOR
+			env.background_mode  = Environment.BG_COLOR
 			env.background_color = _current_fog_col
-			# Neblina subacuática de WorldEnvironment activa: densidad progresiva y color de agua turbia
-			env.fog_enabled = true
-			env.fog_mode = Environment.FOG_MODE_EXPONENTIAL
-			env.fog_light_color = _current_fog_col
-			env.fog_density = _current_fog_density
+			env.fog_enabled      = true
+			env.fog_mode         = Environment.FOG_MODE_EXPONENTIAL
+			env.fog_light_color  = _current_fog_col
+			env.fog_density      = _current_fog_density
 		else:
-			# En superficie: deshabilitar neblina por completo para no alterar la visión exterior
 			env.background_mode = Environment.BG_SKY
-			env.fog_enabled = false
+			env.fog_enabled     = false
 
 	# Luz direccional
 	if has_node("DirectionalLight3D"):
@@ -826,7 +942,7 @@ func _process(delta: float) -> void:
 		$DirectionalLight3D.light_energy = lerp(
 			$DirectionalLight3D.light_energy, target_light, LERP_SPEED * delta)
 
-	# Partículas (sedimento/burbujas subacuáticas)
+	# Partículas
 	if _particle_proc and _particle_mat:
 		if _is_underwater:
 			_particle_proc.gravity = Vector3(0.0, 0.04, 0.0)
@@ -834,16 +950,13 @@ func _process(delta: float) -> void:
 			var mc: Color = ZONE_UW_FOG_COLOR[cur_zone].lightened(0.1)
 			mc.a = 0.45
 			_particle_mat.albedo_color = mc
-			_particle_mat.roughness = 0.95
+			_particle_mat.roughness    = 0.95
 			for p in _particle_nodes:
-				if not p.emitting:
-					p.emitting = true
-				if not p.visible:
-					p.visible = true
+				if not p.emitting: p.emitting = true
+				if not p.visible:  p.visible  = true
 		else:
 			for p in _particle_nodes:
-				if p.emitting:
-					p.emitting = false
+				if p.emitting: p.emitting = false
 				if p.visible:
 					p.visible = false
 					p.restart()
@@ -852,27 +965,73 @@ func _process(delta: float) -> void:
 	if not get_viewport().use_xr and has_node("RiverPath/UserCart/XROrigin3D/XRCamera3D"):
 		$RiverPath/UserCart/XROrigin3D/XRCamera3D.fov = _base_fov
 
-	# Teclado WASD / Flechas para rotar la cámara libre
-	if _fl_camera:
-		var fl_turn := 0.0
-		var fl_pitch := 0.0
-		if Input.is_key_pressed(KEY_LEFT) or Input.is_key_pressed(KEY_A):
-			fl_turn += FL_KEY_SPEED * delta
-		if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D):
-			fl_turn -= FL_KEY_SPEED * delta
-		if Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_W):
-			fl_pitch += FL_KEY_SPEED * delta
-		if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S):
-			fl_pitch -= FL_KEY_SPEED * delta
-		_fl_yaw += fl_turn
-		_fl_pitch = clamp(_fl_pitch + fl_pitch, deg_to_rad(-FL_PITCH_LIMIT), deg_to_rad(FL_PITCH_LIMIT))
 
-	# La FlatCamera ahora está en la raíz de la escena (no es hija del PathFollow3D).
-	# Copiamos SOLO la posición global del carro, y aplicamos nuestra propia rotación libre.
-	if _fl_camera:
-		_fl_camera.global_position = cart.global_position
-		_fl_camera.rotation = Vector3(_fl_pitch, _fl_yaw, 0.0)
+# =========================================================
+# _apply_freelook — Control de cámara libre (extraído de _process)
+# =========================================================
+func _apply_freelook(delta: float) -> void:
+	if not _fl_camera:
+		return
+	var fl_turn: float = 0.0
+	var fl_pitch_d: float = 0.0
+	if Input.is_key_pressed(KEY_LEFT)  or Input.is_key_pressed(KEY_A): fl_turn  += FL_KEY_SPEED * delta
+	if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D): fl_turn  -= FL_KEY_SPEED * delta
+	if Input.is_key_pressed(KEY_UP)    or Input.is_key_pressed(KEY_W): fl_pitch_d += FL_KEY_SPEED * delta
+	if Input.is_key_pressed(KEY_DOWN)  or Input.is_key_pressed(KEY_S): fl_pitch_d -= FL_KEY_SPEED * delta
+	_fl_yaw   += fl_turn
+	_fl_pitch = clamp(_fl_pitch + fl_pitch_d, deg_to_rad(-FL_PITCH_LIMIT), deg_to_rad(FL_PITCH_LIMIT))
+	_fl_camera.global_position = cart.global_position
+	_fl_camera.rotation = Vector3(_fl_pitch, _fl_yaw, 0.0)
 
+
+
+
+# =========================================================
+# CONTROL DE LA MÁQUINA NARRATIVA
+# =========================================================
+
+## Avanza al siguiente estado de la secuencia narrativa
+func _advance_narrative_state() -> void:
+	var idx: int = NARRATIVE_SEQUENCE.find(_narrative_state)
+	if idx < 0 or idx >= NARRATIVE_SEQUENCE.size() - 1:
+		return
+	var next: NarrativeState = NARRATIVE_SEQUENCE[idx + 1]
+	_enter_narrative_state(next)
+
+## Entra en el estado dado y notifica al HUD
+func _enter_narrative_state(new_state: NarrativeState) -> void:
+	_narrative_state = new_state
+	_state_timer     = 0.0
+
+	var zone: int = NARRATIVE_ZONE.get(new_state, 1)
+	WaterManager.progress_ratio = _narrative_ratio_for_zone(zone)
+
+	# Actualizar el shader de agua al entrar en cada zona nueva
+	_update_water_zone(zone)
+
+	# Notificar al HUD si existe y tiene el método
+	if _hud and _hud.has_method("on_narrative_state_changed"):
+		_hud.on_narrative_state_changed(new_state, zone)
+
+	print("Narrativa → %s (zona %d, dur: %.1f s)" % [
+		NarrativeState.keys()[new_state], zone,
+		NARRATIVE_DURATIONS.get(new_state, 0.0)
+	])
+
+## Botón "Sumergirse" del HUD llama a esto para iniciar la experiencia
+func on_dive_button_pressed() -> void:
+	if _narrative_state != NarrativeState.WAITING_START:
+		return
+	_enter_narrative_state(NarrativeState.Z1_SURFACE_INTRO)
+
+## Ratio de WaterManager por zona (para inicializar métricas en cada emersión)
+func _narrative_ratio_for_zone(zone: int) -> float:
+	match zone:
+		1: return 0.0
+		2: return 0.30
+		3: return 0.55
+		4: return 0.80
+	return 0.0
 
 # =========================================================
 # Helpers

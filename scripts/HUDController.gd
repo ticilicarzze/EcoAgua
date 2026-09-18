@@ -103,6 +103,18 @@ var _floating_time:       float = 0.0
 var _param_panel_base_y:  float = 0.0
 var _ica_panel_base_y:    float = 0.0
 
+# ─── Estado narrativo ─────────────────────────────────────────────────────────
+# Referencia al panel de cartel grande y al panel de subtítulos/texto narrativo
+var _big_card_panel:     Control = null  # Panel central grande de parámetros
+var _subtitle_panel:     Control = null  # Panel de subtítulos/locución
+var _subtitle_label:     Label   = null
+var _subtitle_voice_lbl: Label   = null  # Etiqueta del nombre de la voz (Arroyo / Intérprete)
+var _dive_button_panel:  Control = null  # Panel con botón "Sumergirse"
+var _credits_panel:      Control = null  # Panel de créditos finales
+var _main_node:          Node    = null  # Referencia al nodo main para llamar on_dive_button_pressed
+var _big_card_visible:   bool    = false # Estado del cartel grande
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -117,6 +129,19 @@ func _ready() -> void:
 		# Estado inicial
 		_on_zone_changed(WaterManager.current_zone)
 		_update_ica(WaterManager.water_quality_index)
+
+	# Buscar nodo main para comunicar el botón "Sumergirse"
+	_main_node = get_tree().get_root().get_node_or_null("Main") \
+		if get_tree().get_root().has_node("Main") else null
+	if not _main_node:
+		# Intentar buscar el primer nodo que tenga on_dive_button_pressed
+		for child in get_tree().get_root().get_children():
+			if child.has_method("on_dive_button_pressed"):
+				_main_node = child
+				break
+
+	# Construir elementos narrativos
+	_build_narrative_ui()
 
 # ─── Carga de fuentes ─────────────────────────────────────────────────────────
 func _load_fonts() -> void:
@@ -441,5 +466,426 @@ func _format_value(value: float, unit: String, key: String) -> String:
 		return "%.2f %s" % [value, unit]
 	elif value < 10.0:
 		return "%.1f %s" % [value, unit]
-	else:
-		return "%.0f %s" % [value, unit]
+	return "%.0f %s" % [value, unit]
+
+# ═════════════════════════════════════════════════════════════════════════════
+# ─── SISTEMA NARRATIVO ────────────────────────────────────────────────────────
+# ═════════════════════════════════════════════════════════════════════════════
+
+## Locuciones del guión, por estado narrativo.
+## Formato: [voz ("Arroyo"/"Intérprete"), texto]
+const NARRATIVE_TEXTS: Dictionary = {
+	# NarrativeState int values (matching the enum order in main.gd)
+	1:  ["Arroyo",      "Hace mucho tiempo que estoy acá.\nTal vez, cuando me mirás, ves solamente agua… pero debajo de mi superficie hay mucho más.\nHay peces, plantas, insectos y pequeños organismos que también forman parte de mí.\n¡Te invito a sumergirte y conocerme mejor!"],
+	4:  ["Arroyo",      "Hay peces, plantas, insectos y pequeños organismos\nque también forman parte de mí."],
+	4:  ["Intérprete",  "Un arroyo no es sólo el agua que vemos. Es un ecosistema en el que sus componentes\nestán muy relacionados y todo funciona como en una gran orquesta."],
+	5:  ["Arroyo",      "El paisaje empieza a cambiar, aparecen los cultivos.\nY cuando llueve, el agua arrastra y se lleva consigo parte de lo que encuentra en el suelo."],
+	8:  ["Intérprete",  "La escorrentía puede transportar sedimentos y nutrientes, como nitrógeno y fósforo,\ndesde los campos hacia el arroyo. Éste exceso favorece el crecimiento de algas\ny plantas acuáticas y se conoce como eutrofización.\n\nA simple vista puede parecer que hay más vida. Pero cuando éstas algas y plantas\nse descomponen, los microorganismos consumen el oxígeno del agua."],
+	9:  ["Arroyo",      "Esta zona está más urbanizada, hay casas, calles…\nel agua sigue corriendo, pero ya no llega sola.\nTrae sustancias que antes no formaban parte de mí.\nY a quienes viven en mi interior, les cuesta cada vez más respirar."],
+	12: ["Intérprete",  "Los efluentes urbanos e industriales pueden incorporar materia orgánica, amonio,\ncoliformes fecales, y otros contaminantes.\nCuando aumenta la materia orgánica, los microorganismos necesitan más oxígeno para degradarla.\nÉsto aumenta la Demanda Bioquímica de Oxígeno o DBO.\n\nUna consecuencia de todo esto es que queda menos oxígeno disponible para peces e invertebrados."],
+	13: ["Arroyo",      "Ahora el paisaje es muy diferente.\nAlgunos creen que sigo igual, porque aún me ven correr,\npero no todo lo que cambia puede verse.\nPor dentro soy diferente. Muchos seres vivos ya no pueden vivir en estas condiciones.\nLos peces que antes encontraba, los pequeños organismos que casi no vemos…\nNo todos pueden quedarse."],
+	16: ["Intérprete",  "El aumento de nutrientes, materia orgánica y otros contaminantes modifica\nlas condiciones del agua y afecta a las comunidades que viven en ella.\nLas especies sensibles suelen desaparecer primero.\nPor eso, observar quiénes están y quiénes ya no, también nos permite conocer\nla salud de un ecosistema.\nTe recomiendo que salgas de aquí, las condiciones no son aptas."],
+	18: ["Intérprete",  "La calidad de un arroyo no puede entenderse solamente mirando el agua.\nHay que aprender a leerlo en relación a todo lo que ocurre a su alrededor."],
+	18: ["Arroyo",      "Si aprendés a mirar todo lo que llevo dentro…\nNunca volverás a verme solamente como agua."],
+}
+
+## Textos de subtítulos por estado (NarrativeState int → texto a mostrar)
+## Usamos un Array de [voz, texto] porque algunos estados tienen secuencia doble.
+const SUBTITLE_BY_STATE: Array = [
+	# idx 0  WAITING_START
+	["", ""],
+	# idx 1  Z1_SURFACE_INTRO
+	["El Arroyo", "Hace mucho tiempo que estoy acá.\nTal vez, cuando me mirás, ves solamente agua…\npero debajo de mi superficie hay mucho más.\nHay peces, plantas, insectos y pequeños organismos que también forman parte de mí.\n¡Te invito a sumergirte y conocerme mejor!"],
+	# idx 2  Z1_DIVING
+	["", ""],
+	# idx 3  Z1_CARD
+	["", ""],
+	# idx 4  Z1_UNDERWATER
+	["El Arroyo / Intérprete", "Hay peces, plantas, insectos y pequeños organismos que también forman parte de mí.\n\n— Un arroyo no es sólo el agua que vemos. Es un ecosistema en el que sus componentes\nestán muy relacionados y todo funciona como en una gran orquesta."],
+	# idx 5  Z2_SURFACE
+	["El Arroyo", "El paisaje empieza a cambiar, aparecen los cultivos.\nY cuando llueve, el agua arrastra y se lleva consigo\nparte de lo que encuentra en el suelo."],
+	# idx 6  Z2_DIVING
+	["", ""],
+	# idx 7  Z2_CARD
+	["", ""],
+	# idx 8  Z2_UNDERWATER
+	["Intérprete", "La escorrentía puede transportar sedimentos y nutrientes, como nitrógeno y fósforo,\ndesde los campos hacia el arroyo. Éste exceso favorece el crecimiento de algas\ny plantas acuáticas y se conoce como eutrofización.\n\nA simple vista puede parecer que hay más vida.\nPero cuando éstas algas y plantas se descomponen,\nlos microorganismos consumen el oxígeno del agua."],
+	# idx 9  Z3_SURFACE
+	["El Arroyo", "Esta zona está más urbanizada, hay casas, calles…\nel agua sigue corriendo, pero ya no llega sola.\nTrae sustancias que antes no formaban parte de mí.\nY a quienes viven en mi interior, les cuesta cada vez más respirar."],
+	# idx 10 Z3_DIVING
+	["", ""],
+	# idx 11 Z3_CARD
+	["", ""],
+	# idx 12 Z3_UNDERWATER
+	["Intérprete", "Los efluentes urbanos e industriales pueden incorporar materia orgánica, amonio,\ncoliformes fecales, y otros contaminantes.\nCuando aumenta la materia orgánica, los microorganismos necesitan más oxígeno para degradarla.\nÉsto aumenta la Demanda Bioquímica de Oxígeno o DBO.\n\nUna consecuencia de todo esto es que queda\nmenos oxígeno disponible para peces e invertebrados."],
+	# idx 13 Z4_SURFACE
+	["El Arroyo", "Ahora el paisaje es muy diferente.\nAlgunos creen que sigo igual, porque aún me ven correr,\npero no todo lo que cambia puede verse.\nPor dentro soy diferente. Muchos seres vivos ya no pueden vivir en estas condiciones.\nLos peces que antes encontraba, los pequeños organismos que casi no vemos…\nNo todos pueden quedarse."],
+	# idx 14 Z4_DIVING
+	["", ""],
+	# idx 15 Z4_CARD
+	["", ""],
+	# idx 16 Z4_UNDERWATER
+	["Intérprete", "El aumento de nutrientes, materia orgánica y otros contaminantes\nmodifica las condiciones del agua y afecta a las comunidades que viven en ella.\nLas especies sensibles suelen desaparecer primero.\nPor eso, observar quiénes están y quiénes ya no,\ntambién nos permite conocer la salud de un ecosistema.\n— Te recomiendo que salgas de aquí, las condiciones no son aptas."],
+	# idx 17 Z4_EMERGE
+	["", ""],
+	# idx 18 Z4_CLOSING
+	["Intérprete / El Arroyo", "La calidad de un arroyo no puede entenderse solamente mirando el agua.\nHay que aprender a leerlo en relación a todo lo que ocurre a su alrededor.\n\n— Si aprendés a mirar todo lo que llevo dentro…\nNunca volverás a verme solamente como agua."],
+	# idx 19 CREDITS
+	["", ""],
+	# idx 20 DONE
+	["", ""],
+]
+
+# ─── Construye la UI narrativa completa (botón, subtítulos, cartel grande, créditos) ──
+func _build_narrative_ui() -> void:
+	_build_dive_button()
+	_build_subtitle_panel()
+	_build_big_card_panel()
+	_build_credits_panel()
+
+# ─── Panel / Botón "Sumergirse" ───────────────────────────────────────────────
+func _build_dive_button() -> void:
+	_dive_button_panel = PanelContainer.new()
+	_dive_button_panel.name = "DiveButtonPanel"
+
+	# Estilo del panel
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.75)
+	style.border_color = ZONE_COLORS[1]
+	style.border_width_left = style.border_width_right = 2
+	style.border_width_top  = style.border_width_bottom = 2
+	style.corner_radius_top_left = style.corner_radius_top_right = 14
+	style.corner_radius_bottom_left = style.corner_radius_bottom_right = 14
+	style.content_margin_left = style.content_margin_right = 36
+	style.content_margin_top  = style.content_margin_bottom = 18
+	_dive_button_panel.add_theme_stylebox_override("panel", style)
+
+	# Centrado en pantalla (vertical: 55% desde arriba)
+	_dive_button_panel.anchor_left   = 0.5
+	_dive_button_panel.anchor_top    = 0.55
+	_dive_button_panel.anchor_right  = 0.5
+	_dive_button_panel.anchor_bottom = 0.55
+	_dive_button_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_dive_button_panel.grow_vertical   = Control.GROW_DIRECTION_BOTH
+	_dive_button_panel.offset_left   = -160
+	_dive_button_panel.offset_right  =  160
+	_dive_button_panel.offset_top    = -32
+	_dive_button_panel.offset_bottom =  32
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	_dive_button_panel.add_child(vbox)
+
+	# Texto introductorio
+	var intro_lbl := _make_label("EcoAgua — Arroyo Ludueña", false, 13, Color(0.85, 0.85, 0.80))
+	intro_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(intro_lbl)
+
+	# Botón
+	var btn := Button.new()
+	btn.text = "🌊  Sumergirse"
+	if _font_bold:
+		btn.add_theme_font_override("font", _font_bold)
+	btn.add_theme_font_size_override("font_size", 17)
+	btn.add_theme_color_override("font_color",         ZONE_COLORS[1])
+	btn.add_theme_color_override("font_hover_color",   Color.WHITE)
+	btn.add_theme_color_override("font_pressed_color", ZONE_COLORS[1].lightened(0.2))
+	var btn_style := StyleBoxFlat.new()
+	btn_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	btn.add_theme_stylebox_override("normal",   btn_style)
+	btn.add_theme_stylebox_override("hover",    btn_style)
+	btn.add_theme_stylebox_override("pressed",  btn_style)
+	btn.add_theme_stylebox_override("focus",    btn_style)
+	btn.pressed.connect(_on_dive_button_pressed)
+	vbox.add_child(btn)
+
+	_root.add_child(_dive_button_panel)
+
+# ─── Panel de subtítulos / locución ──────────────────────────────────────────
+func _build_subtitle_panel() -> void:
+	_subtitle_panel = PanelContainer.new()
+	_subtitle_panel.name = "SubtitlePanel"
+	_subtitle_panel.visible = false
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.60)
+	style.border_color = Color(1.0, 1.0, 1.0, 0.15)
+	style.border_width_top = 1
+	style.content_margin_left = 16
+	style.content_margin_right = 16
+	style.content_margin_top   = 10
+	style.content_margin_bottom = 10
+	_subtitle_panel.add_theme_stylebox_override("panel", style)
+
+	# Centrado en la franja inferior (25% inferior de pantalla)
+	_subtitle_panel.anchor_left   = 0.1
+	_subtitle_panel.anchor_right  = 0.9
+	_subtitle_panel.anchor_top    = 1.0
+	_subtitle_panel.anchor_bottom = 1.0
+	_subtitle_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_subtitle_panel.offset_bottom = -110
+	_subtitle_panel.offset_top    = -110
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	_subtitle_panel.add_child(vbox)
+
+	_subtitle_voice_lbl = _make_label("", true, 11, Color(0.7, 0.85, 1.0, 0.85))
+	_subtitle_voice_lbl.name = "VoiceLabel"
+	_subtitle_voice_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_subtitle_voice_lbl)
+
+	_subtitle_label = _make_label("", false, 13, Color.WHITE)
+	_subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_subtitle_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_subtitle_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(_subtitle_label)
+
+	_root.add_child(_subtitle_panel)
+
+# ─── Panel de cartel grande de parámetros ────────────────────────────────────
+func _build_big_card_panel() -> void:
+	_big_card_panel = PanelContainer.new()
+	_big_card_panel.name = "BigCardPanel"
+	_big_card_panel.visible = false
+
+	# Centrado en pantalla
+	_big_card_panel.anchor_left   = 0.15
+	_big_card_panel.anchor_right  = 0.85
+	_big_card_panel.anchor_top    = 0.15
+	_big_card_panel.anchor_bottom = 0.80
+	_root.add_child(_big_card_panel)
+
+func _show_big_card(zone: int) -> void:
+	if not _big_card_panel:
+		return
+	_big_card_visible = true
+
+	# Limpiar contenido anterior
+	for child in _big_card_panel.get_children():
+		child.queue_free()
+
+	var col := ZONE_COLORS[zone]
+
+	# Estilo del panel grande
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.88)
+	style.border_color = col
+	style.border_width_left = style.border_width_right = 3
+	style.border_width_top  = style.border_width_bottom = 3
+	style.corner_radius_top_left = style.corner_radius_top_right = 16
+	style.corner_radius_bottom_left = style.corner_radius_bottom_right = 16
+	style.content_margin_left = style.content_margin_right = 28
+	style.content_margin_top  = style.content_margin_bottom = 22
+	_big_card_panel.add_theme_stylebox_override("panel", style)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	_big_card_panel.add_child(vbox)
+
+	# Título grande de zona
+	var title := _make_label(
+		"ZONA %d  –  %s" % [zone, ZONE_STATUS_LABELS[zone]],
+		true, 22, col
+	)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+
+	# Separador
+	var sep := HSeparator.new()
+	var sep_style := StyleBoxLine.new()
+	sep_style.color = col
+	sep_style.thickness = 2
+	sep.add_theme_stylebox_override("separator", sep_style)
+	vbox.add_child(sep)
+
+	# Parámetros
+	var params_def: Array = ZONE_PARAMS.get(zone, [])
+	var params_data: Dictionary = WaterManager.get_zone_parameters(zone) if WaterManager else {}
+
+	for def in params_def:
+		var display: String = def[0]
+		var key:     String = def[1]
+		var unit:    String = def[2]
+		var value:   float  = params_data.get(key, 0.0)
+
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+
+		var dot := _make_label("●", false, 14, col)
+		dot.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		dot.custom_minimum_size = Vector2(18, 0)
+		row.add_child(dot)
+
+		var name_lbl := _make_label(display, false, 16, Color.WHITE)
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(name_lbl)
+
+		var val_lbl := _make_label(_format_value(value, unit, key), true, 18, col)
+		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		val_lbl.custom_minimum_size = Vector2(120, 0)
+		row.add_child(val_lbl)
+
+		vbox.add_child(row)
+
+	# ICA grande
+	var sep2 := HSeparator.new()
+	sep2.add_theme_stylebox_override("separator", sep_style)
+	vbox.add_child(sep2)
+
+	var wqi: float = WaterManager.water_quality_index if WaterManager else 75.0
+	var ica_row := HBoxContainer.new()
+	ica_row.add_theme_constant_override("separation", 12)
+	var ica_lbl := _make_label("Índice de Calidad del Agua:", false, 15, Color.WHITE)
+	ica_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ica_row.add_child(ica_lbl)
+	var ica_val := _make_label("%d / 100" % int(wqi), true, 20, col)
+	ica_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	ica_row.add_child(ica_val)
+	vbox.add_child(ica_row)
+
+	_big_card_panel.visible = true
+
+func _hide_big_card_animated() -> void:
+	if not _big_card_panel or not _big_card_visible:
+		return
+	_big_card_visible = false
+	# Animación: encoger hacia la esquina inferior-izquierda con un Tween
+	var tw := create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(_big_card_panel, "anchor_left",   0.0,  0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(_big_card_panel, "anchor_top",    1.0,  0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(_big_card_panel, "anchor_right",  0.30, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(_big_card_panel, "anchor_bottom", 1.0,  0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(_big_card_panel, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await tw.finished
+	_big_card_panel.visible = false
+	# Restaurar anclas para la próxima vez que se muestre
+	_big_card_panel.anchor_left   = 0.15
+	_big_card_panel.anchor_right  = 0.85
+	_big_card_panel.anchor_top    = 0.15
+	_big_card_panel.anchor_bottom = 0.80
+	_big_card_panel.modulate.a = 1.0
+
+# ─── Panel de créditos ────────────────────────────────────────────────────────
+func _build_credits_panel() -> void:
+	_credits_panel = PanelContainer.new()
+	_credits_panel.name = "CreditsPanel"
+	_credits_panel.visible = false
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.92)
+	style.content_margin_left = style.content_margin_right = 40
+	style.content_margin_top  = style.content_margin_bottom = 30
+	_credits_panel.add_theme_stylebox_override("panel", style)
+
+	_credits_panel.anchor_left   = 0.0
+	_credits_panel.anchor_right  = 1.0
+	_credits_panel.anchor_top    = 0.0
+	_credits_panel.anchor_bottom = 1.0
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 18)
+	_credits_panel.add_child(vbox)
+
+	var title := _make_label("EcoAgua — Arroyo Ludueña", true, 28, ZONE_COLORS[1])
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+
+	var sub := _make_label("Universidad Nacional de Rosario", false, 16, Color(0.85, 0.85, 0.80))
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(sub)
+
+	var sep := HSeparator.new()
+	var sep_st := StyleBoxLine.new()
+	sep_st.color = ZONE_COLORS[1]
+	sep_st.thickness = 1
+	sep.add_theme_stylebox_override("separator", sep_st)
+	vbox.add_child(sep)
+
+	var credits_text := [
+		"Investigación y contenido científico: Equipo EcoAgua UNR",
+		"Desarrollo 3D / VR: Taller de Tecnologías Creativas UNR",
+		"Basado en datos reales del Arroyo Ludueña — Amaya et al. (2018)",
+	]
+	for line in credits_text:
+		var lbl := _make_label(line, false, 13, Color(0.75, 0.75, 0.72))
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(lbl)
+
+	_root.add_child(_credits_panel)
+
+# ─── Callback del botón "Sumergirse" ─────────────────────────────────────────
+func _on_dive_button_pressed() -> void:
+	# Ocultar el botón con un fadeout suave
+	if _dive_button_panel:
+		var tw := create_tween()
+		tw.tween_property(_dive_button_panel, "modulate:a", 0.0, 0.4)
+		await tw.finished
+		_dive_button_panel.visible = false
+
+	# Notificar al main para avanzar el estado narrativo
+	if _main_node and _main_node.has_method("on_dive_button_pressed"):
+		_main_node.on_dive_button_pressed()
+
+# ─── Handler principal: recibe cambios de estado narrativo desde main.gd ─────
+func on_narrative_state_changed(state_int: int, zone: int) -> void:
+	# Ocultar paneles por defecto
+	if _dive_button_panel:   _dive_button_panel.visible  = (state_int == 0) # WAITING_START
+	if _credits_panel:       _credits_panel.visible       = false
+	if _subtitle_panel:      _subtitle_panel.visible      = false
+	if _big_card_panel:      _big_card_panel.visible      = false
+
+	match state_int:
+		0: # WAITING_START — mostrar botón
+			if _dive_button_panel:
+				_dive_button_panel.modulate.a = 1.0
+				_dive_button_panel.visible = true
+
+		1, 5, 9, 13: # Fases de superficie con locución del Arroyo
+			_show_subtitle(state_int)
+
+		2, 6, 10, 14: # Fases de inmersión — sin texto, fundido
+			pass
+
+		3, 7, 11, 15: # Fases de cartel grande
+			_show_big_card(zone)
+
+		4, 8, 12, 16: # Fases bajo el agua con subtítulos
+			_hide_big_card_animated()
+			_show_subtitle(state_int)
+
+		17: # Z4_EMERGE — silencio
+			pass
+
+		18: # Z4_CLOSING — subtítulos del cierre
+			_show_subtitle(state_int)
+
+		19: # CREDITS — 8 segundos
+			if _credits_panel:
+				_credits_panel.visible = true
+				# Ocultar HUD existente durante créditos
+				if _param_panel: _param_panel.visible = false
+				if _ica_panel:   _ica_panel.visible   = false
+
+		20: # DONE
+			if _credits_panel:  _credits_panel.visible  = false
+			if _param_panel:    _param_panel.visible     = true
+			if _ica_panel:      _ica_panel.visible       = true
+
+func _show_subtitle(state_int: int) -> void:
+	if not _subtitle_panel or state_int >= SUBTITLE_BY_STATE.size():
+		return
+	var entry: Array = SUBTITLE_BY_STATE[state_int]
+	var voice: String = entry[0]
+	var text:  String = entry[1]
+	if text.is_empty():
+		_subtitle_panel.visible = false
+		return
+	if _subtitle_voice_lbl:
+		_subtitle_voice_lbl.text = voice
+	if _subtitle_label:
+		_subtitle_label.text = text
+	_subtitle_panel.visible = true
+
