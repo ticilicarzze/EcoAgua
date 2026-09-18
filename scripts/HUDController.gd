@@ -552,12 +552,12 @@ func _build_dive_button() -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.0, 0.0, 0.0, 0.75)
 	style.border_color = ZONE_COLORS[1]
-	style.border_width_left = style.border_width_right = 2
-	style.border_width_top  = style.border_width_bottom = 2
-	style.corner_radius_top_left = style.corner_radius_top_right = 14
-	style.corner_radius_bottom_left = style.corner_radius_bottom_right = 14
-	style.content_margin_left = style.content_margin_right = 36
-	style.content_margin_top  = style.content_margin_bottom = 18
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(14)
+	style.content_margin_left = 36
+	style.content_margin_right = 36
+	style.content_margin_top = 18
+	style.content_margin_bottom = 18
 	_dive_button_panel.add_theme_stylebox_override("panel", style)
 
 	# Centrado en pantalla (vertical: 55% desde arriba)
@@ -671,12 +671,12 @@ func _show_big_card(zone: int) -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.0, 0.0, 0.0, 0.88)
 	style.border_color = col
-	style.border_width_left = style.border_width_right = 3
-	style.border_width_top  = style.border_width_bottom = 3
-	style.corner_radius_top_left = style.corner_radius_top_right = 16
-	style.corner_radius_bottom_left = style.corner_radius_bottom_right = 16
-	style.content_margin_left = style.content_margin_right = 28
-	style.content_margin_top  = style.content_margin_bottom = 22
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(16)
+	style.content_margin_left = 28
+	style.content_margin_right = 28
+	style.content_margin_top = 22
+	style.content_margin_bottom = 22
 	_big_card_panel.add_theme_stylebox_override("panel", style)
 
 	var vbox := VBoxContainer.new()
@@ -775,8 +775,10 @@ func _build_credits_panel() -> void:
 
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.0, 0.0, 0.0, 0.92)
-	style.content_margin_left = style.content_margin_right = 40
-	style.content_margin_top  = style.content_margin_bottom = 30
+	style.content_margin_left = 40
+	style.content_margin_right = 40
+	style.content_margin_top = 30
+	style.content_margin_bottom = 30
 	_credits_panel.add_theme_stylebox_override("panel", style)
 
 	_credits_panel.anchor_left   = 0.0
@@ -888,4 +890,3 @@ func _show_subtitle(state_int: int) -> void:
 	if _subtitle_label:
 		_subtitle_label.text = text
 	_subtitle_panel.visible = true
-
