@@ -85,19 +85,19 @@ const NARRATIVE_DURATIONS: Dictionary = {
 	NarrativeState.WAITING_START:    0.0,   # Sin timer — espera interacción del usuario
 	NarrativeState.Z1_SURFACE_INTRO: 18.0,  # 3 s ambiente + 15 s locución Arroyo
 	NarrativeState.Z1_DIVING:        1.0,
-	NarrativeState.Z1_CARD:          3.0,
+	NarrativeState.Z1_CARD:          5.0,
 	NarrativeState.Z1_UNDERWATER:   19.0,   # 7 s Arroyo + 12 s Intérprete
 	NarrativeState.Z2_SURFACE:       13.0,  # 3 s ambiente + 10 s locución Arroyo
 	NarrativeState.Z2_DIVING:        1.0,
-	NarrativeState.Z2_CARD:          3.0,
+	NarrativeState.Z2_CARD:          5.0,
 	NarrativeState.Z2_UNDERWATER:   27.0,   # 17 s Intérprete + 10 s Intérprete
 	NarrativeState.Z3_SURFACE:       18.0,  # 3 s ambiente + 15 s locución Arroyo
 	NarrativeState.Z3_DIVING:        1.0,
-	NarrativeState.Z3_CARD:          3.0,
+	NarrativeState.Z3_CARD:          5.0,
 	NarrativeState.Z3_UNDERWATER:   28.0,   # 20 s Intérprete + 8 s Intérprete
 	NarrativeState.Z4_SURFACE:       23.0,  # 3 s ambiente + 20 s locución Arroyo
 	NarrativeState.Z4_DIVING:        1.0,
-	NarrativeState.Z4_CARD:          3.0,
+	NarrativeState.Z4_CARD:          5.0,
 	NarrativeState.Z4_UNDERWATER:   25.0,   # 25 s Intérprete
 	NarrativeState.Z4_EMERGE:        2.0,
 	NarrativeState.Z4_CLOSING:      16.5,   # 9.75 s Intérprete + 6.75 s Arroyo
