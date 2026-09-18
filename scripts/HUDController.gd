@@ -502,7 +502,7 @@ const SUBTITLE_SEQUENCE_BY_STATE: Dictionary = {
 	],
 	# Z2_UNDERWATER (27s total: 17s Intérprete + 10s Intérprete)
 	8: [
-		["Intérprete", "La escorrentía puede transportar sedimentos y nutrientes, como nitrógeno y fósforo...", 6.0],
+		["Intérprete", "La escorrentía puede transportar sedimentos y nutrientes,\ncomo nitrógeno y fósforo...", 6.0],
 		["Intérprete", "...desde los campos hacia el arroyo.", 3.0],
 		["Intérprete", "Éste exceso favorece el crecimiento de algas y plantas acuáticas", 5.0],
 		["Intérprete", "y se conoce como eutrofización.", 3.0],
@@ -520,7 +520,7 @@ const SUBTITLE_SEQUENCE_BY_STATE: Dictionary = {
 	],
 	# Z3_UNDERWATER (28s total: 20s Intérprete + 8s Intérprete)
 	12: [
-		["Intérprete", "Los efluentes urbanos e industriales pueden incorporar materia orgánica...", 5.5],
+		["Intérprete", "Los efluentes urbanos e industriales\npueden incorporar materia orgánica...", 5.5],
 		["Intérprete", "...amonio, coliformes fecales, y otros contaminantes.", 4.5],
 		["Intérprete", "Cuando aumenta la materia orgánica, los microorganismos\nnecesitan más oxígeno para degradarla.", 6.0],
 		["Intérprete", "Ésto aumenta la Demanda Bioquímica de Oxígeno o DBO.", 4.0],
@@ -540,7 +540,7 @@ const SUBTITLE_SEQUENCE_BY_STATE: Dictionary = {
 	# Z4_UNDERWATER (25s total)
 	16: [
 		["Intérprete", "El aumento de nutrientes, materia orgánica y otros contaminantes...", 5.0],
-		["Intérprete", "...modifica las condiciones del agua y afecta a las comunidades que viven en ella.", 6.0],
+		["Intérprete", "...modifica las condiciones del agua\ny afecta a las comunidades que viven en ella.", 6.0],
 		["Intérprete", "Las especies sensibles suelen desaparecer primero.", 4.5],
 		["Intérprete", "Por eso, observar quiénes están y quiénes ya no...", 3.5],
 		["Intérprete", "...también nos permite conocer la salud de un ecosistema.", 3.5],
@@ -549,7 +549,7 @@ const SUBTITLE_SEQUENCE_BY_STATE: Dictionary = {
 	# Z4_CLOSING (16.5s total: 9.75s Intérprete + 6.75s Arroyo)
 	18: [
 		["Intérprete", "La calidad de un arroyo no puede entenderse solamente mirando el agua.", 4.5],
-		["Intérprete", "Hay que aprender a leerlo en relación a todo lo que ocurre a su alrededor.", 5.25],
+		["Intérprete", "Hay que aprender a leerlo\nen relación a todo lo que ocurre a su alrededor.", 5.25],
 		["El Arroyo", "Si aprendés a mirar todo lo que llevo dentro…", 3.75],
 		["El Arroyo", "Nunca volverás a verme solamente como agua.", 3.0]
 	]
@@ -636,14 +636,17 @@ func _build_subtitle_panel() -> void:
 	style.content_margin_bottom = 10
 	_subtitle_panel.add_theme_stylebox_override("panel", style)
 
-	# Posicionarlo en un bloque fijo entre el 80% y 95% de la pantalla (debajo del cartel grande que llega al 75%)
-	_subtitle_panel.anchor_left   = 0.15
-	_subtitle_panel.anchor_right  = 0.85
-	_subtitle_panel.anchor_top    = 0.80
-	_subtitle_panel.anchor_bottom = 0.95
-	_subtitle_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_subtitle_panel.offset_bottom = 0
-	_subtitle_panel.offset_top    = 0
+	# Posicionarlo centrado horizontalmente y anclado abajo para que crezca hacia arriba (shrink-wrap)
+	_subtitle_panel.anchor_left   = 0.5
+	_subtitle_panel.anchor_right  = 0.5
+	_subtitle_panel.anchor_top    = 1.0
+	_subtitle_panel.anchor_bottom = 1.0
+	_subtitle_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_subtitle_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_subtitle_panel.offset_left   = 0
+	_subtitle_panel.offset_right  = 0
+	_subtitle_panel.offset_bottom = -110
+	_subtitle_panel.offset_top    = -110
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -657,8 +660,6 @@ func _build_subtitle_panel() -> void:
 
 	_subtitle_label = _make_label("", false, 13, Color.WHITE)
 	_subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_subtitle_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_subtitle_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.add_child(_subtitle_label)
 
 	_root.add_child(_subtitle_panel)
