@@ -1007,6 +1007,9 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 	# Actualizar el shader de agua al entrar en cada zona nueva
 	_update_water_zone(zone)
 
+	# Actualizar visibilidad de zonas en superficie
+	_update_zona_visibility(new_state)
+
 	# Notificar al HUD si existe y tiene el método
 	if _hud and _hud.has_method("on_narrative_state_changed"):
 		_hud.on_narrative_state_changed(new_state, zone)
@@ -1015,6 +1018,64 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 		NarrativeState.keys()[new_state], zone,
 		NARRATIVE_DURATIONS.get(new_state, 0.0)
 	])
+
+# =========================================================
+# _update_zona_visibility — Visibilidad de zonas en superficie
+# =========================================================
+# Al estar en la superficie de una zona, los nodos "desaparecerZonaX"
+# de las otras zonas se ocultan para evitar ver edificios lejanos.
+#
+# Reglas (según diseño):
+#   Superficie Zona 1 → visibles: Z1   | invisibles: Z2, Z3, Z4
+#   Superficie Zona 2 → visibles: Z2   | invisibles: Z1, Z3, Z4
+#   Superficie Zona 3 → visibles: Z3   | invisibles: Z1, Z2
+#   Superficie Zona 4 → visibles: Z4   | invisibles: Z1, Z2
+#   Bajo el agua      → todos visibles (el jugador no ve la superficie)
+# =========================================================
+func _update_zona_visibility(state: NarrativeState) -\u003e void:
+	# Obtener referencias (tolerante a errores en escenas de prueba)
+	var dz1 := get_node_or_null("desaparecerZona1")
+	var dz2 := get_node_or_null("desaparecerZona2")
+	var dz3 := get_node_or_null("desaparecerZona3")
+	var dz4 := get_node_or_null("desaparecerZona4")
+
+	# Determinar si estamos en un estado de superficie y en cuál zona
+	match state:
+		NarrativeState.Z1_SURFACE_INTRO, NarrativeState.WAITING_START:
+			# Superficie Zona 1: solo Z1 visible
+			if dz1: dz1.visible = true
+			if dz2: dz2.visible = false
+			if dz3: dz3.visible = false
+			if dz4: dz4.visible = false
+			print("DesaparecerZona: superficie Z1 → Z1 visible, Z2/Z3/Z4 ocultas")
+		NarrativeState.Z2_SURFACE:
+			# Superficie Zona 2: solo Z2 visible
+			if dz1: dz1.visible = false
+			if dz2: dz2.visible = true
+			if dz3: dz3.visible = false
+			if dz4: dz4.visible = false
+			print("DesaparecerZona: superficie Z2 → Z2 visible, Z1/Z3/Z4 ocultas")
+		NarrativeState.Z3_SURFACE:
+			# Superficie Zona 3: Z1 y Z2 invisibles, Z3 y Z4 visibles
+			if dz1: dz1.visible = false
+			if dz2: dz2.visible = false
+			if dz3: dz3.visible = true
+			if dz4: dz4.visible = true
+			print("DesaparecerZona: superficie Z3 → Z3/Z4 visibles, Z1/Z2 ocultas")
+		NarrativeState.Z4_SURFACE, NarrativeState.Z4_EMERGE, \
+		NarrativeState.Z4_CLOSING, NarrativeState.CREDITS:
+			# Superficie Zona 4: Z1 y Z2 invisibles, Z3 y Z4 visibles
+			if dz1: dz1.visible = false
+			if dz2: dz2.visible = false
+			if dz3: dz3.visible = true
+			if dz4: dz4.visible = true
+			print("DesaparecerZona: superficie Z4 → Z3/Z4 visibles, Z1/Z2 ocultas")
+		_:
+			# Bajo el agua o estados de transición: todo visible
+			if dz1: dz1.visible = true
+			if dz2: dz2.visible = true
+			if dz3: dz3.visible = true
+			if dz4: dz4.visible = true
 
 ## Botón "Sumergirse" del HUD llama a esto para iniciar la experiencia
 func on_dive_button_pressed() -> void:
