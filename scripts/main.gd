@@ -1032,7 +1032,7 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 #   Superficie Zona 4 → visibles: Z4   | invisibles: Z1, Z2
 #   Bajo el agua      → todos visibles (el jugador no ve la superficie)
 # =========================================================
-func _update_zona_visibility(state: NarrativeState) -\u003e void:
+func _update_zona_visibility(state: NarrativeState) -> void:
 	# Obtener referencias (tolerante a errores en escenas de prueba)
 	var dz1 := get_node_or_null("desaparecerZona1")
 	var dz2 := get_node_or_null("desaparecerZona2")
