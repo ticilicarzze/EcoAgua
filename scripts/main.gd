@@ -1062,8 +1062,7 @@ func _update_zona_visibility(state: NarrativeState) -\u003e void:
 			if dz3: dz3.visible = true
 			if dz4: dz4.visible = true
 			print("DesaparecerZona: superficie Z3 → Z3/Z4 visibles, Z1/Z2 ocultas")
-		NarrativeState.Z4_SURFACE, NarrativeState.Z4_EMERGE, \
-		NarrativeState.Z4_CLOSING, NarrativeState.CREDITS:
+		NarrativeState.Z4_SURFACE, NarrativeState.Z4_EMERGE, NarrativeState.Z4_CLOSING, NarrativeState.CREDITS:
 			# Superficie Zona 4: Z1 y Z2 invisibles, Z3 y Z4 visibles
 			if dz1: dz1.visible = false
 			if dz2: dz2.visible = false
