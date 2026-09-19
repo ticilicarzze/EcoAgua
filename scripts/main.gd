@@ -781,6 +781,7 @@ func _build_valley_terrain() -> CSGPolygon3D:
 	valley.material = terrain_mat
 	valley.use_collision = true # Habilita Snap to Floor (Shift+Fin) en el editor
 	valley.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	valley.set_meta("_edit_lock_", true)
 	add_child(valley)
 	valley.path_node = valley.get_path_to($RiverPath)
 	print("Valley: CSGPolygon3D terrain creado a lo largo del RiverPath.")
