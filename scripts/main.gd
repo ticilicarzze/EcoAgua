@@ -458,6 +458,17 @@ func _update_palomas_movement(delta: float) -> void:
 			var forward: Vector3 = p.global_transform.basis.z.normalized()
 			p.global_position += forward * _palomas_fly_speed * delta
 
+func _remove_palomas() -> void:
+	if _palomas.is_empty():
+		return
+	_palomas_flying = false
+	for p in _palomas:
+		if is_instance_valid(p):
+			p.queue_free()
+	_palomas.clear()
+	_palomas_anim_players.clear()
+	print("Palomas: Eliminadas para ahorrar recursos al sumergirse en Zona 3.")
+
 # =========================================================
 # _setup_foliage_shaders — Aplica shader de vegetación y desactiva sombras en plantas de superficie
 # =========================================================
@@ -964,6 +975,8 @@ func _apply_visual_state(delta: float) -> void:
 		_was_underwater = _is_underwater
 		_update_zona_visibility(_narrative_state)
 		if _is_underwater:
+			if cur_zone >= 3:
+				_remove_palomas()
 			_current_ambient     = ZONE_UW_AMBIENT_ENERGY[cur_zone]
 			_current_ambient_col = ZONE_UW_AMBIENT_COLOR[cur_zone]
 			for p in _particle_nodes:
@@ -1086,6 +1099,10 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 
 	# Actualizar visibilidad de zonas en superficie
 	_update_zona_visibility(new_state)
+
+	# Si nos sumergimos nuevamente en Zona 3 (o posterior), eliminar las palomas para ahorrar recursos
+	if new_state == NarrativeState.Z3_DIVING or new_state == NarrativeState.Z3_CARD or new_state == NarrativeState.Z3_UNDERWATER or zone == 4:
+		_remove_palomas()
 
 	# Notificar al HUD si existe y tiene el método
 	if _hud and _hud.has_method("on_narrative_state_changed"):
