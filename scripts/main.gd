@@ -204,6 +204,12 @@ var _particle_mat: StandardMaterial3D = null
 var _water_mat: ShaderMaterial = null # ShaderMaterial del nodo TopWater
 var _water_mats: Array[ShaderMaterial] = [] # alias array para _update_water_zone
 
+# Control de vuelo de palomas en Zona 3
+var _palomas: Array[Node3D] = []
+var _palomas_flying: bool = false
+var _palomas_fly_speed: float = 12.0
+var _palomas_anim_players: Array[AnimationPlayer] = []
+
 func _get_active_camera_y() -> float:
 	var vp_cam := get_viewport().get_camera_3d()
 	if vp_cam:
@@ -268,6 +274,7 @@ func _ready() -> void:
 	WaterManager.metrics_updated.connect(_on_metrics_updated)
 	_setup_camera_fx()
 	_setup_aquatic_fauna()
+	_setup_palomas()
 
 	# Posicionar el carrito en Z=0 y ARRIBA del agua (estado WAITING_START)
 	cart.progress = 200.0
@@ -394,6 +401,62 @@ func _apply_fish_scripts_recursive(node: Node, mojarra_script: Script, bagre_scr
 
 	for child in node.get_children():
 		_apply_fish_scripts_recursive(child, mojarra_script, bagre_script, dientudo_script)
+
+# =========================================================
+# CONTROL DE PALOMAS — Vuelo al emerger a Zona 3
+# =========================================================
+func _setup_palomas() -> void:
+	_palomas.clear()
+	_palomas_anim_players.clear()
+	_palomas_flying = false
+
+	var paloma_names: Array[String] = ["paloma", "paloma2", "paloma3"]
+	for p_name in paloma_names:
+		var p_node := get_node_or_null(p_name) as Node3D
+		if p_node:
+			_palomas.append(p_node)
+			# Buscar AnimationPlayer dentro de la paloma
+			var anim_player := _find_animation_player(p_node)
+			if anim_player:
+				_palomas_anim_players.append(anim_player)
+	print("Palomas: %d palomas detectadas y listas." % _palomas.size())
+
+func _find_animation_player(node: Node) -> AnimationPlayer:
+	if node is AnimationPlayer:
+		return node as AnimationPlayer
+	for child in node.get_children():
+		var found = _find_animation_player(child)
+		if found:
+			return found
+	return null
+
+func _start_palomas_flight() -> void:
+	if _palomas_flying:
+		return
+	_palomas_flying = true
+	print("Palomas: ¡Iniciando vuelo en línea recta 1s antes de salir a superficie en Zona 3!")
+
+	for ap in _palomas_anim_players:
+		var anim_name: String = ""
+		if ap.has_animation("Esqueleto_acción"):
+			anim_name = "Esqueleto_acción"
+		elif ap.get_animation_list().size() > 0:
+			anim_name = ap.get_animation_list()[0]
+
+		if anim_name != "":
+			var anim: Animation = ap.get_animation(anim_name)
+			if anim:
+				anim.loop_mode = Animation.LOOP_LINEAR
+			ap.play(anim_name)
+
+func _update_palomas_movement(delta: float) -> void:
+	if not _palomas_flying:
+		return
+	for p in _palomas:
+		if is_instance_valid(p):
+			# Vuela en línea recta hacia adelante según su orientación local (-Z)
+			var forward: Vector3 = -p.global_transform.basis.z.normalized()
+			p.global_position += forward * _palomas_fly_speed * delta
 
 # =========================================================
 # _setup_foliage_shaders — Aplica shader de vegetación y desactiva sombras en plantas de superficie
@@ -866,6 +929,19 @@ func _process(delta: float) -> void:
 	var target_v: float = surface_height_offset if want_surface else 0.0
 	_current_v_offset = lerp(_current_v_offset, target_v, LERP_SPEED * delta)
 	cart.v_offset = _current_v_offset
+
+	# ── Chequear si falta 1 segundo para salir a la superficie de Zona 3 ──
+	# El estado previo a Z3_SURFACE es Z2_UNDERWATER
+	if _narrative_state == NarrativeState.Z2_UNDERWATER:
+		var z2_dur: float = NARRATIVE_DURATIONS.get(NarrativeState.Z2_UNDERWATER, 27.0)
+		if _state_timer >= (z2_dur - 1.0):
+			_start_palomas_flight()
+	elif _narrative_state == NarrativeState.Z3_SURFACE:
+		# Asegurar que sigan volando si se entra directo o se salta a Z3_SURFACE
+		_start_palomas_flight()
+
+	# ── Actualizar vuelo continuo de palomas ─────────────────────────────────
+	_update_palomas_movement(delta)
 
 	# ── Aplicar visuales (fog, ambient, partículas) ───────────────────────────
 	_apply_visual_state(delta)
