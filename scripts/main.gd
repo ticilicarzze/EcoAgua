@@ -454,8 +454,8 @@ func _update_palomas_movement(delta: float) -> void:
 		return
 	for p in _palomas:
 		if is_instance_valid(p):
-			# Vuela en línea recta hacia adelante según su orientación local (-Z)
-			var forward: Vector3 = -p.global_transform.basis.z.normalized()
+			# Vuela en línea recta hacia el lado opuesto (+Z local)
+			var forward: Vector3 = p.global_transform.basis.z.normalized()
 			p.global_position += forward * _palomas_fly_speed * delta
 
 # =========================================================
