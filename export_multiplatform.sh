@@ -78,14 +78,16 @@ info "5/6 Exportando para Windows x86_64..."
 
 # ── 6. Actualizar README con fecha + push a GitHub ────────────
 info "6/6 Actualizando README y subiendo a GitHub..."
-FECHA_README=$(date '+%d/%m/%Y %H:%M')
-# Actualiza la línea de "Última exportación" en el README si existe, si no la agrega
+FECHA_README=$(date '+%d-%m-%Y %H:%M')
+FECHA_BADGE=$(date '+%d_%b_%Y' | tr '[:upper:]' '[:lower:]')
+# Actualiza la línea "Última exportación" en la sección de descargas
 if grep -q "Última exportación:" "$PROJECT_DIR/README.md"; then
-    sed -i "s/Última exportación: .*/Última exportación: $FECHA_README/" "$PROJECT_DIR/README.md"
+    sed -i "s|Última exportación: .*|Última exportación: $FECHA_README|" "$PROJECT_DIR/README.md"
 else
-    # Agrega badge de exportación debajo de la primera línea de badges
-    sed -i "s|^\(\[!\[License\].*\)$|\1\n[![Last Export](https://img.shields.io/badge/Última_exportación-$(date '+%Y--M--%d')-informational)](https://github.com/ticilicarzze/EcoAgua)|" "$PROJECT_DIR/README.md"
+    echo "> **Última exportación:** $FECHA_README" >> "$PROJECT_DIR/README.md"
 fi
+# Actualiza el badge de exportación
+sed -i "s|Última_exportación-[^-]*-|Última_exportación-${FECHA_BADGE}-|" "$PROJECT_DIR/README.md"
 
 cd "$PROJECT_DIR"
 git add README.md export_presets.cfg

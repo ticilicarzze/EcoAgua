@@ -4,7 +4,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20VR%20(Meta%20Quest)%20%7C%20Linux%20%7C%20Windows-brightgreen)](https://ecoagua-unr.netlify.app)
 [![Deployment](https://img.shields.io/badge/Demo_Web-Live_en_Netlify-success?logo=netlify)](https://ecoagua-unr.netlify.app)
 [![License](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
-[![Last Export](https://img.shields.io/badge/Última_exportación-Sep_2026-informational)](https://github.com/ticilicarzze/EcoAgua)
+[![Last Export](https://img.shields.io/badge/Última_exportación-22_sep_2026-informational)](https://github.com/ticilicarzze/EcoAgua)
 
 
 **EcoAgua UNR** es una simulación interactiva 3D en Realidad Virtual y WebGL desarrollada en **Godot Engine 4** que recrea el ecosistema del arroyo Luduña en la llanura pampeana argentina. El proyecto integra modelado de terreno procedimental, shaders de agua de alta fidelidad e indicadores ecológicos de degradación del agua basados en estudios de laboratorio de la **Universidad Nacional de Rosario (UNR)** y el instituto **ICASFAS**.
