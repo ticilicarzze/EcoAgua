@@ -44,21 +44,22 @@ log "Directorios listos."
 
 # ── 3. Exportar APK Meta Quest 3 ──────────────────────────────
 KEYSTORE_PATH="/home/ticiano/Android/ecoagua_release.keystore"
-info "3/6 Exportando APK para Meta Quest 3..."
-if [ ! -f "$KEYSTORE_PATH" ]; then
-    info "Keystore no encontrado. Generando release keystore..."
-    keytool -genkeypair \
-      -keystore "$KEYSTORE_PATH" \
-      -alias ecoagua \
-      -keyalg RSA -keysize 2048 -validity 10000 \
-      -dname "CN=EcoAgua UNR, OU=ICASFAS, O=Universidad Nacional de Rosario, L=Rosario, ST=Santa Fe, C=AR" \
-      -storepass ecoaguaunr2024 -keypass ecoaguaunr2024
-    log "Keystore generado en $KEYSTORE_PATH"
-fi
+info "3/6 Exportando APK para Meta Quest 3 (debug-signed, válido para SideQuest/ADB)..."
+# Usamos --export-debug para aprovechar el debug keystore ya configurado en Godot.
+# Un APK firmado con debug keystore es perfectamente instalable via SideQuest
+# o `adb install` con modo desarrollador activado en el Quest.
+set +e
 "$GODOT_BIN" --headless --path "$PROJECT_DIR" \
-    --export-release "Android Quest 3" "$APK_OUT" \
-    && log "APK exportado → $APK_OUT" \
-    || err "Falló la exportación del APK. Verificar Android SDK y templates de Godot."
+    --export-debug "Android Quest 3" "$APK_OUT"
+APK_STATUS=$?
+set -e
+if [ $APK_STATUS -eq 0 ] && [ -f "$APK_OUT" ]; then
+    log "APK exportado (debug-signed) → $APK_OUT"
+else
+    echo -e "${YELLOW}⚠️  Export APK falló (código $APK_STATUS). Continuando con PC exports...${NC}"
+    echo -e "${YELLOW}   Para instalar en Quest en producción, ejecutar desde Godot Editor con keystore configurado.${NC}"
+fi
+
 
 # ── 4. Exportar Linux x86_64 ─────────────────────────────────
 info "4/6 Exportando para Linux x86_64..."
