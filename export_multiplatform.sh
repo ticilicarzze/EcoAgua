@@ -43,7 +43,18 @@ mkdir -p "$PARENT_DIR/EcoAgua_PC_Windows"
 log "Directorios listos."
 
 # ── 3. Exportar APK Meta Quest 3 ──────────────────────────────
+KEYSTORE_PATH="/home/ticiano/Android/ecoagua_release.keystore"
 info "3/6 Exportando APK para Meta Quest 3..."
+if [ ! -f "$KEYSTORE_PATH" ]; then
+    info "Keystore no encontrado. Generando release keystore..."
+    keytool -genkeypair \
+      -keystore "$KEYSTORE_PATH" \
+      -alias ecoagua \
+      -keyalg RSA -keysize 2048 -validity 10000 \
+      -dname "CN=EcoAgua UNR, OU=ICASFAS, O=Universidad Nacional de Rosario, L=Rosario, ST=Santa Fe, C=AR" \
+      -storepass ecoaguaunr2024 -keypass ecoaguaunr2024
+    log "Keystore generado en $KEYSTORE_PATH"
+fi
 "$GODOT_BIN" --headless --path "$PROJECT_DIR" \
     --export-release "Android Quest 3" "$APK_OUT" \
     && log "APK exportado → $APK_OUT" \
