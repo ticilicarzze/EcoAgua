@@ -168,6 +168,7 @@ var _hud: Node = null
 const SF_AMBIENT_ENERGY: float = 1.2
 const SF_AMBIENT_COLOR: Color = Color(0.72, 0.72, 0.68, 1.0)
 const WATER_SURFACE_Y: float = 0.25   # Umbral: coincide con la cresta de las olas del shader
+const WATER_SURFACE_Y_MARGIN: float = 0.05  # Margen de seguridad: la cámara se mantiene este valor por debajo de la superficie
 const LERP_SPEED: float = 2.5
 
 # =========================================================
@@ -203,6 +204,7 @@ var _particle_proc: ParticleProcessMaterial = null
 var _particle_mat: StandardMaterial3D = null
 var _water_mat: ShaderMaterial = null # ShaderMaterial del nodo TopWater
 var _water_mats: Array[ShaderMaterial] = [] # alias array para _update_water_zone
+var _xr_origin_node: Node3D = null  # Referencia cacheada al XROrigin3D para el bloqueo vertical VR
 
 # Control de vuelo de palomas en Zona 3
 var _palomas: Array[Node3D] = []
@@ -261,6 +263,9 @@ func _ready() -> void:
 			get_viewport().use_xr = true
 			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 			print("XR Mode: Visor OpenXR detectado e inicializado con éxito (Meta Quest).")
+			# Cachear referencia al XROrigin3D para el bloqueo vertical del visor
+			if has_node("RiverPath/UserCart/XROrigin3D"):
+				_xr_origin_node = $RiverPath/UserCart/XROrigin3D
 			# Activar HUD VR — desactivar HUD de pantalla plana
 			if has_node("CanvasLayer"):    $CanvasLayer.visible   = false
 			if has_node("CanvasLayerVR"): $CanvasLayerVR.visible  = true
@@ -954,6 +959,9 @@ func _process(delta: float) -> void:
 	# ── Actualizar vuelo continuo de palomas ─────────────────────────────────
 	_update_palomas_movement(delta)
 
+	# ── Bloquear posición vertical del visor VR (evita salir del agua al pararse) ──
+	_clamp_xr_vertical_position()
+
 	# ── Aplicar visuales (fog, ambient, partículas) ───────────────────────────
 	_apply_visual_state(delta)
 	_apply_freelook(delta)
@@ -1072,6 +1080,58 @@ func _apply_freelook(delta: float) -> void:
 	_fl_camera.rotation = Vector3(_fl_pitch, _fl_yaw, 0.0)
 
 
+# =========================================================
+# _clamp_xr_vertical_position — Bloqueo vertical del visor VR
+# =========================================================
+# En modo VR (Meta Quest), el XRCamera3D sigue el tracking físico de la
+# cabeza del usuario. Si el usuario se para mientras está sentado, la cámara
+# sube y puede cruzar la superficie del agua, activando incorrectamente el
+# estado de superficie durante un estado narrativo bajo el agua.
+#
+# Esta función ajusta XROrigin3D.position.y para compensar el exceso de
+# altura y mantener la cámara por debajo de WATER_SURFACE_Y durante los
+# estados bajo el agua. En estados de superficie no se aplica ningún
+# bloqueo.
+# =========================================================
+func _clamp_xr_vertical_position() -> void:
+	# Solo aplica en modo VR con el nodo XROrigin3D disponible
+	if not _xr_origin_node:
+		return
+	if not get_viewport().use_xr:
+		return
+
+	# Determinar si el estado actual requiere bloqueo (bajo el agua)
+	var is_underwater_state: bool = (
+		_narrative_state == NarrativeState.Z1_DIVING or
+		_narrative_state == NarrativeState.Z1_CARD or
+		_narrative_state == NarrativeState.Z1_UNDERWATER or
+		_narrative_state == NarrativeState.Z2_DIVING or
+		_narrative_state == NarrativeState.Z2_CARD or
+		_narrative_state == NarrativeState.Z2_UNDERWATER or
+		_narrative_state == NarrativeState.Z3_DIVING or
+		_narrative_state == NarrativeState.Z3_CARD or
+		_narrative_state == NarrativeState.Z3_UNDERWATER or
+		_narrative_state == NarrativeState.Z4_DIVING or
+		_narrative_state == NarrativeState.Z4_CARD or
+		_narrative_state == NarrativeState.Z4_UNDERWATER
+	)
+
+	if not is_underwater_state:
+		# En superficie: no hay restricción vertical
+		return
+
+	# Obtener la cámara XR activa
+	var xr_cam := _xr_origin_node.get_node_or_null("XRCamera3D") as Node3D
+	if not xr_cam:
+		return
+
+	# Límite máximo de Y global para la cámara: justo debajo de la superficie
+	var max_cam_y: float = WATER_SURFACE_Y - WATER_SURFACE_Y_MARGIN
+
+	# Si la cámara supera el límite, ajustar XROrigin3D hacia abajo
+	var cam_y_global: float = xr_cam.global_position.y
+	if cam_y_global > max_cam_y:
+		_xr_origin_node.position.y -= (cam_y_global - max_cam_y)
 
 
 # =========================================================

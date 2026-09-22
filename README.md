@@ -1,9 +1,11 @@
 # 🌊 EcoAgua UNR — Simulación VR del Arroyo Luduña
 
 [![Godot Engine](https://img.shields.io/badge/Godot_Engine-v4.6_GL_Compatibility-blue?logo=godotengine)](https://godotengine.org/)
-[![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20VR%20(Meta%20Quest)-brightgreen)](https://ecoagua-unr.netlify.app)
+[![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20VR%20(Meta%20Quest)%20%7C%20Linux%20%7C%20Windows-brightgreen)](https://ecoagua-unr.netlify.app)
 [![Deployment](https://img.shields.io/badge/Demo_Web-Live_en_Netlify-success?logo=netlify)](https://ecoagua-unr.netlify.app)
 [![License](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
+[![Last Export](https://img.shields.io/badge/Última_exportación-Sep_2026-informational)](https://github.com/ticilicarzze/EcoAgua)
+
 
 **EcoAgua UNR** es una simulación interactiva 3D en Realidad Virtual y WebGL desarrollada en **Godot Engine 4** que recrea el ecosistema del arroyo Luduña en la llanura pampeana argentina. El proyecto integra modelado de terreno procedimental, shaders de agua de alta fidelidad e indicadores ecológicos de degradación del agua basados en estudios de laboratorio de la **Universidad Nacional de Rosario (UNR)** y el instituto **ICASFAS**.
 
@@ -19,6 +21,7 @@
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Controles y Navegación](#-controles-y-navegación)
 - [Instalación Local](#-instalación-local)
+- [📦 Descargas por Plataforma](#-descargas-por-plataforma)
 - [Despliegue a Producción](#-despliegue-a-producción)
 - [Contexto Científico](#-contexto-científico)
 - [Licencia y Créditos](#-licencia-y-créditos)
@@ -190,9 +193,34 @@ git clone https://github.com/ticilicarzze/EcoAgua.git
 
 ---
 
+## 📦 Descargas por Plataforma
+
+> **Última exportación:** Septiembre 2026
+
+Los binarios se generan automáticamente con `export_multiplatform.sh`. Los exports se guardan junto al repositorio en:
+
+| Plataforma | Archivo | Instrucciones |
+|---|---|---|
+| 📱 **Meta Quest 3 (APK)** | `EcoAgua_Quest3HUD.apk` | Instalar vía [SideQuest](https://sidequestvr.com) o `adb install EcoAgua_Quest3HUD.apk` |
+| 🐧 **Linux x86_64** | `EcoAgua_PC_Linux/EcoAgua.x86_64` | `chmod +x EcoAgua.x86_64 && ./EcoAgua.x86_64` |
+| 🪟 **Windows x86_64** | `EcoAgua_PC_Windows/EcoAgua.exe` | Ejecutar `EcoAgua.exe` directamente |
+
+### Instalar APK en Meta Quest 3 (sin tienda)
+
+```bash
+# Con el Quest conectado por USB y modo desarrollador activado:
+adb install ../EcoAgua_Quest3HUD.apk
+```
+
+O bien, arrastrar el `.apk` a la sección **Unknown Sources** de SideQuest.
+
+---
+
 ## 🚀 Despliegue a Producción
 
-El proyecto incluye automatización completa para build y deploy a Netlify:
+El proyecto incluye automatización completa para build y deploy:
+
+### 🌐 Deploy Web (Netlify)
 
 ```bash
 cd EcoAgua/EcoAgua
@@ -203,6 +231,21 @@ El script ejecuta transparentemente:
 1. Compilación WebGL sin interfaz (`godot --headless --export-release`).
 2. Generación del archivo `_headers` con `Cross-Origin-Opener-Policy` y `Cross-Origin-Embedder-Policy`.
 3. Deploy inmediato a la red de producción de Netlify.
+
+### 📦 Export Multi-Plataforma (APK + Linux + Windows + GitHub)
+
+```bash
+cd EcoAgua/EcoAgua
+./export_multiplatform.sh
+```
+
+El script ejecuta automáticamente:
+1. Commit de todos los cambios pendientes.
+2. Exportación APK para **Meta Quest 3** → `../EcoAgua_Quest3HUD.apk`.
+3. Exportación **Linux x86_64** → `../EcoAgua_PC_Linux/EcoAgua.x86_64`.
+4. Exportación **Windows x86_64** → `../EcoAgua_PC_Windows/EcoAgua.exe`.
+5. Actualización del README con fecha de exportación.
+6. Push automático a GitHub (`origin main`).
 
 ---
 

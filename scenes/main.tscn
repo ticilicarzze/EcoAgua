@@ -55,6 +55,8 @@
 [ext_resource type="PackedScene" uid="uid://cut01hwi6yft6" path="res://assets/models/ZONA4/Infraestructura/container_naranja.glb" id="53_152kg"]
 [ext_resource type="PackedScene" uid="uid://bg0y70mhqei07" path="res://assets/models/ZONA4/Infraestructura/barriles_abajo_del_agua.glb" id="54_ids8r"]
 [ext_resource type="PackedScene" uid="uid://cqs3b3u3gj2pn" path="res://assets/models/ZONA4/Infraestructura/Caño_uno.glb" id="55_dnhof"]
+[ext_resource type="PackedScene" uid="uid://xduiid8lb7bi" path="res://assets/models/ZONA3/FaunaTerrestre/paloma.glb" id="56_1v6qk"]
+[ext_resource type="PackedScene" uid="uid://ccfaadwh11d1h" path="res://assets/models/ZONA3/FaunaTerrestre/rata.glb" id="57_augu2"]
 
 [sub_resource type="Curve3D" id="Curve3D_7dm0k"]
 _data = {
@@ -85,10 +87,10 @@ shader_parameter/wave_5 = Vector4(0.1, 0.92, 0.05, 1.81)
 shader_parameter/wave_6 = Vector4(-0.2, 0.85, 0.03, 0.33)
 shader_parameter/wave_7 = Vector4(0.18, 0.9, 0.04, 0.73)
 shader_parameter/wave_8 = Vector4(-0.05, 0.97, 0.04, 1.52)
-shader_parameter/river_flow_speed = 0.18
+shader_parameter/river_flow_speed = 0.35
 shader_parameter/wave_amplitude_scale = 1.0
 shader_parameter/normal_strength_scale = 1.0
-shader_parameter/custom_water_time = 12903.532786525891
+shader_parameter/custom_water_time = 17608.47852842708
 shader_parameter/time_factor = 2.5
 shader_parameter/noise_zoom = 2.0
 shader_parameter/noise_amp = 0.4
@@ -1332,31 +1334,219 @@ transform = Transform3D(0.99999964, 0, 0, 0, 1, 0, 0, 0, 0.99999964, -2.1223094,
 metadata/_edit_lock_ = true
 
 [node name="Potamogeton1" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1191997903 instance=ExtResource("15_y6deb")]
-transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -2.4017167, -0.3725673, -99.41632)
-metadata/_edit_lock_ = true
+transform = Transform3D(0.9999987, 0, 0, 0, 1, 0, 0, 0, 0.9999987, -0.22723532, -0.3725673, -77.463135)
 
 [node name="Potamogeton2" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=465948597 instance=ExtResource("15_y6deb")]
-transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -4.154846, -0.57468307, -99.45756)
+transform = Transform3D(0.9999987, 0, 0, 0, 1, 0, 0, 0, 0.9999987, -1.9803641, -0.57468307, -77.504364)
 metadata/_edit_lock_ = true
 
 [node name="Potamogeton3" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1412233605 instance=ExtResource("15_y6deb")]
-transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.4389718, -0.3725673, -98.49198)
+transform = Transform3D(0.99999875, 0, 0, 0, 1, 0, 0, 0, 0.99999875, -1.2644897, -0.3725673, -76.5388)
 metadata/_edit_lock_ = true
 
 [node name="Potamogeton4" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=82089060 instance=ExtResource("15_y6deb")]
-transform = Transform3D(1.6400101, 0, 0, 0, 1, 0, 0, 0, 1.4534314, -3.4389708, -0.6854379, -100.88563)
+transform = Transform3D(1.6400096, 0, 0, 0, 1, 0, 0, 0, 1.4534309, -1.2644887, -0.6854379, -78.932434)
 metadata/_edit_lock_ = true
 
 [node name="Potamogeton5" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=449067674 instance=ExtResource("15_y6deb")]
-transform = Transform3D(0.9999989, 0, 0, 0, 1, 0, 0, 0, 0.9999989, -3.0550938, -0.9294138, -99.45756)
+transform = Transform3D(0.9999987, 0, 0, 0, 1, 0, 0, 0, 0.9999987, -0.8806119, -0.9294138, -77.504364)
 metadata/_edit_lock_ = true
 
 [node name="Potamogeton6" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=335473712 instance=ExtResource("15_y6deb")]
-transform = Transform3D(0.99999875, 0, 0, 0, 1, 0, 0, 0, 0.99999875, -5.9360642, -0.3433445, -99.09084)
+transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, -3.7615812, -0.3433445, -77.13765)
 metadata/_edit_lock_ = true
 
 [node name="Potamogeton7" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1289694520 instance=ExtResource("15_y6deb")]
-transform = Transform3D(0.999999, 0, 0, 0, 1, 0, 0, 0, 0.999999, -3.4389718, -0.3725673, -100.78551)
+transform = Transform3D(0.99999875, 0, 0, 0, 1, 0, 0, 0, 0.99999875, -1.2644897, -0.3725673, -78.832306)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton22" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1236882550 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -3.1373808, -0.3725673, -79.44635)
+
+[node name="Potamogeton23" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=740118540 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -4.8905087, -0.57468307, -79.48758)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton24" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1416295094 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, -4.174635, -0.3725673, -78.522026)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton25" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=111854567 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.6400084, 0, 0, 0, 1, 0, 0, 0, 1.4534297, -4.174634, -0.6854379, -80.91565)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton26" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=925253343 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, -3.790756, -0.9294138, -79.48758)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton27" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=682194868 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999979, 0, 0, 0, 1, 0, 0, 0, 0.9999979, -6.671726, -0.3433445, -79.12088)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton28" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=711286530 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, -4.174635, -0.3725673, -80.81552)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton29" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1847418550 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, 0.94735146, -0.3725673, -62.91103)
+
+[node name="Potamogeton30" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1513300957 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, -0.80577636, -0.57468307, -62.95226)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton31" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1725228377 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999857, 0, 0, 0, 1, 0, 0, 0, 0.99999857, -0.08990216, -0.3725673, -61.9867)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton32" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=308705243 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.6400093, 0, 0, 0, 1, 0, 0, 0, 1.4534305, -0.08990121, -0.6854379, -64.38033)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton33" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1535088550 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, 0.2939757, -0.9294138, -62.95226)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton34" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=949299026 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999833, 0, 0, 0, 1, 0, 0, 0, 0.99999833, -2.586994, -0.3433445, -62.585545)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton35" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=923669570 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999857, 0, 0, 0, 1, 0, 0, 0, 0.99999857, -0.08990216, -0.3725673, -64.280205)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton36" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=567035238 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999984, 0, 0, 0, 1, 0, 0, 0, 0.9999984, 4.2348704, -0.3725673, -62.911015)
+
+[node name="Potamogeton37" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1278793180 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999984, 0, 0, 0, 1, 0, 0, 0, 0.9999984, 2.4817426, -0.57468307, -62.952244)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton38" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1421678651 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999845, 0, 0, 0, 1, 0, 0, 0, 0.99999845, 3.1976166, -0.3725673, -61.986683)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton39" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=989174876 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.640009, 0, 0, 0, 1, 0, 0, 0, 1.4534303, 3.1976175, -0.6854379, -64.38032)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton40" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1696366067 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999984, 0, 0, 0, 1, 0, 0, 0, 0.9999984, 3.5814946, -0.9294138, -62.952244)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton41" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1129131940 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999982, 0, 0, 0, 1, 0, 0, 0, 0.9999982, 0.7005255, -0.3433445, -62.58553)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton42" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=229880122 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999845, 0, 0, 0, 1, 0, 0, 0, 0.99999845, 3.1976166, -0.3725673, -64.28019)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton43" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=708031354 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999982, 0, 0, 0, 1, 0, 0, 0, 0.9999982, 3.7139683, -0.3725673, -59.60643)
+
+[node name="Potamogeton44" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=795739126 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999982, 0, 0, 0, 1, 0, 0, 0, 0.9999982, 1.9608414, -0.57468307, -59.64766)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton45" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1032848608 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, 2.6767144, -0.3725673, -58.682106)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton46" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=430012337 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.6400087, 0, 0, 0, 1, 0, 0, 0, 1.4534299, 2.6767154, -0.6854379, -61.07573)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton47" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=2040433962 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999982, 0, 0, 0, 1, 0, 0, 0, 0.9999982, 3.0605931, -0.9294138, -59.64766)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton48" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1222774925 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999803, 0, 0, 0, 1, 0, 0, 0, 0.99999803, 0.17962456, -0.3433445, -59.28095)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton49" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1826415479 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999983, 0, 0, 0, 1, 0, 0, 0, 0.9999983, 2.6767144, -0.3725673, -60.9756)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton50" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=709347570 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, 17.634964, -0.3725673, -63.131397)
+
+[node name="Potamogeton51" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1478935887 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, 15.881834, -0.57468307, -63.172626)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton52" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=461532273 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, 16.597708, -0.3725673, -62.20708)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton53" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=520764452 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.6400084, 0, 0, 0, 1, 0, 0, 0, 1.4534297, 16.597708, -0.6854379, -64.6007)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton54" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=2014100944 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999981, 0, 0, 0, 1, 0, 0, 0, 0.9999981, 16.981588, -0.9294138, -63.172626)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton55" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=280831413 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999979, 0, 0, 0, 1, 0, 0, 0, 0.9999979, 14.100617, -0.3433445, -62.805923)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton56" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=212030113 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, 16.597708, -0.3725673, -64.50057)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton8" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=553271687 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, -0.22723603, -0.3725673, -115.840996)
+
+[node name="Potamogeton9" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=455744138 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, -1.9803641, -0.57468307, -115.882225)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton10" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1761146036 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999857, 0, 0, 0, 1, 0, 0, 0, 0.99999857, -1.2644897, -0.3725673, -114.916664)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton11" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=475570038 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.6400093, 0, 0, 0, 1, 0, 0, 0, 1.4534305, -1.2644887, -0.6854379, -117.310295)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton12" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1484490964 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999985, 0, 0, 0, 1, 0, 0, 0, 0.9999985, -0.8806119, -0.9294138, -115.882225)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton13" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=2032477194 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999833, 0, 0, 0, 1, 0, 0, 0, 0.99999833, -3.7615798, -0.3433445, -115.51551)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton14" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=611048057 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999857, 0, 0, 0, 1, 0, 0, 0, 0.99999857, -1.2644897, -0.3725673, -117.21017)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton15" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=720949648 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, -2.9748638, -0.3725673, -116.71345)
+
+[node name="Potamogeton16" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=497482928 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, -4.727991, -0.57468307, -116.75468)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton17" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1785114284 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999982, 0, 0, 0, 1, 0, 0, 0, 0.9999982, -4.0121164, -0.3725673, -115.789116)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton18" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=659080041 instance=ExtResource("15_y6deb")]
+transform = Transform3D(1.6400086, 0, 0, 0, 1, 0, 0, 0, 1.4534298, -4.0121155, -0.6854379, -118.18271)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton19" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1066084062 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.99999815, 0, 0, 0, 1, 0, 0, 0, 0.99999815, -3.6282384, -0.9294138, -116.75468)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton20" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1449155130 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, -6.509205, -0.3433445, -116.38796)
+metadata/_edit_lock_ = true
+
+[node name="Potamogeton21" parent="Zona1/VegetacionAcuatica/Potamogeton/Conjunto2" unique_id=1381921576 instance=ExtResource("15_y6deb")]
+transform = Transform3D(0.9999982, 0, 0, 0, 1, 0, 0, 0, 0.9999982, -4.0121164, -0.3725673, -118.08258)
 metadata/_edit_lock_ = true
 
 [node name="Conjunto3" type="Node3D" parent="Zona1/VegetacionAcuatica/Potamogeton" unique_id=2020602481]
@@ -2227,7 +2417,7 @@ metadata/_edit_group_ = true
 transform = Transform3D(1.3499992, 0, 0, 0, 1.35, 0, 0, 0, 1.3499992, 23.828896, 1.9068962, -210.51022)
 
 [node name="pasto_zona_cuatro2" parent="Zona4" unique_id=1861364459 instance=ExtResource("45_tm6hj")]
-transform = Transform3D(1.349999, 0, 0, 0, 1.35, 0, 0, 0, 1.349999, 22.098118, 1.9068962, -253.32622)
+transform = Transform3D(1.3499987, 0, 0, 0, 1.35, 0, 0, 0, 1.3499987, 22.098114, 1.4664351, -250.20851)
 
 [node name="pasto_zona_cuatro3" parent="Zona4" unique_id=313182389 instance=ExtResource("45_tm6hj")]
 transform = Transform3D(1.3499988, 0, 0, 0, 1.35, 0, 0, 0, 1.3499988, 22.098116, 1.9068962, -267.95917)
@@ -2248,10 +2438,13 @@ transform = Transform3D(1.3499979, 0, 0, 0, 1.35, 0, 0, 0, 1.3499979, -21.415428
 transform = Transform3D(6.114997, 0, 0, 0, 6.115, 0, 0, 0, 6.114997, 24.063658, 1.7095754, -209.82027)
 
 [node name="pasto_zona_cuatro8" parent="Zona4" unique_id=1076938039 instance=ExtResource("45_tm6hj")]
-transform = Transform3D(-1.2906991, 0, -0.39571515, 0, 1.3500001, 0, 0.39571515, 0, -1.2906991, -30.434145, 1.9068962, -328.1463)
+transform = Transform3D(-1.2906984, 0, -0.39571497, 0, 1.3500001, 0, 0.39571497, 0, -1.2906984, -30.386578, 1.681377, -292.23376)
+
+[node name="pasto_zona_cuatro12" parent="Zona4" unique_id=1904992714 instance=ExtResource("45_tm6hj")]
+transform = Transform3D(-1.2906979, 0, -0.39571485, 0, 1.3500001, 0, 0.39571485, 0, -1.2906979, 15.645912, 1.2791115, -302.2304)
 
 [node name="tronco_dos(1)9" parent="Zona4" unique_id=885100305 instance=ExtResource("46_kf5aa")]
-transform = Transform3D(-5.8463893, 0, -1.7924429, 0, 6.115, 0, 1.7924429, 0, -5.8463893, -30.860842, 1.7095754, -328.73715)
+transform = Transform3D(-5.3062153, 0, -1.6268315, 0, 5.55, 0, 1.6268315, 0, -5.3062153, -30.860842, 1.7095754, -328.73715)
 
 [node name="tronco_dos(1)2" parent="Zona4" unique_id=1318262353 instance=ExtResource("46_kf5aa")]
 transform = Transform3D(6.1149964, 0, 0, 0, 6.115, 0, 0, 0, 6.1149964, 24.063656, 1.7095754, -252.19156)
@@ -2260,22 +2453,28 @@ transform = Transform3D(6.1149964, 0, 0, 0, 6.115, 0, 0, 0, 6.1149964, 24.063656
 transform = Transform3D(6.114996, 0, 0, 0, 6.115, 0, 0, 0, 6.114996, 24.063654, 1.7095754, -278.05176)
 
 [node name="tronco_dos(1)4" parent="Zona4" unique_id=1464725142 instance=ExtResource("46_kf5aa")]
-transform = Transform3D(6.1149945, 0, 0, 0, 6.115, 0, 0, 0, 6.1149945, -28.508965, 1.7095754, -315.68683)
+transform = Transform3D(6.114994, 0, 0, 0, 6.115, 0, 0, 0, 6.114994, -29.31256, 1.7095754, -315.6868)
 
 [node name="tronco_dos(1)5" parent="Zona4" unique_id=72089165 instance=ExtResource("46_kf5aa")]
 transform = Transform3D(6.1149945, 0, 0, 0, 6.115, 0, 0, 0, 6.1149945, -21.68141, 1.7095754, -259.28854)
 
 [node name="tronco_dos(1)6" parent="Zona4" unique_id=1345321542 instance=ExtResource("46_kf5aa")]
-transform = Transform3D(6.114993, 0, 0, 0, 6.115, 0, 0, 0, 6.114993, -27.421791, 1.7095754, -340.19388)
+transform = Transform3D(7.02, 0, 0, 0, 7.02, 0, 0, 0, 7.02, -27.421791, 1.7095754, -340.19388)
 
 [node name="pasto_zona_cuatro9" parent="Zona4" unique_id=118441254 instance=ExtResource("45_tm6hj")]
 transform = Transform3D(-1.2906989, 0, -0.3957151, 0, 1.3500001, 0, 0.3957151, 0, -1.2906989, -42.69612, 1.9068962, -348.40906)
 
 [node name="tronco_dos(1)10" parent="Zona4" unique_id=103156915 instance=ExtResource("46_kf5aa")]
-transform = Transform3D(-5.8463883, 0, -1.7924427, 0, 6.115, 0, 1.7924427, 0, -5.8463883, -43.122818, 1.7095754, -348.9999)
+transform = Transform3D(-5.846388, 0, -1.7924426, 0, 6.115, 0, 1.7924426, 0, -5.846388, -39.4407, 1.7095754, -348.99988)
 
 [node name="tronco_dos(1)11" parent="Zona4" unique_id=872054411 instance=ExtResource("46_kf5aa")]
 transform = Transform3D(6.1149936, 0, 0, 0, 6.115, 0, 0, 0, 6.1149936, -40.77094, 1.7095754, -335.9496)
+
+[node name="tronco_dos(1)16" parent="Zona4" unique_id=1018004311 instance=ExtResource("46_kf5aa")]
+transform = Transform3D(6.1149917, 0, 0, 0, 6.115, 0, 0, 0, 6.1149917, -49.108925, 1.7095754, -326.86646)
+
+[node name="tronco_dos(1)17" parent="Zona4" unique_id=1552979713 instance=ExtResource("46_kf5aa")]
+transform = Transform3D(6.1149907, 0, 0, 0, 6.115, 0, 0, 0, 6.1149907, -83.89612, 1.7095754, -343.54227)
 
 [node name="tronco_dos(1)12" parent="Zona4" unique_id=1068275295 instance=ExtResource("46_kf5aa")]
 transform = Transform3D(6.114992, 0, 0, 0, 6.115, 0, 0, 0, 6.114992, -39.683765, 1.7095754, -360.45663)
@@ -2518,7 +2717,7 @@ transform = Transform3D(0.99999946, 0, 0, 0, 1, 0, 0, 0, 0.99999946, -3.4389863,
 transform = Transform3D(0.9999996, 0, 0, 0, 1, 0, 0, 0, 0.9999996, 9.9228945, -3.6934068, -91.57843)
 
 [node name="Tero_dos" parent="." unique_id=135868694 instance=ExtResource("36_fuf3a")]
-transform = Transform3D(0.30411536, 0, -0.023208138, 0, 0.30499992, 0, 0.023208138, 0, 0.30411536, 0.16657825, 0.19303179, -50.447918)
+transform = Transform3D(0.30182645, 0, 0.043881148, 0, 0.30499992, 0, -0.043881148, 0, 0.30182645, 0.16657823, 0.19303179, -50.447914)
 
 [node name="Rama_sola" parent="." unique_id=525660858 instance=ExtResource("16_2wyq8")]
 transform = Transform3D(-0.6384715, -0.0668596, -0.7667345, -0.086892255, 0.9961122, -0.014504923, 0.7647233, 0.057362333, -0.64179873, 1.0438057, 0.26411253, -52.224125)
@@ -2564,7 +2763,6 @@ transform = Transform3D(2.1949978, 0, 0, 0, 2.195, 0, 0, 0, 2.1949978, 34.69815,
 transform = Transform3D(2.1949975, 0, 0, 0, 2.195, 0, 0, 0, 2.1949975, 34.698147, 1.82355, -32.612312)
 
 [node name="desaparecerZona1" type="Node3D" parent="." unique_id=806710028]
-visible = false
 
 [node name="Ceibo4" parent="desaparecerZona1" unique_id=1291328444 instance=ExtResource("15_jkv2x")]
 transform = Transform3D(3.589521, 0, 1.7987522, 0, 4.015, 0, -1.7987522, 0, 3.589521, 20.563858, 1.3832066, -39.768528)
@@ -2861,7 +3059,6 @@ transform = Transform3D(3.0099998, 0, 0, 0, 3.01, 0, 0, 0, 3.0099998, 21.091097,
 transform = Transform3D(2.8099968, 0, 0, 0, 2.81, 0, 0, 0, 2.8099968, 16.799551, 1.2814069, -19.572275)
 
 [node name="desaparecerZona2" type="Node3D" parent="." unique_id=2144494862]
-visible = false
 
 [node name="Ceibo16" parent="desaparecerZona2" unique_id=712921489 instance=ExtResource("15_jkv2x")]
 transform = Transform3D(3.58952, 0, 1.7987517, 0, 4.015, 0, -1.7987517, 0, 3.58952, 29.595928, 1.0590146, -108.39274)
@@ -3003,9 +3200,6 @@ transform = Transform3D(0.81, 0, 0, 0, 0.81, 0, 0, 0, 0.81, -69.848404, 1.870987
 
 [node name="Luz_calle_uno4" parent="." unique_id=469919469 instance=ExtResource("42_dnhof")]
 transform = Transform3D(0.81, 0, 0, 0, 0.81, 0, 0, 0, 0.81, -91.991714, 1.8709873, -163.25688)
-
-[node name="Poste_de_luz" parent="." unique_id=1539555579 instance=ExtResource("43_1v6qk")]
-transform = Transform3D(0.64999914, 0, 0, 0, 0.65, 0, 0, 0, 0.64999914, 20.074003, 0.8669845, -79.44588)
 
 [node name="Poste_de_luz2" parent="." unique_id=272197696 instance=ExtResource("43_1v6qk")]
 transform = Transform3D(0.6499992, 0, 0, 0, 0.65, 0, 0, 0, 0.6499992, 47.23726, 0.8669845, -125.65218)
@@ -3315,22 +3509,46 @@ transform = Transform3D(-0.06296572, 0, -3.2293837, 0, 3.23, 0, 3.2293837, 0, -0
 transform = Transform3D(0.04492438, 0, -1.0790653, 0, 1.08, 0, 1.0790653, 0, 0.04492438, 33.054523, 1.2467313, -101.48885)
 
 [node name="granja_dos" parent="." unique_id=33559582 instance=ExtResource("21_5q0nq")]
-transform = Transform3D(1.075, 0, 0, 0, 1.075, 0, 0, 0, 1.075, -56.10412, 4.1172647, -163.98296)
+transform = Transform3D(1.0749999, 0, 0, 0, 1.075, 0, 0, 0, 1.0749999, -56.104115, 3.3870316, -163.98294)
 
 [node name="granja_dos2" parent="." unique_id=197519237 instance=ExtResource("21_5q0nq")]
-transform = Transform3D(1.075, 0, 0, 0, 1.075, 0, 0, 0, 1.075, -30.736727, 4.1172647, -163.98294)
+transform = Transform3D(1.0749998, 0, 0, 0, 1.075, 0, 0, 0, 1.0749998, -30.736723, 3.6190643, -163.98291)
 
 [node name="granja_dos4" parent="." unique_id=1449598216 instance=ExtResource("21_5q0nq")]
-transform = Transform3D(1.075, 0, 0, 0, 1.075, 0, 0, 0, 1.075, -56.540466, 4.1172647, -127.91381)
+transform = Transform3D(1.0749999, 0, 0, 0, 1.075, 0, 0, 0, 1.0749999, -56.540462, 3.3870316, -127.9138)
 
 [node name="granja_dos5" parent="." unique_id=1054764126 instance=ExtResource("21_5q0nq")]
-transform = Transform3D(1.075, 0, 0, 0, 1.075, 0, 0, 0, 1.075, -83.68825, 4.1172647, -127.9138)
+transform = Transform3D(1.0749999, 0, 0, 0, 1.075, 0, 0, 0, 1.0749999, -83.68824, 3.3870316, -127.913795)
 
 [node name="granja_dos6" parent="." unique_id=708951250 instance=ExtResource("21_5q0nq")]
-transform = Transform3D(1.075, 0, 0, 0, 1.075, 0, 0, 0, 1.075, -82.611946, 4.1172647, -166.09804)
+transform = Transform3D(1.0749999, 0, 0, 0, 1.075, 0, 0, 0, 1.0749999, -82.61194, 3.3870316, -166.09802)
 
 [node name="granja_dos7" parent="." unique_id=2052504421 instance=ExtResource("21_5q0nq")]
-transform = Transform3D(0.99999917, 0, 0, 0, 1, 0, 0, 0, 0.99999917, 32.774952, 3.6814413, -158.8611)
+transform = Transform3D(0.9999991, 0, 0, 0, 1, 0, 0, 0, 0.9999991, 32.77495, 3.484396, -158.86108)
 
 [node name="granja" parent="." unique_id=1492441464 instance=ExtResource("30_j8jky")]
 transform = Transform3D(1.2699989, 0, 0, 0, 1.27, 0, 0, 0, 1.2699989, 82.97485, 1.2475796, -151.0498)
+
+[node name="paloma" parent="." unique_id=1083540227 instance=ExtResource("56_1v6qk")]
+transform = Transform3D(0.45930043, 0, -0.88827986, 0, 1, 0, 0.88827986, 0, 0.45930043, 36.590622, 6.493566, -169.01192)
+
+[node name="paloma2" parent="." unique_id=668804928 instance=ExtResource("56_1v6qk")]
+transform = Transform3D(0.4593003, 0, -0.8882796, 0, 1, 0, 0.8882796, 0, 0.4593003, 36.590622, 6.421084, -179.14165)
+
+[node name="paloma3" parent="." unique_id=1499104229 instance=ExtResource("56_1v6qk")]
+transform = Transform3D(0.45930022, 0, -0.88827944, 0, 1, 0, 0.88827944, 0, 0.45930022, 36.59062, 7.7517734, -174.7163)
+
+[node name="rata" parent="." unique_id=207811585 instance=ExtResource("57_augu2")]
+transform = Transform3D(0.20499991, 0, 0, 0, 0.205, 0, 0, 0, 0.20499991, 19.189224, 1.0301126, -134.20502)
+
+[node name="rata2" parent="." unique_id=1559500164 instance=ExtResource("57_augu2")]
+transform = Transform3D(-0.15166515, 0, -0.13792244, 0, 0.205, 0, 0.13792244, 0, -0.15166515, 19.62992, 1.0404993, -132.80089)
+
+[node name="rata3" parent="." unique_id=561963505 instance=ExtResource("57_augu2")]
+transform = Transform3D(0.15854555, 0, 0.07408266, 0, 0.17499998, 0, -0.07408266, 0, 0.15854555, -13.177446, 1.6910968, -222.6833)
+
+[node name="rata4" parent="." unique_id=1150289625 instance=ExtResource("57_augu2")]
+transform = Transform3D(0.15854548, 0, 0.07408262, 0, 0.17499998, 0, -0.07408262, 0, 0.15854548, 15.3524, 1.6910968, -220.9872)
+
+[node name="rata5" parent="." unique_id=1396883438 instance=ExtResource("57_augu2")]
+transform = Transform3D(-0.16566235, 0, -0.05639927, 0, 0.17499997, 0, 0.05639927, 0, -0.16566235, 15.352398, 1.6910968, -211.42038)
