@@ -125,8 +125,10 @@ func _ready() -> void:
 	_build_hud()
 
 	if WaterManager:
-		WaterManager.zone_changed.connect(_on_zone_changed)
-		WaterManager.metrics_updated.connect(_on_metrics_updated)
+		if not WaterManager.zone_changed.is_connected(_on_zone_changed):
+			WaterManager.zone_changed.connect(_on_zone_changed)
+		if not WaterManager.metrics_updated.is_connected(_on_metrics_updated):
+			WaterManager.metrics_updated.connect(_on_metrics_updated)
 		# Estado inicial
 		_on_zone_changed(WaterManager.current_zone)
 		_update_ica(WaterManager.water_quality_index)
@@ -395,11 +397,8 @@ func _on_metrics_updated(wqi: float, _do_val: float, _turb: float) -> void:
 func _update_ica(wqi: float) -> void:
 	if not _ica_bar or not _ica_value_lbl:
 		return
-	# Animar la barra suavemente
-	var tw := create_tween()
-	tw.tween_property(_ica_bar, "value", wqi, 0.5).set_trans(Tween.TRANS_SINE)
-	# Número ICA sin animación de conteo (se actualiza directamente)
-	_ica_value_lbl.text = "%d" % int(wqi)
+	_ica_bar.value = wqi
+	_ica_value_lbl.text = "%d" % int(round(wqi))
 
 # ─────────────────────────────────────────────────────────────────────────────
 # _process — Efecto de flotación sutil en ambos paneles
@@ -478,81 +477,40 @@ func _format_value(value: float, unit: String, key: String) -> String:
 ## Textos de subtítulos por estado (NarrativeState int → Array de secuencias)
 ## Cada secuencia es un Array: [Voz, Texto, Duración en segundos]
 const SUBTITLE_SEQUENCE_BY_STATE: Dictionary = {
-	# Z1_SURFACE_INTRO (18s total: 3s ambiente + 15s voz)
 	1: [
 		["", "", 3.0],
-		["El Arroyo", "Hace mucho tiempo que estoy acá.", 3.0],
-		["El Arroyo", "Tal vez, cuando me mirás, ves solamente agua…", 3.5],
-		["El Arroyo", "pero debajo de mi superficie hay mucho más.", 3.0],
-		["El Arroyo", "Hay peces, plantas, insectos y pequeños organismos\nque también forman parte de mí.", 4.0],
-		["El Arroyo", "¡Te invito a sumergirte y conocerme mejor!", 1.5]
+		["El Arroyo", "Hace mucho tiempo que estoy acá. Tal vez, cuando me mirás, ves solamente agua… pero debajo de mi superficie hay mucho más. Hay peces, plantas, insectos y pequeños organismos que también forman parte de mí. ¡Te invito a sumergirte y conocerme mejor!", 18.5]
 	],
-	# Z1_UNDERWATER (19s total: 7s Arroyo + 12s Intérprete)
 	4: [
-		["El Arroyo", "Aquí el agua todavía es clara, la luz acaricia el fondo\ny la vida florece en equilibrio.", 3.5],
-		["El Arroyo", "Hay peces, plantas, insectos y pequeños organismos\nque también forman parte de mí.", 3.5],
-		["Intérprete", "Un arroyo no es sólo el agua que vemos.", 4.0],
-		["Intérprete", "Es un ecosistema en el que sus componentes están muy relacionados", 5.0],
-		["Intérprete", "y todo funciona como en una gran orquesta.", 3.0]
+		["El Arroyo", "Aquí el agua todavía es clara, la luz acaricia el fondo y la vida florece en equilibrio. Hay peces, plantas, insectos y pequeños organismos que también forman parte de mí.", 12.5],
+		["Intérprete", "Un arroyo no es sólo el agua que vemos. Es un ecosistema en el que sus componentes están muy relacionados y todo funciona como en una gran orquesta.", 10.0]
 	],
-	# Z2_SURFACE (13s total: 3s ambiente + 10s voz)
 	5: [
 		["", "", 3.0],
-		["El Arroyo", "El paisaje empieza a cambiar, aparecen los cultivos.", 4.5],
-		["El Arroyo", "Y cuando llueve, el agua arrastra y se lleva consigo\nparte de lo que encuentra en el suelo.", 5.5]
+		["El Arroyo", "El paisaje empieza a cambiar, aparecen los cultivos. Y cuando llueve, el agua arrastra y se lleva consigo parte de lo que encuentra en el suelo.", 9.8]
 	],
-	# Z2_UNDERWATER (27s total: 17s Intérprete + 10s Intérprete)
 	8: [
-		["Intérprete", "La escorrentía puede transportar sedimentos y nutrientes,\ncomo nitrógeno y fósforo...", 6.0],
-		["Intérprete", "...desde los campos hacia el arroyo.", 3.0],
-		["Intérprete", "Éste exceso favorece el crecimiento de algas y plantas acuáticas", 5.0],
-		["Intérprete", "y se conoce como eutrofización.", 3.0],
-		["Intérprete", "A simple vista puede parecer que hay más vida.", 4.0],
-		["Intérprete", "Pero cuando éstas algas y plantas se descomponen,", 3.5],
-		["Intérprete", "los microorganismos consumen el oxígeno del agua.", 2.5]
+		["Intérprete", "La escorrentía puede transportar sedimentos y nutrientes, como nitrógeno y fósforo, desde los campos hacia el arroyo. Éste exceso favorece el crecimiento de algas y plantas acuáticas y se conoce como eutrofización.", 14.6],
+		["Intérprete", "A simple vista puede parecer que hay más vida. Pero cuando éstas algas y plantas se descomponen los microorganismos consumen el oxígeno del agua.", 9.9]
 	],
-	# Z3_SURFACE (18s total: 3s ambiente + 15s voz)
 	9: [
 		["", "", 3.0],
-		["El Arroyo", "Esta zona está más urbanizada, hay casas, calles…", 4.5],
-		["El Arroyo", "el agua sigue corriendo, pero ya no llega sola.", 4.0],
-		["El Arroyo", "Trae sustancias que antes no formaban parte de mí.", 3.5],
-		["El Arroyo", "Y a quienes viven en mi interior, les cuesta cada vez más respirar.", 3.0]
+		["El Arroyo", "Esta zona está más urbanizada, hay casas, calles… el agua sigue corriendo, pero ya no llega sola. Trae sustancias que antes no formaban parte de mí. Y a quienes viven en mi interior, les cuesta cada vez más respirar.", 15.8]
 	],
-	# Z3_UNDERWATER (28s total: 20s Intérprete + 8s Intérprete)
 	12: [
-		["Intérprete", "Los efluentes urbanos e industriales\npueden incorporar materia orgánica...", 5.5],
-		["Intérprete", "...amonio, coliformes fecales, y otros contaminantes.", 4.5],
-		["Intérprete", "Cuando aumenta la materia orgánica, los microorganismos\nnecesitan más oxígeno para degradarla.", 6.0],
-		["Intérprete", "Ésto aumenta la Demanda Bioquímica de Oxígeno o DBO.", 4.0],
-		["Intérprete", "Una consecuencia de todo esto es que queda", 3.0],
-		["Intérprete", "menos oxígeno disponible para peces e invertebrados.", 5.0]
+		["Intérprete", "Los efluentes urbanos e industriales pueden incorporar materia orgánica, amonio, coliformes fecales, y otros contaminantes. Cuando aumenta la materia orgánica, los microorganismos necesitan más oxígeno para degradarla. Ésto aumenta la Demanda Bioquímica de Oxígeno o DBO.", 19.0],
+		["Intérprete", "Una consecuencia de todo esto es que queda menos oxígeno disponible para peces e invertebrados.", 6.5]
 	],
-	# Z4_SURFACE (23s total: 3s ambiente + 20s voz)
 	13: [
 		["", "", 3.0],
-		["El Arroyo", "Ahora el paisaje es muy diferente.", 3.0],
-		["El Arroyo", "Algunos creen que sigo igual, porque aún me ven correr,", 4.5],
-		["El Arroyo", "pero no todo lo que cambia puede verse.", 3.5],
-		["El Arroyo", "Por dentro soy diferente.", 2.5],
-		["El Arroyo", "Muchos seres vivos ya no pueden vivir en estas condiciones.", 3.5],
-		["El Arroyo", "Los peces que antes encontraba, los pequeños organismos que casi no vemos…\nNo todos pueden quedarse.", 3.0]
+		["El Arroyo", "Ahora el paisaje es muy diferente. Algunos creen que sigo igual, porque aún me ven correr, pero no todo lo que cambia puede verse. Por dentro soy diferente. Muchos seres vivos ya no pueden vivir en estas condiciones. Los peces que antes encontraba, los pequeños organismos que casi no vemos… No todos pueden quedarse.", 22.5]
 	],
-	# Z4_UNDERWATER (25s total)
 	16: [
-		["Intérprete", "El aumento de nutrientes, materia orgánica y otros contaminantes...", 5.0],
-		["Intérprete", "...modifica las condiciones del agua\ny afecta a las comunidades que viven en ella.", 6.0],
-		["Intérprete", "Las especies sensibles suelen desaparecer primero.", 4.5],
-		["Intérprete", "Por eso, observar quiénes están y quiénes ya no...", 3.5],
-		["Intérprete", "...también nos permite conocer la salud de un ecosistema.", 3.5],
-		["Intérprete", "Te recomiendo que salgas de aquí, las condiciones no son aptas.", 2.5]
+		["Intérprete", "El aumento de nutrientes, materia orgánica y otros contaminantes modifica las condiciones del agua y afecta a las comunidades que viven en ella. Las especies sensibles suelen desaparecer primero. Por eso, observar quienes están y quienes ya no, también nos permite conocer la salud de un ecosistema. Te recomiendo que salgas de aquí, las condiciones no son aptas.", 24.0]
 	],
-	# Z4_CLOSING (16.5s total: 9.75s Intérprete + 6.75s Arroyo)
 	18: [
-		["Intérprete", "La calidad de un arroyo no puede entenderse solamente mirando el agua.", 4.5],
-		["Intérprete", "Hay que aprender a leerlo\nen relación a todo lo que ocurre a su alrededor.", 5.25],
-		["El Arroyo", "Si aprendes a mirar todo lo que llevo dentro…", 3.75],
-		["El Arroyo", "Nunca volverás a verme solamente como agua.", 3.0]
+		["Intérprete", "La calidad de un arroyo no puede entenderse solamente mirando el agua. Hay que aprender a leerlo en relación a todo lo que ocurre a su alrededor.", 9.5],
+		["El Arroyo", "Si aprendes a mirar todo lo que llevo dentro… Nunca volverás a verme solamente como agua.", 7.0]
 	]
 }
 
@@ -628,18 +586,20 @@ func _build_subtitle_panel() -> void:
 	_subtitle_panel.visible = false
 
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.0, 0.0, 0.0, 0.60)
-	style.border_color = Color(1.0, 1.0, 1.0, 0.15)
-	style.border_width_top = 1
-	style.content_margin_left = 16
-	style.content_margin_right = 16
-	style.content_margin_top   = 10
-	style.content_margin_bottom = 10
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.70)
+	style.border_color = Color(1.0, 1.0, 1.0, 0.18)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(10)
+	style.content_margin_left = 22
+	style.content_margin_right = 22
+	style.content_margin_top   = 12
+	style.content_margin_bottom = 12
 	_subtitle_panel.add_theme_stylebox_override("panel", style)
 
-	# Posicionarlo centrado horizontalmente y anclado abajo para que crezca hacia arriba (shrink-wrap)
-	_subtitle_panel.anchor_left   = 0.5
-	_subtitle_panel.anchor_right  = 0.5
+	# Centrado horizontalmente ocupando el 50% de la pantalla (de 0.25 a 0.75)
+	# y anclado abajo para crecer hacia arriba según la cantidad de líneas (~3 líneas)
+	_subtitle_panel.anchor_left   = 0.25
+	_subtitle_panel.anchor_right  = 0.75
 	_subtitle_panel.anchor_top    = 1.0
 	_subtitle_panel.anchor_bottom = 1.0
 	_subtitle_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
@@ -651,7 +611,7 @@ func _build_subtitle_panel() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 4)
+	vbox.add_theme_constant_override("separation", 6)
 	_subtitle_panel.add_child(vbox)
 
 	_subtitle_voice_lbl = _make_label("", true, 11, Color(0.7, 0.85, 1.0, 0.85))
@@ -661,6 +621,7 @@ func _build_subtitle_panel() -> void:
 
 	_subtitle_label = _make_label("", false, 13, Color.WHITE)
 	_subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_subtitle_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	vbox.add_child(_subtitle_label)
 
 	_root.add_child(_subtitle_panel)
@@ -761,7 +722,7 @@ func _show_big_card(zone: int) -> void:
 	var ica_lbl := _make_label("Índice de Calidad del Agua:", false, 14, Color.WHITE)
 	ica_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ica_row.add_child(ica_lbl)
-	var ica_val := _make_label("%d / 100" % int(wqi), true, 18, col)
+	var ica_val := _make_label("%d / 100" % int(round(wqi)), true, 18, col)
 	ica_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	ica_row.add_child(ica_val)
 	vbox.add_child(ica_row)
@@ -886,17 +847,26 @@ func on_narrative_state_changed(state_int: int, zone: int) -> void:
 		18: # Z4_CLOSING — subtítulos del cierre
 			_show_subtitle(state_int)
 
-		19: # CREDITS — 8 segundos
+		19: # CREDITS — pantalla final de créditos (dura 30s)
 			if _credits_panel:
 				_credits_panel.visible = true
-				# Ocultar HUD existente durante créditos
-				if _param_panel: _param_panel.visible = false
-				if _ica_panel:   _ica_panel.visible   = false
+				_credits_panel.modulate.a = 0.0
+				var tw := create_tween()
+				tw.tween_property(_credits_panel, "modulate:a", 1.0, 1.0)
+			# Ocultar HUD y subtítulos
+			if _param_panel:    _param_panel.visible    = false
+			if _ica_panel:      _ica_panel.visible      = false
+			if _subtitle_panel: _subtitle_panel.visible = false
 
-		20: # DONE
-			if _credits_panel:  _credits_panel.visible  = false
-			if _param_panel:    _param_panel.visible     = true
-			if _ica_panel:      _ica_panel.visible       = true
+		20: # DONE — manejado por main._auto_reset_tour()
+			pass
+
+## Desvanece suavemente la pantalla de créditos antes del reinicio
+func fade_out_credits(duration: float = 1.0) -> void:
+	if _credits_panel and _credits_panel.visible:
+		var tw := create_tween()
+		tw.tween_property(_credits_panel, "modulate:a", 0.0, duration)
+		await tw.finished
 
 func _show_subtitle(state_int: int) -> void:
 	if not _subtitle_panel:

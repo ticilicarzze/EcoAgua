@@ -293,12 +293,8 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 			_fade_out(_player_underwater)
 			_fade_out(_player_factory_z4)
 
-		# --- CRÉDITOS ---
-		NarrativeState.CREDITS:
-			_fade_out(_player_factory_z4, 3.0)
-
-		# --- DONE ---
-		NarrativeState.DONE:
+		# --- CRÉDITOS Y DONE ---
+		NarrativeState.CREDITS, NarrativeState.DONE:
 			stop_all()
 
 

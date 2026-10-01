@@ -101,8 +101,17 @@ const NARRATIVE_DURATIONS: Dictionary = {
 	NarrativeState.Z4_UNDERWATER:   24.0,   # 25 s Intérprete
 	NarrativeState.Z4_EMERGE:        2.0,
 	NarrativeState.Z4_CLOSING:      16.5,   # 9.75 s Intérprete + 6.75 s Arroyo
-	NarrativeState.CREDITS:          3.0,
+	NarrativeState.CREDITS:          30.0,  # 30 s de créditos antes del auto-reset
 	NarrativeState.DONE:             0.0,
+}
+
+# Velocidad calculada por zona para recorrer exactamente 73.5m por zona en su duración
+# Esto garantiza que cada emersión ocurra exactamente en el límite de zona (0.25, 0.50, 0.75, 1.0)
+const ZONE_UNDERWATER_SPEED: Dictionary = {
+	NarrativeState.Z1_UNDERWATER: 73.5 / 22.5, # 3.267 m/s (22.5 s -> 73.5 m)
+	NarrativeState.Z2_UNDERWATER: 73.5 / 24.5, # 3.000 m/s (24.5 s -> 73.5 m)
+	NarrativeState.Z3_UNDERWATER: 73.5 / 25.5, # 2.882 m/s (25.5 s -> 73.5 m)
+	NarrativeState.Z4_UNDERWATER: 73.5 / 24.0, # 3.063 m/s (24.0 s -> 73.5 m)
 }
 
 # Zona activa para cada estado (usada para actualizar WaterManager y visuales)
@@ -281,8 +290,10 @@ func _ready() -> void:
 	else:
 		_setup_fallback_mode()
 
-	WaterManager.zone_changed.connect(_on_zone_changed)
-	WaterManager.metrics_updated.connect(_on_metrics_updated)
+	if not WaterManager.zone_changed.is_connected(_on_zone_changed):
+		WaterManager.zone_changed.connect(_on_zone_changed)
+	if not WaterManager.metrics_updated.is_connected(_on_metrics_updated):
+		WaterManager.metrics_updated.connect(_on_metrics_updated)
 	_setup_camera_fx()
 	_setup_aquatic_fauna()
 	_setup_palomas()
@@ -586,10 +597,10 @@ func _create_surface_checkpoint_visualizers() -> void:
 		return
 
 	var p1: float = 200.0
-	var p2: float = p1 + (22.5 * 3.05) # Final Z1_UNDERWATER
-	var p3: float = p2 + (24.5 * 3.05) # Final Z2_UNDERWATER
-	var p4: float = p3 + (25.5 * 3.05) # Final Z3_UNDERWATER
-	var p5: float = p4 + (24.0 * 3.05) # Final Z4_UNDERWATER
+	var p2: float = p1 + 73.5 # Final Z1_UNDERWATER (273.5m - Inicio Zona 2)
+	var p3: float = p2 + 73.5 # Final Z2_UNDERWATER (347.0m - Inicio Zona 3)
+	var p4: float = p3 + 73.5 # Final Z3_UNDERWATER (420.5m - Inicio Zona 4)
+	var p5: float = p4 + 73.5 # Final Z4_UNDERWATER (494.0m - Cierre)
 
 	var checkpoints_info: Array[Dictionary] = [
 		{"progress": p1, "name": "Zona 1 (Inicial)", "color": Color(0.2, 0.9, 0.2)},
@@ -936,10 +947,10 @@ func _process(delta: float) -> void:
 		_narrative_state == NarrativeState.Z4_UNDERWATER
 	)
 	if is_moving_state:
-		cart.progress += speed * delta
-		var active_progress: float = max(0.0, cart.progress - 200.0)
-		var ratio: float = clamp(active_progress / 294.0, 0.0, 1.0)
-		WaterManager.progress_ratio = ratio
+		var cur_speed: float = ZONE_UNDERWATER_SPEED.get(_narrative_state, speed)
+		cart.progress += cur_speed * delta
+		var active_progress: float = clamp(cart.progress - 200.0, 0.0, 294.0)
+		WaterManager.progress_ratio = active_progress / 294.0
 
 	# ── Target de v_offset según si estamos en superficie o bajo el agua ─────
 	var want_surface: bool = (
@@ -1162,7 +1173,10 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 	_state_timer     = 0.0
 
 	var zone: int = NARRATIVE_ZONE.get(new_state, 1)
-	WaterManager.progress_ratio = _narrative_ratio_for_zone(zone)
+
+	# Mantener progress_ratio continuo con la posición física del carrito (evita saltos bruscos)
+	var active_prog: float = clamp(cart.progress - 200.0, 0.0, 294.0)
+	WaterManager.progress_ratio = active_prog / 294.0
 
 	# Actualizar el shader de agua al entrar en cada zona nueva
 	_update_water_zone(zone)
@@ -1186,6 +1200,19 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 		NarrativeState.keys()[new_state], zone,
 		NARRATIVE_DURATIONS.get(new_state, 0.0)
 	])
+
+	# Al llegar a DONE (tras los 30s de créditos), reiniciar automáticamente para el próximo usuario
+	if new_state == NarrativeState.DONE:
+		_auto_reset_tour()
+
+## Reinicia el recorrido automáticamente para el siguiente usuario
+func _auto_reset_tour() -> void:
+	print("Auto-reset: Recorrido finalizado. Reiniciando experiencia para el siguiente participante...")
+	if _hud and _hud.has_method("fade_out_credits"):
+		await _hud.fade_out_credits(1.0)
+	else:
+		await get_tree().create_timer(1.0).timeout
+	get_tree().reload_current_scene()
 
 # =========================================================
 # _update_zona_visibility — Visibilidad de zonas en superficie
