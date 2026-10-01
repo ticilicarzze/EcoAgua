@@ -2,7 +2,7 @@
 extends Node3D
 
 @onready var cart = $RiverPath/UserCart
-@export var speed: float = 2.97           # m/s — 294m activos / 99s de rodaje bajo el agua
+@export var speed: float = 3.05           # m/s — 294m activos / 99s de rodaje bajo el agua
 @export var surface_height_offset: float = 3.5  # Altura vertical de la cámara al emerger
 
 # =========================================================
@@ -83,25 +83,25 @@ enum NarrativeState {
 # Duraciones exactas de cada estado (en segundos), extraídas del guión
 const NARRATIVE_DURATIONS: Dictionary = {
 	NarrativeState.WAITING_START:    0.0,   # Sin timer — espera interacción del usuario
-	NarrativeState.Z1_SURFACE_INTRO: 18.0,  # 3 s ambiente + 15 s locución Arroyo
+	NarrativeState.Z1_SURFACE_INTRO: 21.5,  # 3 s ambiente + 15 s locución Arroyo
 	NarrativeState.Z1_DIVING:        1.0,
-	NarrativeState.Z1_CARD:          5.0,
-	NarrativeState.Z1_UNDERWATER:   19.0,   # 7 s Arroyo + 12 s Intérprete
-	NarrativeState.Z2_SURFACE:       13.0,  # 3 s ambiente + 10 s locución Arroyo
+	NarrativeState.Z1_CARD:          3.0,
+	NarrativeState.Z1_UNDERWATER:   22.5,   # 7 s Arroyo + 12 s Intérprete
+	NarrativeState.Z2_SURFACE:       12.8,  # 3 s ambiente + 10 s locución Arroyo
 	NarrativeState.Z2_DIVING:        1.0,
-	NarrativeState.Z2_CARD:          5.0,
-	NarrativeState.Z2_UNDERWATER:   27.0,   # 17 s Intérprete + 10 s Intérprete
-	NarrativeState.Z3_SURFACE:       18.0,  # 3 s ambiente + 15 s locución Arroyo
+	NarrativeState.Z2_CARD:          3.0,
+	NarrativeState.Z2_UNDERWATER:   24.5,   # 17 s Intérprete + 10 s Intérprete
+	NarrativeState.Z3_SURFACE:       18.8,  # 3 s ambiente + 15 s locución Arroyo
 	NarrativeState.Z3_DIVING:        1.0,
-	NarrativeState.Z3_CARD:          5.0,
-	NarrativeState.Z3_UNDERWATER:   28.0,   # 20 s Intérprete + 8 s Intérprete
-	NarrativeState.Z4_SURFACE:       23.0,  # 3 s ambiente + 20 s locución Arroyo
+	NarrativeState.Z3_CARD:          3.0,
+	NarrativeState.Z3_UNDERWATER:   25.5,   # 20 s Intérprete + 8 s Intérprete
+	NarrativeState.Z4_SURFACE:       25.5,  # 3 s ambiente + 20 s locución Arroyo
 	NarrativeState.Z4_DIVING:        1.0,
-	NarrativeState.Z4_CARD:          5.0,
-	NarrativeState.Z4_UNDERWATER:   25.0,   # 25 s Intérprete
+	NarrativeState.Z4_CARD:          3.0,
+	NarrativeState.Z4_UNDERWATER:   24.0,   # 25 s Intérprete
 	NarrativeState.Z4_EMERGE:        2.0,
 	NarrativeState.Z4_CLOSING:      16.5,   # 9.75 s Intérprete + 6.75 s Arroyo
-	NarrativeState.CREDITS:          8.0,
+	NarrativeState.CREDITS:          3.0,
 	NarrativeState.DONE:             0.0,
 }
 
@@ -162,6 +162,9 @@ var _state_timer: float = 0.0
 # Referencia al HUDController para comunicar fases narrativas
 var _hud: Node = null
 
+# Referencia al AudioManager para controlar ambientes y efectos
+var _audio_manager: Node = null
+
 # =========================================================
 # CONSTANTES VISUALES DE SUPERFICIE / AGUA
 # =========================================================
@@ -183,6 +186,9 @@ var _was_underwater: bool = false
 var _base_fov: float = 75.0
 var _current_fov: float = 75.0
 var _current_v_offset: float = 0.0
+
+
+
 
 # =========================================================
 # CONTROL DE CÁMARA LIBRE (FreeLook)
@@ -292,6 +298,10 @@ func _ready() -> void:
 		_hud = $CanvasLayer
 	elif has_node("CanvasLayerVR"):
 		_hud = $CanvasLayerVR
+
+	# Buscar referencia al AudioManager
+	if has_node("AudioManager"):
+		_audio_manager = $AudioManager
 
 	# Entrar al primer estado narrativo
 	_enter_narrative_state(NarrativeState.WAITING_START)
@@ -576,10 +586,10 @@ func _create_surface_checkpoint_visualizers() -> void:
 		return
 
 	var p1: float = 200.0
-	var p2: float = p1 + (19.0 * 2.97) # Final Z1_UNDERWATER
-	var p3: float = p2 + (27.0 * 2.97) # Final Z2_UNDERWATER
-	var p4: float = p3 + (28.0 * 2.97) # Final Z3_UNDERWATER
-	var p5: float = p4 + (25.0 * 2.97) # Final Z4_UNDERWATER
+	var p2: float = p1 + (22.5 * 3.05) # Final Z1_UNDERWATER
+	var p3: float = p2 + (24.5 * 3.05) # Final Z2_UNDERWATER
+	var p4: float = p3 + (25.5 * 3.05) # Final Z3_UNDERWATER
+	var p5: float = p4 + (24.0 * 3.05) # Final Z4_UNDERWATER
 
 	var checkpoints_info: Array[Dictionary] = [
 		{"progress": p1, "name": "Zona 1 (Inicial)", "color": Color(0.2, 0.9, 0.2)},
@@ -1167,6 +1177,10 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 	# Notificar al HUD si existe y tiene el método
 	if _hud and _hud.has_method("on_narrative_state_changed"):
 		_hud.on_narrative_state_changed(new_state, zone)
+
+	# Notificar al AudioManager para coordinar ambientes y efectos de sonido
+	if _audio_manager and _audio_manager.has_method("on_narrative_state_changed"):
+		_audio_manager.on_narrative_state_changed(new_state, zone)
 
 	print("Narrativa → %s (zona %d, dur: %.1f s)" % [
 		NarrativeState.keys()[new_state], zone,

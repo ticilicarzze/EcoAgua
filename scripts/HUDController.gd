@@ -489,7 +489,8 @@ const SUBTITLE_SEQUENCE_BY_STATE: Dictionary = {
 	],
 	# Z1_UNDERWATER (19s total: 7s Arroyo + 12s Intérprete)
 	4: [
-		["El Arroyo", "Hay peces, plantas, insectos y pequeños organismos\nque también forman parte de mí.", 7.0],
+		["El Arroyo", "Aquí el agua todavía es clara, la luz acaricia el fondo\ny la vida florece en equilibrio.", 3.5],
+		["El Arroyo", "Hay peces, plantas, insectos y pequeños organismos\nque también forman parte de mí.", 3.5],
 		["Intérprete", "Un arroyo no es sólo el agua que vemos.", 4.0],
 		["Intérprete", "Es un ecosistema en el que sus componentes están muy relacionados", 5.0],
 		["Intérprete", "y todo funciona como en una gran orquesta.", 3.0]
@@ -550,7 +551,7 @@ const SUBTITLE_SEQUENCE_BY_STATE: Dictionary = {
 	18: [
 		["Intérprete", "La calidad de un arroyo no puede entenderse solamente mirando el agua.", 4.5],
 		["Intérprete", "Hay que aprender a leerlo\nen relación a todo lo que ocurre a su alrededor.", 5.25],
-		["El Arroyo", "Si aprendés a mirar todo lo que llevo dentro…", 3.75],
+		["El Arroyo", "Si aprendes a mirar todo lo que llevo dentro…", 3.75],
 		["El Arroyo", "Nunca volverás a verme solamente como agua.", 3.0]
 	]
 }

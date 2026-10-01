@@ -57,6 +57,7 @@
 [ext_resource type="PackedScene" uid="uid://cqs3b3u3gj2pn" path="res://assets/models/ZONA4/Infraestructura/Caño_uno.glb" id="55_dnhof"]
 [ext_resource type="PackedScene" uid="uid://xduiid8lb7bi" path="res://assets/models/ZONA3/FaunaTerrestre/paloma.glb" id="56_1v6qk"]
 [ext_resource type="PackedScene" uid="uid://ccfaadwh11d1h" path="res://assets/models/ZONA3/FaunaTerrestre/rata.glb" id="57_augu2"]
+[ext_resource type="Script" uid="uid://dofsu5kwlstr1" path="res://scripts/AudioManager.gd" id="58_audio_mgr"]
 
 [sub_resource type="Curve3D" id="Curve3D_7dm0k"]
 _data = {
@@ -90,7 +91,7 @@ shader_parameter/wave_8 = Vector4(-0.05, 0.97, 0.04, 1.52)
 shader_parameter/river_flow_speed = 0.35
 shader_parameter/wave_amplitude_scale = 1.0
 shader_parameter/normal_strength_scale = 1.0
-shader_parameter/custom_water_time = 17608.47852842708
+shader_parameter/custom_water_time = 18123.385554227556
 shader_parameter/time_factor = 2.5
 shader_parameter/noise_zoom = 2.0
 shader_parameter/noise_amp = 0.4
@@ -134,7 +135,7 @@ shader_parameter/caustics_intensity = 15.0
 shader_parameter/num_caustic_layers = 16.0
 shader_parameter/caustic_distortion_strength = 0.001
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_ids8r"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_augu2"]
 size = Vector2(80, 694)
 subdivide_width = 300
 subdivide_depth = 480
@@ -145,6 +146,9 @@ size = Vector2(1, 1)
 [node name="Main" type="Node3D" unique_id=855448232]
 transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0, 0)
 script = ExtResource("1_ig7tw")
+
+[node name="AudioManager" type="Node" parent="." unique_id=987123456]
+script = ExtResource("58_audio_mgr")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1267901750]
 environment = ExtResource("2_tipki")
@@ -176,7 +180,7 @@ current = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -147)
 material_override = SubResource("ShaderMaterial_0xm2m")
 cast_shadow = 0
-mesh = SubResource("PlaneMesh_ids8r")
+mesh = SubResource("PlaneMesh_augu2")
 script = ExtResource("7_water_ctrl")
 water_material = SubResource("ShaderMaterial_0xm2m")
 use_color_override = true
