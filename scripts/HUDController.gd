@@ -33,16 +33,45 @@ const ZONE_STATUS_LABELS: Array[String] = [
 ]
 
 # Constantes de estilo (declaradas como var para que HUDControllerVR pueda sobreescribirlas)
-var PANEL_BG_COLOR:       Color = Color(0.0, 0.0, 0.0, 0.55)
-var BORDER_WIDTH:         int   = 2
-var CORNER_RADIUS:        int   = 10
-var MARGIN_SCREEN:        int   = 35   # Margen desde el borde de pantalla
-var MARGIN_BOTTOM:        int   = 30   # Margen desde el borde inferior
-var PARAM_FONT_SIZE:      int   = 12
-var TITLE_FONT_SIZE:      int   = 13
-var ICA_NUM_FONT_SIZE:    int   = 14
-var PARAM_PANEL_WIDTH:    int   = 260  # Ancho del panel de parámetros (px)
-var ICA_PANEL_HALF_W:     int   = 160  # Semiancho del panel ICA (px)
+var _is_vr:                   bool  = false
+var PANEL_BG_COLOR:           Color = Color(0.0, 0.0, 0.0, 0.55)
+var BORDER_WIDTH:             int   = 2
+var CORNER_RADIUS:            int   = 10
+var MARGIN_SCREEN:            int   = 35   # Margen desde el borde de pantalla
+var MARGIN_BOTTOM:            int   = 30   # Margen desde el borde inferior
+var PARAM_FONT_SIZE:          int   = 12
+var TITLE_FONT_SIZE:          int   = 13
+var ICA_NUM_FONT_SIZE:        int   = 14
+var PARAM_PANEL_WIDTH:        int   = 260  # Ancho del panel de parámetros (px)
+var PARAM_VAL_COL_WIDTH:      int   = 90   # Ancho de la columna de valores (px)
+var ICA_PANEL_HALF_W:         int   = 160  # Semiancho del panel ICA (px)
+var ICA_BAR_HEIGHT:           int   = 10   # Altura de la barra ICA (px)
+
+# Subtítulos
+var SUBTITLE_ANCHOR_LEFT:     float = 0.25
+var SUBTITLE_ANCHOR_RIGHT:    float = 0.75
+var SUBTITLE_BOTTOM_OFFSET:   int   = 110
+var SUBTITLE_VOICE_FONT_SIZE: int   = 11
+var SUBTITLE_TEXT_FONT_SIZE:  int   = 13
+
+# Botón Sumergirse
+var DIVE_PANEL_HALF_W:        int   = 160
+var DIVE_PANEL_HALF_H:        int   = 36
+var DIVE_INTRO_FONT_SIZE:     int   = 13
+var DIVE_BTN_FONT_SIZE:       int   = 17
+var DIVE_HINT_FONT_SIZE:      int   = 11
+
+# Cartel grande
+var CARD_TITLE_FONT_SIZE:     int   = 20
+var CARD_PARAM_FONT_SIZE:     int   = 15
+var CARD_VAL_FONT_SIZE:       int   = 16
+var CARD_ICA_FONT_SIZE:       int   = 14
+var CARD_ICA_VAL_FONT_SIZE:   int   = 18
+
+# Créditos
+var CREDITS_TITLE_FONT_SIZE:  int   = 28
+var CREDITS_SUB_FONT_SIZE:    int   = 16
+var CREDITS_BODY_FONT_SIZE:   int   = 13
 
 # ─── Definición de parámetros por zona ───────────────────────────────────────
 # Formato: [nombre_display, clave_en_diccionario, unidad]
@@ -162,15 +191,22 @@ func _load_fonts() -> void:
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTRUCCIÓN DEL HUD
 # ─────────────────────────────────────────────────────────────────────────────
+func _get_hud_parent() -> Node:
+	return self
+
 func _build_hud() -> void:
-	for child in get_children():
-		child.queue_free()
+	var parent_node := _get_hud_parent()
+	for child in parent_node.get_children():
+		if child is Control:
+			child.queue_free()
 
 	_root = Control.new()
 	_root.name = "HUDRoot"
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_root)
+	if _is_vr:
+		_root.custom_minimum_size = Vector2(1920, 1080)
+	parent_node.add_child(_root)
 
 	_build_param_panel()
 	_build_ica_panel()
@@ -227,9 +263,9 @@ func _build_param_row(col: Color) -> Dictionary:
 	row.add_theme_constant_override("separation", 6)
 
 	# Bullet ●
-	var dot := _make_label("●", false, 10, col)
+	var dot := _make_label("●", false, max(8, PARAM_FONT_SIZE - 2), col)
 	dot.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	dot.custom_minimum_size = Vector2(14, 0)
+	dot.custom_minimum_size = Vector2(PARAM_FONT_SIZE + 2, 0)
 	row.add_child(dot)
 
 	# Nombre del parámetro (minúsculas, Regular, se expande)
@@ -240,7 +276,7 @@ func _build_param_row(col: Color) -> Dictionary:
 	# Valor + unidad (Bold, alineado a la derecha, en color de zona)
 	var val_lbl := _make_label("—", true, PARAM_FONT_SIZE, col)
 	val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	val_lbl.custom_minimum_size = Vector2(90, 0)
+	val_lbl.custom_minimum_size = Vector2(PARAM_VAL_COL_WIDTH, 0)
 	row.add_child(val_lbl)
 
 	return {"row": row, "dot": dot, "name_lbl": name_lbl, "val_lbl": val_lbl}
@@ -287,7 +323,7 @@ func _build_ica_panel() -> void:
 	_ica_bar.max_value       = 100.0
 	_ica_bar.value           = 95.0
 	_ica_bar.show_percentage = false
-	_ica_bar.custom_minimum_size = Vector2(ICA_PANEL_HALF_W * 2 - 20, 10)
+	_ica_bar.custom_minimum_size = Vector2(ICA_PANEL_HALF_W * 2 - 20, ICA_BAR_HEIGHT)
 
 	# Estilo del fondo de la barra
 	var bar_bg := StyleBoxFlat.new()
@@ -528,10 +564,10 @@ func _build_dive_button() -> void:
 
 	# Estilo del panel
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.0, 0.0, 0.0, 0.75)
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.78)
 	style.border_color = ZONE_COLORS[1]
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(14)
+	style.set_border_width_all(BORDER_WIDTH)
+	style.set_corner_radius_all(CORNER_RADIUS + 4)
 	style.content_margin_left = 36
 	style.content_margin_right = 36
 	style.content_margin_top = 18
@@ -545,17 +581,17 @@ func _build_dive_button() -> void:
 	_dive_button_panel.anchor_bottom = 0.55
 	_dive_button_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_dive_button_panel.grow_vertical   = Control.GROW_DIRECTION_BOTH
-	_dive_button_panel.offset_left   = -160
-	_dive_button_panel.offset_right  =  160
-	_dive_button_panel.offset_top    = -32
-	_dive_button_panel.offset_bottom =  32
+	_dive_button_panel.offset_left   = -DIVE_PANEL_HALF_W
+	_dive_button_panel.offset_right  =  DIVE_PANEL_HALF_W
+	_dive_button_panel.offset_top    = -DIVE_PANEL_HALF_H
+	_dive_button_panel.offset_bottom =  DIVE_PANEL_HALF_H
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 12)
+	vbox.add_theme_constant_override("separation", 10)
 	_dive_button_panel.add_child(vbox)
 
 	# Texto introductorio
-	var intro_lbl := _make_label("EcoAgua — Arroyo Ludueña", false, 13, Color(0.85, 0.85, 0.80))
+	var intro_lbl := _make_label("EcoAgua — Arroyo Ludueña", false, DIVE_INTRO_FONT_SIZE, Color(0.85, 0.85, 0.80))
 	intro_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(intro_lbl)
 
@@ -564,7 +600,7 @@ func _build_dive_button() -> void:
 	btn.text = "🌊  Sumergirse"
 	if _font_bold:
 		btn.add_theme_font_override("font", _font_bold)
-	btn.add_theme_font_size_override("font_size", 17)
+	btn.add_theme_font_size_override("font_size", DIVE_BTN_FONT_SIZE)
 	btn.add_theme_color_override("font_color",         ZONE_COLORS[1])
 	btn.add_theme_color_override("font_hover_color",   Color.WHITE)
 	btn.add_theme_color_override("font_pressed_color", ZONE_COLORS[1].lightened(0.2))
@@ -577,6 +613,12 @@ func _build_dive_button() -> void:
 	btn.pressed.connect(_on_dive_button_pressed)
 	vbox.add_child(btn)
 
+	# Texto indicativo para VR / Teclado
+	var hint_text := "Presioná cualquier botón del mando para sumergirte" if _is_vr else "Clic o presiona cualquier botón para sumergirte"
+	var hint_lbl := _make_label(hint_text, false, DIVE_HINT_FONT_SIZE, Color(0.75, 0.90, 1.0, 0.85))
+	hint_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(hint_lbl)
+
 	_root.add_child(_dive_button_panel)
 
 # ─── Panel de subtítulos / locución ──────────────────────────────────────────
@@ -586,40 +628,39 @@ func _build_subtitle_panel() -> void:
 	_subtitle_panel.visible = false
 
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.0, 0.0, 0.0, 0.70)
-	style.border_color = Color(1.0, 1.0, 1.0, 0.18)
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.75)
+	style.border_color = Color(1.0, 1.0, 1.0, 0.22)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(10)
-	style.content_margin_left = 22
-	style.content_margin_right = 22
+	style.content_margin_left = 24
+	style.content_margin_right = 24
 	style.content_margin_top   = 12
 	style.content_margin_bottom = 12
 	_subtitle_panel.add_theme_stylebox_override("panel", style)
 
-	# Centrado horizontalmente ocupando el 50% de la pantalla (de 0.25 a 0.75)
-	# y anclado abajo para crecer hacia arriba según la cantidad de líneas (~3 líneas)
-	_subtitle_panel.anchor_left   = 0.25
-	_subtitle_panel.anchor_right  = 0.75
+	# Centrado horizontalmente ocupando la parte inferior
+	_subtitle_panel.anchor_left   = SUBTITLE_ANCHOR_LEFT
+	_subtitle_panel.anchor_right  = SUBTITLE_ANCHOR_RIGHT
 	_subtitle_panel.anchor_top    = 1.0
 	_subtitle_panel.anchor_bottom = 1.0
 	_subtitle_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_subtitle_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_subtitle_panel.offset_left   = 0
 	_subtitle_panel.offset_right  = 0
-	_subtitle_panel.offset_bottom = -110
-	_subtitle_panel.offset_top    = -110
+	_subtitle_panel.offset_bottom = -SUBTITLE_BOTTOM_OFFSET
+	_subtitle_panel.offset_top    = -SUBTITLE_BOTTOM_OFFSET
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 6)
 	_subtitle_panel.add_child(vbox)
 
-	_subtitle_voice_lbl = _make_label("", true, 11, Color(0.7, 0.85, 1.0, 0.85))
+	_subtitle_voice_lbl = _make_label("", true, SUBTITLE_VOICE_FONT_SIZE, Color(0.7, 0.85, 1.0, 0.85))
 	_subtitle_voice_lbl.name = "VoiceLabel"
 	_subtitle_voice_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_subtitle_voice_lbl)
 
-	_subtitle_label = _make_label("", false, 13, Color.WHITE)
+	_subtitle_label = _make_label("", false, SUBTITLE_TEXT_FONT_SIZE, Color.WHITE)
 	_subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_subtitle_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	vbox.add_child(_subtitle_label)
@@ -669,7 +710,7 @@ func _show_big_card(zone: int) -> void:
 	# Título grande de zona
 	var title := _make_label(
 		"ZONA %d  –  %s" % [zone, ZONE_STATUS_LABELS[zone]],
-		true, 20, col
+		true, CARD_TITLE_FONT_SIZE, col
 	)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
@@ -695,18 +736,18 @@ func _show_big_card(zone: int) -> void:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
 
-		var dot := _make_label("●", false, 12, col)
+		var dot := _make_label("●", false, max(8, CARD_PARAM_FONT_SIZE - 2), col)
 		dot.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		dot.custom_minimum_size = Vector2(16, 0)
+		dot.custom_minimum_size = Vector2(CARD_PARAM_FONT_SIZE + 2, 0)
 		row.add_child(dot)
 
-		var name_lbl := _make_label(display, false, 15, Color.WHITE)
+		var name_lbl := _make_label(display, false, CARD_PARAM_FONT_SIZE, Color.WHITE)
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(name_lbl)
 
-		var val_lbl := _make_label(_format_value(value, unit, key), true, 16, col)
+		var val_lbl := _make_label(_format_value(value, unit, key), true, CARD_VAL_FONT_SIZE, col)
 		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		val_lbl.custom_minimum_size = Vector2(120, 0)
+		val_lbl.custom_minimum_size = Vector2(PARAM_VAL_COL_WIDTH + 30, 0)
 		row.add_child(val_lbl)
 
 		vbox.add_child(row)
@@ -719,10 +760,10 @@ func _show_big_card(zone: int) -> void:
 	var wqi: float = WaterManager.water_quality_index if WaterManager else 75.0
 	var ica_row := HBoxContainer.new()
 	ica_row.add_theme_constant_override("separation", 10)
-	var ica_lbl := _make_label("Índice de Calidad del Agua:", false, 14, Color.WHITE)
+	var ica_lbl := _make_label("Índice de Calidad del Agua:", false, CARD_ICA_FONT_SIZE, Color.WHITE)
 	ica_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ica_row.add_child(ica_lbl)
-	var ica_val := _make_label("%d / 100" % int(round(wqi)), true, 18, col)
+	var ica_val := _make_label("%d / 100" % int(round(wqi)), true, CARD_ICA_VAL_FONT_SIZE, col)
 	ica_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	ica_row.add_child(ica_val)
 	vbox.add_child(ica_row)
@@ -774,11 +815,11 @@ func _build_credits_panel() -> void:
 	vbox.add_theme_constant_override("separation", 18)
 	_credits_panel.add_child(vbox)
 
-	var title := _make_label("EcoAgua — Arroyo Ludueña", true, 28, ZONE_COLORS[1])
+	var title := _make_label("EcoAgua — Arroyo Ludueña", true, CREDITS_TITLE_FONT_SIZE, ZONE_COLORS[1])
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 
-	var sub := _make_label("Universidad Nacional de Rosario", false, 16, Color(0.85, 0.85, 0.80))
+	var sub := _make_label("Universidad Nacional de Rosario", false, CREDITS_SUB_FONT_SIZE, Color(0.85, 0.85, 0.80))
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(sub)
 
@@ -795,7 +836,7 @@ func _build_credits_panel() -> void:
 		"Basado en datos reales del Arroyo Ludueña — Amaya et al. (2018)",
 	]
 	for line in credits_text:
-		var lbl := _make_label(line, false, 13, Color(0.75, 0.75, 0.72))
+		var lbl := _make_label(line, false, CREDITS_BODY_FONT_SIZE, Color(0.75, 0.75, 0.72))
 		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(lbl)
 

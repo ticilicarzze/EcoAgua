@@ -173,6 +173,12 @@ progress = 200.0
 
 [node name="XRCamera3D" type="XRCamera3D" parent="RiverPath/UserCart/XROrigin3D" unique_id=575449452]
 
+[node name="LeftHand" type="XRController3D" parent="RiverPath/UserCart/XROrigin3D" unique_id=1131666849]
+tracker = &"left_hand"
+
+[node name="RightHand" type="XRController3D" parent="RiverPath/UserCart/XROrigin3D" unique_id=1131666850]
+tracker = &"right_hand"
+
 [node name="FlatCamera" type="Camera3D" parent="." unique_id=566066147]
 current = true
 

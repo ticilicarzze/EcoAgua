@@ -281,6 +281,7 @@ func _ready() -> void:
 			# Cachear referencia al XROrigin3D para el bloqueo vertical del visor
 			if has_node("RiverPath/UserCart/XROrigin3D"):
 				_xr_origin_node = $RiverPath/UserCart/XROrigin3D
+				_setup_xr_controllers()
 			# Activar HUD VR — desactivar HUD de pantalla plana
 			if has_node("CanvasLayer"):    $CanvasLayer.visible   = false
 			if has_node("CanvasLayerVR"): $CanvasLayerVR.visible  = true
@@ -305,7 +306,9 @@ func _ready() -> void:
 	WaterManager.progress_ratio = 0.0
 
 	# Buscar referencia al HUD para comunicar eventos narrativos
-	if has_node("CanvasLayer"):
+	if get_viewport().use_xr and has_node("CanvasLayerVR"):
+		_hud = $CanvasLayerVR
+	elif has_node("CanvasLayer"):
 		_hud = $CanvasLayer
 	elif has_node("CanvasLayerVR"):
 		_hud = $CanvasLayerVR
@@ -890,12 +893,60 @@ func _build_valley_terrain() -> CSGPolygon3D:
 
 
 # =========================================================
-# _input — CONTROL DE CÁMARA LIBRE (integrado en Main)
+# CONTROLADORES XR Y ENTRADAS
+# =========================================================
+func _setup_xr_controllers() -> void:
+	if not _xr_origin_node:
+		return
+
+	var left_ctrl := _xr_origin_node.get_node_or_null("LeftHand") as XRController3D
+	if not left_ctrl:
+		left_ctrl = XRController3D.new()
+		left_ctrl.name = "LeftHand"
+		left_ctrl.tracker = &"left_hand"
+		_xr_origin_node.add_child(left_ctrl)
+	if not left_ctrl.button_pressed.is_connected(_on_xr_controller_button_pressed):
+		left_ctrl.button_pressed.connect(_on_xr_controller_button_pressed)
+
+	var right_ctrl := _xr_origin_node.get_node_or_null("RightHand") as XRController3D
+	if not right_ctrl:
+		right_ctrl = XRController3D.new()
+		right_ctrl.name = "RightHand"
+		right_ctrl.tracker = &"right_hand"
+		_xr_origin_node.add_child(right_ctrl)
+	if not right_ctrl.button_pressed.is_connected(_on_xr_controller_button_pressed):
+		right_ctrl.button_pressed.connect(_on_xr_controller_button_pressed)
+
+	print("XR Controllers: LeftHand y RightHand listos para captura de botones.")
+
+func _on_xr_controller_button_pressed(button_name: String) -> void:
+	print("XR Controller: Botón presionado '%s'" % button_name)
+	if _narrative_state == NarrativeState.WAITING_START:
+		on_dive_button_pressed()
+
+# =========================================================
+# _input / _unhandled_input — GESTIÓN DE ENTRADAS GENERALES
 # =========================================================
 func _input(event: InputEvent) -> void:
-	if not _fl_camera:
-		return
 	if Engine.is_editor_hint():
+		return
+
+	# Si estamos esperando iniciar inmersión (WAITING_START), presionar cualquier botón (mando VR, joystick, teclado, touch) inicia la inmersión
+	if _narrative_state == NarrativeState.WAITING_START:
+		var should_dive: bool = false
+		if event is InputEventJoypadButton and event.pressed:
+			should_dive = true
+		elif event is InputEventKey and event.pressed and (event.keycode == KEY_SPACE or event.keycode == KEY_ENTER):
+			should_dive = true
+		elif event is InputEventScreenTouch and event.pressed:
+			should_dive = true
+		
+		if should_dive:
+			print("Inmersión iniciada por evento de entrada (%s)." % event.get_class())
+			on_dive_button_pressed()
+			return
+
+	if not _fl_camera:
 		return
 
 	# Activar arrastre con clic izquierdo o derecho del mouse
@@ -917,6 +968,12 @@ func _input(event: InputEvent) -> void:
 		if ke.pressed and ke.keycode == KEY_ESCAPE:
 			_fl_dragging = false
 
+func _unhandled_input(event: InputEvent) -> void:
+	if _narrative_state == NarrativeState.WAITING_START:
+		if (event is InputEventJoypadButton and event.pressed) or (event is InputEventKey and event.pressed and (event.keycode == KEY_SPACE or event.keycode == KEY_ENTER)):
+			print("Inmersión iniciada por unhandled_input (%s)." % event.get_class())
+			on_dive_button_pressed()
+
 # =========================================================
 # _process — MÁQUINA DE ESTADOS NARRATIVA
 # =========================================================
@@ -926,7 +983,21 @@ func _process(delta: float) -> void:
 	if _narrative_state == NarrativeState.DONE:
 		return
 	if _narrative_state == NarrativeState.WAITING_START:
-		# No hacer nada; el usuario debe presionar el botón "Sumergirse"
+		# En VR, detectar cualquier botón o gatillo de los mandos mediante XRServer como salvaguarda
+		if get_viewport().use_xr:
+			for tracker_name in ["/user/hand/left", "/user/hand/right"]:
+				var tracker := XRServer.get_tracker(tracker_name) as XRControllerTracker
+				if tracker:
+						for btn_name in ["trigger_click", "primary_click", "secondary_click", "grip_click", "ax_button", "by_button", "menu_button", "select_click"]:
+							if tracker.has_input(btn_name) and tracker.get_input(btn_name):
+								print("XRServer polling: botón detectado en %s (%s) → Sumergiendo!" % [tracker_name, btn_name])
+								on_dive_button_pressed()
+								return
+						if tracker.has_input("trigger") and tracker.get_input("trigger") > 0.5:
+							print("XRServer polling: trigger analógico > 0.5 → Sumergiendo!")
+							on_dive_button_pressed()
+							return
+		# No hacer nada más; el usuario debe presionar el botón "Sumergirse"
 		_apply_visual_state(delta)
 		_apply_freelook(delta)
 		return
