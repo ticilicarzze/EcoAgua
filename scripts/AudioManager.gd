@@ -43,6 +43,7 @@ enum NarrativeState {
 @export_range(-80.0, 12.0, 0.5) var vol_rio_fondo: float = -12.0
 
 @export var stream_sumergirse: AudioStream = preload("res://assets/sounds/sumergirse2.mp3")
+@export var stream_salir_agua: AudioStream = null ## Opcional: audio para salir a la superficie (si es null, usa stream_sumergirse con variación acústica)
 @export_range(-80.0, 12.0, 0.5) var vol_sumergirse: float = -2.0
 @export_range(0.0, 10.0, 0.1) var sumergirse_max_duration: float = 0.0 ## 0 = duración completa del audio
 
@@ -204,11 +205,9 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 
 		# --- INMERSIÓN ZONA 1 ---
 		NarrativeState.Z1_DIVING:
-			play_splash()
 			_birds_active = false
 			_fade_out(_player_birds, 1.2)
 			_fade_out(_player_rio, 1.5)
-			_play_underwater(stream_underwater_1_2, vol_underwater_1_2)
 
 		# --- BAJO EL AGUA ZONA 1 ---
 		NarrativeState.Z1_CARD, NarrativeState.Z1_UNDERWATER:
@@ -216,20 +215,15 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 
 		# --- EMERSIÓN Y SUPERFICIE ZONA 2 ---
 		NarrativeState.Z2_SURFACE:
-			play_splash()
 			_current_surface_zone = 2
 			_birds_active = true
 			_next_bird_timer = randf_range(1.5, 3.5)
-			_fade_out(_player_underwater, 1.5)
-			_fade_in(_player_rio, vol_rio_fondo, 1.5)
 
 		# --- INMERSIÓN ZONA 2 ---
 		NarrativeState.Z2_DIVING:
-			play_splash()
 			_birds_active = false
 			_fade_out(_player_birds, 1.2)
 			_fade_out(_player_rio, 1.5)
-			_play_underwater(stream_underwater_1_2, vol_underwater_1_2)
 
 		# --- BAJO EL AGUA ZONA 2 ---
 		NarrativeState.Z2_CARD, NarrativeState.Z2_UNDERWATER:
@@ -237,22 +231,15 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 
 		# --- EMERSIÓN Y SUPERFICIE ZONA 3 ---
 		NarrativeState.Z3_SURFACE:
-			play_splash()
 			_birds_active = false
 			_fade_out(_player_birds, 1.0)
 			_fade_out(_player_rio, 1.5)
-			_fade_out(_player_underwater, 1.5)
 			_fade_out(_player_factory_z4, 1.5)
-			# En Zona 3 se combinan Ciudad e Industria
-			_fade_in(_player_ciudad_z3, vol_ciudad_z3, 1.5)
-			_fade_in(_player_industrial_z3, vol_industrial_z3, 1.5)
 
 		# --- INMERSIÓN ZONA 3 ---
 		NarrativeState.Z3_DIVING:
-			play_splash()
 			_fade_out(_player_ciudad_z3, 1.5)
 			_fade_out(_player_industrial_z3, 1.5)
-			_play_underwater(stream_underwater_3_4, vol_underwater_3_4)
 
 		# --- BAJO EL AGUA ZONA 3 ---
 		NarrativeState.Z3_CARD, NarrativeState.Z3_UNDERWATER:
@@ -262,19 +249,15 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 
 		# --- EMERSIÓN Y SUPERFICIE ZONA 4 ---
 		NarrativeState.Z4_SURFACE:
-			play_splash()
-			_fade_out(_player_underwater, 1.5)
 			_fade_out(_player_ciudad_z3, 1.5)
 			_fade_out(_player_industrial_z3, 1.5)
 			_fade_out(_player_factory_z4, 1.5) # Silencio absoluto según guión
 
 		# --- INMERSIÓN ZONA 4 ---
 		NarrativeState.Z4_DIVING:
-			play_splash()
 			_fade_out(_player_factory_z4, 1.2)
 			_fade_out(_player_ciudad_z3, 1.2)
 			_fade_out(_player_industrial_z3, 1.2)
-			_play_underwater(stream_underwater_3_4, vol_underwater_3_4)
 
 		# --- BAJO EL AGUA ZONA 4 (CARTEL Y RODAJE BAJO AGUA) ---
 		NarrativeState.Z4_CARD, NarrativeState.Z4_UNDERWATER:
@@ -285,8 +268,6 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 
 		# --- EMERSIÓN FINAL Y CIERRE ZONA 4 (SALE A TIERRA) ---
 		NarrativeState.Z4_EMERGE:
-			play_splash()
-			_fade_out(_player_underwater, 1.5)
 			_fade_out(_player_factory_z4, 1.5) # Sigue el vacío
 
 		NarrativeState.Z4_CLOSING:
@@ -298,13 +279,35 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 			stop_all()
 
 
-## Reproduce el sonido de sumergirse / salir del agua
-func play_splash() -> void:
-	if not stream_sumergirse or not _player_splash:
+## Notificación enviada desde main.gd al cruzar físicamente la línea de agua
+func on_water_surface_crossed(is_underwater: bool, zone: int) -> void:
+	play_splash(is_underwater)
+	if is_underwater:
+		var target_stream := stream_underwater_1_2 if zone <= 2 else stream_underwater_3_4
+		var target_vol := vol_underwater_1_2 if zone <= 2 else vol_underwater_3_4
+		_play_underwater(target_stream, target_vol)
+	else:
+		_fade_out(_player_underwater, 1.2)
+		if zone <= 2:
+			_fade_in(_player_rio, vol_rio_fondo, 1.2)
+		elif zone == 3:
+			_fade_in(_player_ciudad_z3, vol_ciudad_z3, 1.2)
+			_fade_in(_player_industrial_z3, vol_industrial_z3, 1.2)
+
+
+## Reproduce el sonido de sumergirse o salir del agua según la dirección
+func play_splash(is_diving: bool = true) -> void:
+	var stream_to_play: AudioStream = stream_sumergirse
+	if not is_diving and stream_salir_agua:
+		stream_to_play = stream_salir_agua
+
+	if not stream_to_play or not _player_splash:
 		return
+
 	_player_splash.stop()
-	_player_splash.stream = stream_sumergirse
-	_player_splash.volume_db = vol_sumergirse
+	_player_splash.stream = stream_to_play
+	_player_splash.volume_db = vol_sumergirse + (0.0 if is_diving else -1.5)
+	_player_splash.pitch_scale = 0.92 if is_diving else 1.10
 	_player_splash.play()
 	if sumergirse_max_duration > 0.0:
 		_splash_cutoff_timer = sumergirse_max_duration

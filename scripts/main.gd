@@ -1266,6 +1266,8 @@ func _apply_visual_state(delta: float) -> void:
 	if _is_underwater != _was_underwater:
 		_was_underwater = _is_underwater
 		_update_zona_visibility(_narrative_state)
+		if _audio_manager and _audio_manager.has_method("on_water_surface_crossed"):
+			_audio_manager.on_water_surface_crossed(_is_underwater, cur_zone)
 		if _is_underwater:
 			if cur_zone >= 3:
 				_remove_palomas()
