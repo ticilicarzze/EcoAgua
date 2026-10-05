@@ -1479,7 +1479,7 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 	_update_zona_visibility(new_state)
 
 	# Si nos sumergimos nuevamente en Zona 3 (o posterior), eliminar las palomas para ahorrar recursos
-	if new_state == NarrativeState.Z3_DIVING or new_state == NarrativeState.Z3_CARD or new_state == NarrativeState.Z3_UNDERWATER or zone == 4:
+	if new_state == NarrativeState.Z3_CARD or new_state == NarrativeState.Z3_UNDERWATER or zone == 4:
 		_remove_palomas()
 
 	# Notificar al HUD si existe y tiene el método
@@ -1563,15 +1563,18 @@ func _update_zona_visibility(state: NarrativeState) -> void:
 	var dz3 := get_node_or_null("desaparecerZona3")
 	var dz4 := get_node_or_null("desaparecerZona4")
 
-	# Si la cámara está bajo el agua, o el estado narrativo es bajo el agua / inmersión, ocultar todas las zonas de superficie
-	var is_uw_state: bool = (
-		state == NarrativeState.Z1_DIVING or state == NarrativeState.Z1_CARD or state == NarrativeState.Z1_UNDERWATER or
-		state == NarrativeState.Z2_DIVING or state == NarrativeState.Z2_CARD or state == NarrativeState.Z2_UNDERWATER or
-		state == NarrativeState.Z3_DIVING or state == NarrativeState.Z3_CARD or state == NarrativeState.Z3_UNDERWATER or
-		state == NarrativeState.Z4_DIVING or state == NarrativeState.Z4_CARD or state == NarrativeState.Z4_UNDERWATER
+	# Si la cámara está bajo el agua, o el estado narrativo es puramente subacuático (carteles o recorrido bajo agua),
+	# o en créditos / finalizado, ocultar todas las zonas de superficie.
+	# IMPORTANTE: Durante los estados de inmersión (_DIVING), el visor comienza en el aire y va bajando pausadamente.
+	# Las zonas deben mantenerse visibles en el aire y desaparecer ÚNICAMENTE al cruzar la superficie del agua (_is_underwater == true).
+	var is_pure_uw_state: bool = (
+		state == NarrativeState.Z1_CARD or state == NarrativeState.Z1_UNDERWATER or
+		state == NarrativeState.Z2_CARD or state == NarrativeState.Z2_UNDERWATER or
+		state == NarrativeState.Z3_CARD or state == NarrativeState.Z3_UNDERWATER or
+		state == NarrativeState.Z4_CARD or state == NarrativeState.Z4_UNDERWATER
 	)
 
-	if _is_underwater or is_uw_state:
+	if _is_underwater or is_pure_uw_state or state == NarrativeState.CREDITS or state == NarrativeState.DONE:
 		if dz1: dz1.visible = false
 		if dz2: dz2.visible = false
 		if dz3: dz3.visible = false
@@ -1579,30 +1582,30 @@ func _update_zona_visibility(state: NarrativeState) -> void:
 		print("DesaparecerZona: bajo el agua → Z1, Z2, Z3, Z4 ocultas")
 		return
 
-	# Si estamos en superficie, aplicar visibilidad según la zona activa
+	# Si estamos en superficie (en el aire), aplicar visibilidad según la zona activa
 	match state:
-		NarrativeState.Z1_SURFACE_INTRO, NarrativeState.WAITING_START:
-			# Superficie Zona 1: solo Z1 visible
+		NarrativeState.WAITING_START, NarrativeState.Z1_SURFACE_INTRO, NarrativeState.Z1_DIVING:
+			# Superficie Zona 1: solo Z1 visible mientras estemos en el aire
 			if dz1: dz1.visible = true
 			if dz2: dz2.visible = false
 			if dz3: dz3.visible = false
 			if dz4: dz4.visible = false
 			print("DesaparecerZona: superficie Z1 → Z1 visible, Z2/Z3/Z4 ocultas")
-		NarrativeState.Z2_SURFACE:
-			# Superficie Zona 2: solo Z2 visible
+		NarrativeState.Z2_SURFACE, NarrativeState.Z2_DIVING:
+			# Superficie Zona 2: solo Z2 visible mientras estemos en el aire
 			if dz1: dz1.visible = false
 			if dz2: dz2.visible = true
 			if dz3: dz3.visible = false
 			if dz4: dz4.visible = false
 			print("DesaparecerZona: superficie Z2 → Z2 visible, Z1/Z3/Z4 ocultas")
-		NarrativeState.Z3_SURFACE:
+		NarrativeState.Z3_SURFACE, NarrativeState.Z3_DIVING:
 			# Superficie Zona 3: Z1 y Z2 invisibles, Z3 y Z4 visibles
 			if dz1: dz1.visible = false
 			if dz2: dz2.visible = false
 			if dz3: dz3.visible = true
 			if dz4: dz4.visible = true
 			print("DesaparecerZona: superficie Z3 → Z3/Z4 visibles, Z1/Z2 ocultas")
-		NarrativeState.Z4_SURFACE, NarrativeState.Z4_EMERGE, NarrativeState.Z4_CLOSING, NarrativeState.CREDITS:
+		NarrativeState.Z4_SURFACE, NarrativeState.Z4_DIVING, NarrativeState.Z4_EMERGE, NarrativeState.Z4_CLOSING:
 			# Superficie Zona 4: Z1 y Z2 invisibles, Z3 y Z4 visibles
 			if dz1: dz1.visible = false
 			if dz2: dz2.visible = false
