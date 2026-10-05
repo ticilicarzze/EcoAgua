@@ -32,6 +32,13 @@ const ZONE_STATUS_LABELS: Array[String] = [
 	"ESTADO PÉSIMO",
 ]
 
+const ZONE_DESCRIPTIONS: Dictionary = {
+	1: "Ecosistema prístino • Aguas claras y oxigenadas",
+	2: "Actividad agropecuaria • Presencia de fertilizantes",
+	3: "Entorno periurbano • Efluentes cloacales e industriales",
+	4: "Impacto urbano severo • Hipoxia y metales pesados",
+}
+
 # Constantes de estilo (declaradas como var para que HUDControllerVR pueda sobreescribirlas)
 var _is_vr:                   bool  = false
 var PANEL_BG_COLOR:           Color = Color(0.0, 0.0, 0.0, 0.55)
@@ -133,6 +140,13 @@ var _floating_time:       float = 0.0
 var _param_panel_base_y:  float = 0.0
 var _ica_panel_base_y:    float = 0.0
 
+# Estilos activos y animación de color
+var _param_panel_style:   StyleBoxFlat = null
+var _ica_panel_style:     StyleBoxFlat = null
+var _current_hud_color:   Color        = Color(0x1A / 255.0, 0x1A / 255.0, 0xFC / 255.0)
+var _color_tween:         Tween        = null
+var _big_card_tween:      Tween        = null
+
 # ─── Estado narrativo ─────────────────────────────────────────────────────────
 # Referencia al panel de cartel grande y al panel de subtítulos/texto narrativo
 var _big_card_panel:     Control = null  # Panel central grande de parámetros
@@ -226,7 +240,8 @@ func _build_hud() -> void:
 func _build_param_panel() -> void:
 	_param_panel = PanelContainer.new()
 	_param_panel.name = "ParamPanel"
-	_param_panel.add_theme_stylebox_override("panel", _make_panel_style(ZONE_COLORS[1]))
+	_param_panel_style = _make_panel_style(_current_hud_color)
+	_param_panel.add_theme_stylebox_override("panel", _param_panel_style)
 
 	# Ancla: esquina inferior-izquierda
 	_param_panel.anchor_left     = 0.0
@@ -248,13 +263,13 @@ func _build_param_panel() -> void:
 	_param_panel.add_child(vbox)
 
 	# Título de zona
-	_zone_title = _make_label("ZONA 1 - ESTADO EXCELENTE", true, TITLE_FONT_SIZE, ZONE_COLORS[1])
+	_zone_title = _make_label("ZONA 1 - ESTADO EXCELENTE", true, TITLE_FONT_SIZE, _current_hud_color)
 	vbox.add_child(_zone_title)
 
 	# Separador horizontal con el color de zona
 	_separator = HSeparator.new()
 	_sep_style = StyleBoxLine.new()
-	_sep_style.color = ZONE_COLORS[1]
+	_sep_style.color = _current_hud_color
 	_sep_style.thickness = 1
 	_separator.add_theme_stylebox_override("separator", _sep_style)
 	_separator.add_theme_constant_override("separation", 4)
@@ -263,7 +278,7 @@ func _build_param_panel() -> void:
 	# Filas de parámetros (se construyen todas, la visibilidad se gestiona por zona)
 	_param_rows.clear()
 	for _i in range(MAX_PARAM_ROWS):
-		var row_data := _build_param_row(ZONE_COLORS[1])
+		var row_data := _build_param_row(_current_hud_color)
 		row_data["row"].visible = false
 		vbox.add_child(row_data["row"])
 		_param_rows.append(row_data)
@@ -296,7 +311,8 @@ func _build_param_row(col: Color) -> Dictionary:
 func _build_ica_panel() -> void:
 	_ica_panel = PanelContainer.new()
 	_ica_panel.name = "ICAPanel"
-	_ica_panel.add_theme_stylebox_override("panel", _make_panel_style(ZONE_COLORS[1]))
+	_ica_panel_style = _make_panel_style(_current_hud_color)
+	_ica_panel.add_theme_stylebox_override("panel", _ica_panel_style)
 
 	# Ancla: borde inferior, centrado horizontalmente
 	_ica_panel.anchor_left   = 0.5
@@ -324,7 +340,7 @@ func _build_ica_panel() -> void:
 	_ica_title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_row.add_child(_ica_title_lbl)
 
-	_ica_value_lbl = _make_label("95", true, ICA_NUM_FONT_SIZE, ZONE_COLORS[1])
+	_ica_value_lbl = _make_label("95", true, ICA_NUM_FONT_SIZE, _current_hud_color)
 	_ica_value_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	header_row.add_child(_ica_value_lbl)
 
@@ -347,7 +363,7 @@ func _build_ica_panel() -> void:
 
 	# Estilo del relleno (se actualiza con el color de zona)
 	_ica_bar_fill = StyleBoxFlat.new()
-	_ica_bar_fill.bg_color = ZONE_COLORS[1]
+	_ica_bar_fill.bg_color = _current_hud_color
 	_ica_bar_fill.corner_radius_top_left     = 4
 	_ica_bar_fill.corner_radius_top_right    = 4
 	_ica_bar_fill.corner_radius_bottom_left  = 4
@@ -357,32 +373,61 @@ func _build_ica_panel() -> void:
 	vbox.add_child(_ica_bar)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ACTUALIZACIÓN DE ZONA
+# ACTUALIZACIÓN DE ZONA Y TRANSICIÓN FLUIDA DE COLOR
 # ─────────────────────────────────────────────────────────────────────────────
 func _on_zone_changed(new_zone: int) -> void:
+	if new_zone <= 0 or new_zone >= ZONE_COLORS.size():
+		return
+	var old_zone := _current_zone
 	_current_zone = new_zone
-	var col   := ZONE_COLORS[new_zone]
-	var status := ZONE_STATUS_LABELS[new_zone]
+	var target_col := ZONE_COLORS[new_zone]
+	var status     := ZONE_STATUS_LABELS[new_zone]
 
-	# Actualizar estilos de panel
-	var panel_style := _make_panel_style(col)
-	_param_panel.add_theme_stylebox_override("panel", panel_style)
-	_ica_panel.add_theme_stylebox_override("panel",   _make_panel_style(col))
+	# Actualizar título de zona
+	if _zone_title and is_instance_valid(_zone_title):
+		_zone_title.text = "ZONA %d - %s" % [new_zone, status]
 
-	# Título
-	_zone_title.text = "ZONA %d - %s" % [new_zone, status]
-	_zone_title.add_theme_color_override("font_color", col)
+	# Rearmar filas de parámetros para esta zona
+	_populate_param_rows(new_zone, _current_hud_color)
 
-	# Separador
+	# Transición suave del color de los parámetros e indicadores (anti-brusquedad)
+	if _color_tween and _color_tween.is_valid():
+		_color_tween.kill()
+
+	if _current_hud_color == target_col or old_zone == new_zone:
+		_apply_hud_color(target_col)
+	else:
+		_color_tween = create_tween()
+		_color_tween.tween_method(_apply_hud_color, _current_hud_color, target_col, 1.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+
+## Aplica suavemente el color interpolado a todos los elementos del HUD
+func _apply_hud_color(col: Color) -> void:
+	_current_hud_color = col
+
+	# Bordes de paneles con color de zona
+	if _param_panel_style:
+		_param_panel_style.border_color = col
+	if _ica_panel_style:
+		_ica_panel_style.border_color = col
+
+	# Título y separador del panel de parámetros
+	if _zone_title and is_instance_valid(_zone_title):
+		_zone_title.add_theme_color_override("font_color", col)
 	if _sep_style:
 		_sep_style.color = col
 
-	# Color de la barra ICA y número
-	_ica_bar_fill.bg_color = col
-	_ica_value_lbl.add_theme_color_override("font_color", col)
+	# Barra ICA y número
+	if _ica_bar_fill:
+		_ica_bar_fill.bg_color = col
+	if _ica_value_lbl and is_instance_valid(_ica_value_lbl):
+		_ica_value_lbl.add_theme_color_override("font_color", col)
 
-	# Rearmar filas de parámetros para esta zona
-	_populate_param_rows(new_zone, col)
+	# Bullets y valores numéricos de parámetros
+	for rd in _param_rows:
+		if rd.has("dot") and is_instance_valid(rd["dot"]):
+			(rd["dot"] as Label).add_theme_color_override("font_color", col)
+		if rd.has("val_lbl") and is_instance_valid(rd["val_lbl"]):
+			(rd["val_lbl"] as Label).add_theme_color_override("font_color", col)
 
 # Llena las filas de parámetros con los datos de la zona activa
 func _populate_param_rows(zone: int, col: Color) -> void:
@@ -698,17 +743,33 @@ func _build_big_card_panel() -> void:
 	_big_card_panel.name = "BigCardPanel"
 	_big_card_panel.visible = false
 
-	# Centrado en pantalla pero más chico
-	_big_card_panel.anchor_left   = 0.22
-	_big_card_panel.anchor_right  = 0.78
-	_big_card_panel.anchor_top    = 0.22
-	_big_card_panel.anchor_bottom = 0.75
+	# Centrado ergonómico en pantalla (evita mareo en VR y PC)
+	var card_w: float = 720.0 if _is_vr else 540.0
+	_big_card_panel.anchor_left     = 0.5
+	_big_card_panel.anchor_right    = 0.5
+	_big_card_panel.anchor_top      = 0.44
+	_big_card_panel.anchor_bottom   = 0.44
+	_big_card_panel.offset_left     = -card_w / 2.0
+	_big_card_panel.offset_right    =  card_w / 2.0
+	_big_card_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_big_card_panel.grow_vertical   = Control.GROW_DIRECTION_BOTH
 	_root.add_child(_big_card_panel)
 
 func _show_big_card(zone: int) -> void:
 	if not _big_card_panel:
 		return
+	if zone <= 0 or zone >= ZONE_COLORS.size():
+		return
+
+	# Asegurar sincronía de zona
+	if _current_zone != zone:
+		_on_zone_changed(zone)
+
 	_big_card_visible = true
+
+	# Cancelar animación previa si la hubiera
+	if _big_card_tween and _big_card_tween.is_valid():
+		_big_card_tween.kill()
 
 	# Limpiar contenido anterior
 	for child in _big_card_panel.get_children():
@@ -716,39 +777,74 @@ func _show_big_card(zone: int) -> void:
 
 	var col := ZONE_COLORS[zone]
 
-	# Estilo del panel grande
+	# Estilo del panel central con efecto vidrio esmerilado, borde nítido y resplandor suave
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.0, 0.0, 0.0, 0.88)
-	style.border_color = col
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(16)
-	style.content_margin_left = 22
-	style.content_margin_right = 22
-	style.content_margin_top = 18
-	style.content_margin_bottom = 18
+	style.bg_color = Color(0.04, 0.05, 0.07, 0.92)
+	style.border_color = col.lerp(Color.WHITE, 0.20)
+	style.set_border_width_all(3 if _is_vr else 2)
+	style.set_corner_radius_all(18 if _is_vr else 14)
+	style.content_margin_left = 30 if _is_vr else 22
+	style.content_margin_right = 30 if _is_vr else 22
+	style.content_margin_top = 20 if _is_vr else 16
+	style.content_margin_bottom = 18 if _is_vr else 14
+	style.shadow_color = Color(col.r, col.g, col.b, 0.30)
+	style.shadow_size = 14
+	style.shadow_offset = Vector2(0, 4)
 	_big_card_panel.add_theme_stylebox_override("panel", style)
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
+	vbox.add_theme_constant_override("separation", 10 if _is_vr else 7)
 	_big_card_panel.add_child(vbox)
 
-	# Título grande de zona
+	# ── Header: Badge de estado + Subtítulo contextual explicativo ──
+	var header_vbox := VBoxContainer.new()
+	header_vbox.add_theme_constant_override("separation", 4)
+	vbox.add_child(header_vbox)
+
+	var pill_panel := PanelContainer.new()
+	pill_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var pill_style := StyleBoxFlat.new()
+	pill_style.bg_color = Color(col.r, col.g, col.b, 0.20)
+	pill_style.border_color = col
+	pill_style.set_border_width_all(1)
+	pill_style.set_corner_radius_all(8)
+	pill_style.content_margin_left = 18
+	pill_style.content_margin_right = 18
+	pill_style.content_margin_top = 4
+	pill_style.content_margin_bottom = 4
+	pill_panel.add_theme_stylebox_override("panel", pill_style)
+
 	var title := _make_label(
-		"ZONA %d  –  %s" % [zone, ZONE_STATUS_LABELS[zone]],
-		true, CARD_TITLE_FONT_SIZE, col
+		"ZONA %d  •  %s" % [zone, ZONE_STATUS_LABELS[zone]],
+		true, CARD_TITLE_FONT_SIZE, col.lightened(0.25)
 	)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(title)
+	pill_panel.add_child(title)
+	header_vbox.add_child(pill_panel)
+
+	var desc_text: String = ZONE_DESCRIPTIONS.get(zone, "")
+	if not desc_text.is_empty():
+		var desc_lbl := _make_label(
+			desc_text, false,
+			max(10, CARD_PARAM_FONT_SIZE - 2),
+			Color(0.85, 0.88, 0.92, 0.85)
+		)
+		desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		header_vbox.add_child(desc_lbl)
 
 	# Separador
 	var sep := HSeparator.new()
 	var sep_style := StyleBoxLine.new()
-	sep_style.color = col
-	sep_style.thickness = 2
+	sep_style.color = Color(col.r, col.g, col.b, 0.40)
+	sep_style.thickness = 1
 	sep.add_theme_stylebox_override("separator", sep_style)
 	vbox.add_child(sep)
 
-	# Parámetros
+	# ── Parámetros de la zona ──
+	var params_vbox := VBoxContainer.new()
+	params_vbox.add_theme_constant_override("separation", 5 if _is_vr else 3)
+	vbox.add_child(params_vbox)
+
 	var params_def: Array = ZONE_PARAMS.get(zone, [])
 	var params_data: Dictionary = WaterManager.get_zone_parameters(zone) if WaterManager else {}
 
@@ -758,63 +854,150 @@ func _show_big_card(zone: int) -> void:
 		var unit:    String = def[2]
 		var value:   float  = params_data.get(key, 0.0)
 
+		var row_panel := PanelContainer.new()
+		var row_style := StyleBoxFlat.new()
+		row_style.bg_color = Color(1.0, 1.0, 1.0, 0.04)
+		row_style.set_corner_radius_all(6)
+		row_style.content_margin_left = 12
+		row_style.content_margin_right = 12
+		row_style.content_margin_top = 4
+		row_style.content_margin_bottom = 4
+		row_panel.add_theme_stylebox_override("panel", row_style)
+
 		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 10)
+		row.add_theme_constant_override("separation", 8)
 
 		var dot := _make_label("●", false, max(8, CARD_PARAM_FONT_SIZE - 2), col)
 		dot.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		dot.custom_minimum_size = Vector2(CARD_PARAM_FONT_SIZE + 2, 0)
 		row.add_child(dot)
 
-		var name_lbl := _make_label(display, false, CARD_PARAM_FONT_SIZE, Color.WHITE)
+		var name_lbl := _make_label(display, false, CARD_PARAM_FONT_SIZE, Color(0.92, 0.94, 0.96))
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(name_lbl)
 
-		var val_lbl := _make_label(_format_value(value, unit, key), true, CARD_VAL_FONT_SIZE, col)
+		var val_str := _format_value(value, unit, key)
+		var val_lbl := _make_label(val_str, true, CARD_VAL_FONT_SIZE, col.lightened(0.12))
 		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		val_lbl.custom_minimum_size = Vector2(PARAM_VAL_COL_WIDTH + 30, 0)
 		row.add_child(val_lbl)
 
-		vbox.add_child(row)
+		row_panel.add_child(row)
+		params_vbox.add_child(row_panel)
 
-	# ICA grande
-	var sep2 := HSeparator.new()
-	sep2.add_theme_stylebox_override("separator", sep_style)
-	vbox.add_child(sep2)
+	# ── Resumen ICA (Índice de Calidad del Agua) ──
+	var ica_panel_box := PanelContainer.new()
+	var ica_box_style := StyleBoxFlat.new()
+	ica_box_style.bg_color = Color(col.r, col.g, col.b, 0.12)
+	ica_box_style.border_color = Color(col.r, col.g, col.b, 0.35)
+	ica_box_style.set_border_width_all(1)
+	ica_box_style.set_corner_radius_all(8)
+	ica_box_style.content_margin_left = 14
+	ica_box_style.content_margin_right = 14
+	ica_box_style.content_margin_top = 6
+	ica_box_style.content_margin_bottom = 6
+	ica_panel_box.add_theme_stylebox_override("panel", ica_box_style)
 
-	var wqi: float = WaterManager.water_quality_index if WaterManager else 75.0
+	var ica_vbox := VBoxContainer.new()
+	ica_vbox.add_theme_constant_override("separation", 4)
+
 	var ica_row := HBoxContainer.new()
-	ica_row.add_theme_constant_override("separation", 10)
-	var ica_lbl := _make_label("Índice de Calidad del Agua:", false, CARD_ICA_FONT_SIZE, Color.WHITE)
+	var ica_lbl := _make_label("Índice de Calidad del Agua (ICA)", true, CARD_ICA_FONT_SIZE, Color.WHITE)
 	ica_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ica_row.add_child(ica_lbl)
-	var ica_val := _make_label("%d / 100" % int(round(wqi)), true, CARD_ICA_VAL_FONT_SIZE, col)
+
+	var wqi: float = WaterManager.water_quality_index if WaterManager else 75.0
+	var ica_val := _make_label("%d / 100" % int(round(wqi)), true, CARD_ICA_VAL_FONT_SIZE, col.lightened(0.2))
 	ica_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	ica_row.add_child(ica_val)
-	vbox.add_child(ica_row)
+	ica_vbox.add_child(ica_row)
 
+	var ica_bar_mini := ProgressBar.new()
+	ica_bar_mini.min_value = 0.0
+	ica_bar_mini.max_value = 100.0
+	ica_bar_mini.value = wqi
+	ica_bar_mini.show_percentage = false
+	ica_bar_mini.custom_minimum_size = Vector2(0, 6 if not _is_vr else 8)
+
+	var bar_bg_mini := StyleBoxFlat.new()
+	bar_bg_mini.bg_color = Color(0.12, 0.12, 0.12, 0.8)
+	bar_bg_mini.set_corner_radius_all(3)
+	ica_bar_mini.add_theme_stylebox_override("background", bar_bg_mini)
+
+	var bar_fill_mini := StyleBoxFlat.new()
+	bar_fill_mini.bg_color = col
+	bar_fill_mini.set_corner_radius_all(3)
+	ica_bar_mini.add_theme_stylebox_override("fill", bar_fill_mini)
+
+	ica_vbox.add_child(ica_bar_mini)
+	ica_panel_box.add_child(ica_vbox)
+	vbox.add_child(ica_panel_box)
+
+	# ── Guía visual hacia el panel inferior izquierdo ──
+	var guide_lbl := _make_label(
+		"↙  Monitoreo continuo en vivo en el panel inferior",
+		false,
+		max(10, CARD_PARAM_FONT_SIZE - 2),
+		Color(0.70, 0.88, 1.0, 0.90)
+	)
+	guide_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(guide_lbl)
+
+	# ── Animación de aparición suave (fade-in + micro escala centrada, anti-mareo) ──
+	var card_w: float = 720.0 if _is_vr else 540.0
+	_big_card_panel.offset_left  = -card_w / 2.0
+	_big_card_panel.offset_right =  card_w / 2.0
 	_big_card_panel.visible = true
+	_big_card_panel.modulate.a = 0.0
+	_big_card_panel.scale = Vector2(0.96, 0.96)
+	_big_card_panel.reset_size()
+	_big_card_panel.pivot_offset = _big_card_panel.get_combined_minimum_size() / 2.0
+
+	_big_card_tween = create_tween()
+	_big_card_tween.set_parallel(true)
+	_big_card_tween.tween_property(_big_card_panel, "modulate:a", 1.0, 0.50).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_big_card_tween.tween_property(_big_card_panel, "scale", Vector2.ONE, 0.50).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _hide_big_card_animated() -> void:
 	if not _big_card_panel or not _big_card_visible:
 		return
 	_big_card_visible = false
-	# Animación: encoger hacia la esquina inferior-izquierda con un Tween
+
+	if _big_card_tween and _big_card_tween.is_valid():
+		_big_card_tween.kill()
+
+	# Guía visual al usuario hacia abajo a la izquierda sin distorsión (anti-mareo):
+	# 1. El cartel central se desvanece suavemente mientras se desplaza sutilmente hacia abajo y a la izquierda.
+	_big_card_panel.pivot_offset = _big_card_panel.size / 2.0
+	var orig_pos := _big_card_panel.position
+	var target_pos := orig_pos + Vector2(-50.0, 40.0)
+
+	_big_card_tween = create_tween()
+	_big_card_tween.set_parallel(true)
+	_big_card_tween.tween_property(_big_card_panel, "modulate:a", 0.0, 0.55).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_big_card_tween.tween_property(_big_card_panel, "position", target_pos, 0.55).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_big_card_tween.tween_property(_big_card_panel, "scale", Vector2(0.92, 0.92), 0.55).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+
+	# 2. Resaltar con respiración sutil el panel inferior izquierdo para guiar la lectura
+	_highlight_param_panel()
+
+	_big_card_tween.finished.connect(func() -> void:
+		if is_instance_valid(_big_card_panel):
+			_big_card_panel.visible = false
+			_big_card_panel.position = orig_pos
+			_big_card_panel.scale = Vector2.ONE
+			_big_card_panel.modulate.a = 1.0
+	)
+
+## Guía visual: genera un pulso sutil de atención en el panel de parámetros inferior izquierdo
+func _highlight_param_panel() -> void:
+	if not _param_panel:
+		return
+	_param_panel.pivot_offset = Vector2(0.0, _param_panel.size.y)
 	var tw := create_tween()
-	tw.set_parallel(true)
-	tw.tween_property(_big_card_panel, "anchor_left",   0.0,  0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(_big_card_panel, "anchor_top",    1.0,  0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(_big_card_panel, "anchor_right",  0.30, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(_big_card_panel, "anchor_bottom", 1.0,  0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(_big_card_panel, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	await tw.finished
-	_big_card_panel.visible = false
-	# Restaurar anclas para la próxima vez que se muestre
-	_big_card_panel.anchor_left   = 0.22
-	_big_card_panel.anchor_right  = 0.78
-	_big_card_panel.anchor_top    = 0.22
-	_big_card_panel.anchor_bottom = 0.75
-	_big_card_panel.modulate.a = 1.0
+	tw.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(_param_panel, "scale", Vector2(1.05, 1.05), 0.28)
+	tw.parallel().tween_property(_param_panel, "modulate", Color(1.22, 1.22, 1.22, 1.0), 0.28)
+	tw.chain().tween_property(_param_panel, "scale", Vector2.ONE, 0.38)
+	tw.parallel().tween_property(_param_panel, "modulate", Color.WHITE, 0.38)
 
 # ─── Panel de créditos (4 diapositivas) ──────────────────────────────────────
 func _build_credits_panel() -> void:
@@ -985,13 +1168,22 @@ func on_narrative_state_changed(state_int: int, zone: int) -> void:
 	if _dive_button_panel:   _dive_button_panel.visible  = (state_int == 0) # WAITING_START
 	if _credits_panel:       _credits_panel.visible       = false
 	if _subtitle_panel:      _subtitle_panel.visible      = false
-	if _big_card_panel:      _big_card_panel.visible      = false
+
+	# Si no estamos en un estado de cartel grande ni en su animación de salida hacia el agua, ocultarlo de inmediato
+	var is_card_or_hide_state: bool = (state_int in [3, 7, 11, 15, 4, 8, 12, 16])
+	if not is_card_or_hide_state and _big_card_panel:
+		if _big_card_tween and _big_card_tween.is_valid():
+			_big_card_tween.kill()
+		_big_card_panel.visible = false
+		_big_card_visible = false
 
 	match state_int:
-		0: # WAITING_START — mostrar botón
+		0: # WAITING_START — mostrar botón y asegurar visibilidad de paneles HUD
 			if _dive_button_panel:
 				_dive_button_panel.modulate.a = 1.0
 				_dive_button_panel.visible = true
+			if _param_panel: _param_panel.visible = true
+			if _ica_panel:   _ica_panel.visible   = true
 
 		1, 5, 9, 13: # Fases de superficie con locución del Arroyo
 			_show_subtitle(state_int)
