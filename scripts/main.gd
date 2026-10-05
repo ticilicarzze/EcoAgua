@@ -60,19 +60,19 @@ enum NarrativeState {
 	WAITING_START,      # Pantalla de inicio — botón "Sumergirse"
 	Z1_SURFACE_INTRO,   # Z1: Afuera, pájaros/agua (2-3 s), luego Arroyo (15 s)
 	Z1_DIVING,          # Z1: Inmersión (1 s)
-	Z1_CARD,            # Z1: Cartel grande parámetros (3 s)
+	Z1_CARD,            # Z1: Cartel grande parámetros (5 s)
 	Z1_UNDERWATER,      # Z1: Rodaje bajo el agua — Arroyo 7 s + Intérprete 12 s = 19 s
 	Z2_SURFACE,         # Z2: Emersión cabeza, ambiente (2-3 s) + Arroyo (10 s) = 13 s
 	Z2_DIVING,          # Z2: Inmersión (1 s)
-	Z2_CARD,            # Z2: Cartel grande parámetros (3 s)
+	Z2_CARD,            # Z2: Cartel grande parámetros (5 s)
 	Z2_UNDERWATER,      # Z2: Rodaje bajo el agua — Intérprete 17 s + 10 s = 27 s
 	Z3_SURFACE,         # Z3: Emersión cabeza, ambiente (2-3 s) + Arroyo (15 s) = 18 s
 	Z3_DIVING,          # Z3: Inmersión (1 s)
-	Z3_CARD,            # Z3: Cartel grande parámetros (3 s)
+	Z3_CARD,            # Z3: Cartel grande parámetros (5 s)
 	Z3_UNDERWATER,      # Z3: Rodaje bajo el agua — Intérprete 20 s + 8 s = 28 s
 	Z4_SURFACE,         # Z4: Emersión cabeza, silencio (2-3 s) + Arroyo (20 s) = 23 s
 	Z4_DIVING,          # Z4: Inmersión (1 s)
-	Z4_CARD,            # Z4: Cartel grande parámetros (3 s)
+	Z4_CARD,            # Z4: Cartel grande parámetros (5 s)
 	Z4_UNDERWATER,      # Z4: Rodaje bajo el agua — Intérprete (25 s)
 	Z4_EMERGE,          # Z4: Saca cabeza, sale a tierra (2 s)
 	Z4_CLOSING,         # Z4: Intérprete cierre (9.75 s) + Arroyo cierre (6.75 s) = 16.5 s
@@ -85,19 +85,19 @@ const NARRATIVE_DURATIONS: Dictionary = {
 	NarrativeState.WAITING_START:    0.0,   # Sin timer — espera interacción del usuario
 	NarrativeState.Z1_SURFACE_INTRO: 21.5,  # 3 s ambiente + 15 s locución Arroyo
 	NarrativeState.Z1_DIVING:        2.5,   # Inmersión pausada y fluida (antes 1.0 s)
-	NarrativeState.Z1_CARD:          3.0,
+	NarrativeState.Z1_CARD:          5.0,   # 5.0 s (+2s solicitados para lectura cómoda del panel)
 	NarrativeState.Z1_UNDERWATER:   22.5,   # 7 s Arroyo + 12 s Intérprete
 	NarrativeState.Z2_SURFACE:       12.8,  # 3 s ambiente (ascenso suave de 2.6 s) + 10 s locución Arroyo
 	NarrativeState.Z2_DIVING:        2.5,   # Inmersión pausada y fluida (antes 1.0 s)
-	NarrativeState.Z2_CARD:          3.0,
+	NarrativeState.Z2_CARD:          5.0,   # 5.0 s (+2s solicitados para lectura cómoda del panel)
 	NarrativeState.Z2_UNDERWATER:   24.5,   # 17 s Intérprete + 10 s Intérprete
 	NarrativeState.Z3_SURFACE:       18.8,  # 3 s ambiente (ascenso suave de 2.6 s) + 15 s locución Arroyo
 	NarrativeState.Z3_DIVING:        2.5,   # Inmersión pausada y fluida (antes 1.0 s)
-	NarrativeState.Z3_CARD:          3.0,
+	NarrativeState.Z3_CARD:          5.0,   # 5.0 s (+2s solicitados para lectura cómoda del panel)
 	NarrativeState.Z3_UNDERWATER:   25.5,   # 20 s Intérprete + 8 s Intérprete
 	NarrativeState.Z4_SURFACE:       25.5,  # 3 s ambiente (ascenso suave de 2.6 s) + 20 s locución Arroyo
 	NarrativeState.Z4_DIVING:        2.5,   # Inmersión pausada y fluida (antes 1.0 s)
-	NarrativeState.Z4_CARD:          3.0,
+	NarrativeState.Z4_CARD:          5.0,   # 5.0 s (+2s solicitados para lectura cómoda del panel)
 	NarrativeState.Z4_UNDERWATER:   24.0,   # 25 s Intérprete
 	NarrativeState.Z4_EMERGE:        2.6,   # Emersión final pausada y fluida (antes 2.0 s)
 	NarrativeState.Z4_CLOSING:      16.5,   # 9.75 s Intérprete + 6.75 s Arroyo
@@ -331,6 +331,9 @@ func _ready() -> void:
 	WaterManager.progress_ratio = 0.0
 	_is_underwater = false
 	_was_underwater = false
+
+	if has_node("FlatCamera") and cart:
+		$FlatCamera.global_position = cart.global_position
 
 	if _xr_origin_node:
 		_xr_origin_node.position = Vector3.ZERO
@@ -1230,9 +1233,11 @@ func _process(delta: float) -> void:
 	# ── Chequear atajo de reinicio rápido de operador (un solo control o teclado) ──
 	_check_operator_quick_reset(delta)
 
-	# ── Aplicar visuales (fog, ambient, partículas) ───────────────────────────
-	_apply_visual_state(delta)
+	# ── Actualizar posición y rotación de cámara primero ─────────────────────
 	_apply_freelook(delta)
+
+	# ── Aplicar visuales (fog, ambient, partículas, detección subacuática) ─────
+	_apply_visual_state(delta)
 
 
 # =========================================================
@@ -1253,10 +1258,10 @@ func _apply_visual_state(delta: float) -> void:
 	var cur_zone: int = NARRATIVE_ZONE.get(_narrative_state, 1)
 
 	# Detectar posición respecto al agua:
-	# En VR se desactiva la neblina y las burbujas al subir a la superficie por tiempo,
-	# sin depender de si la cámara cruzó la línea del agua.
-	# En pantalla plana (no-VR) se conserva la detección clásica por coordenada Y.
-	if get_viewport().use_xr:
+	# Antes de la primera inmersión física (WAITING_START y Z1_SURFACE_INTRO), la experiencia está 100% en superficie
+	if _narrative_state == NarrativeState.WAITING_START or _narrative_state == NarrativeState.Z1_SURFACE_INTRO:
+		_is_underwater = false
+	elif get_viewport().use_xr:
 		_is_underwater = _is_underwater_by_time_vr()
 	else:
 		var cam_y: float = _get_active_camera_y()
@@ -1266,7 +1271,9 @@ func _apply_visual_state(delta: float) -> void:
 	if _is_underwater != _was_underwater:
 		_was_underwater = _is_underwater
 		_update_zona_visibility(_narrative_state)
-		if _audio_manager and _audio_manager.has_method("on_water_surface_crossed"):
+		# Solo reproducir splash si no estamos en la pantalla inicial de espera ni antes de la primera inmersión
+		var can_splash: bool = (_narrative_state != NarrativeState.WAITING_START and _narrative_state != NarrativeState.Z1_SURFACE_INTRO)
+		if can_splash and _audio_manager and _audio_manager.has_method("on_water_surface_crossed"):
 			_audio_manager.on_water_surface_crossed(_is_underwater, cur_zone)
 		if _is_underwater:
 			if cur_zone >= 3:

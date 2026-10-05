@@ -109,6 +109,7 @@ var _current_surface_zone: int = 1
 var _next_bird_timer: float = 2.0
 var _bird_cutoff_timer: float = 0.0
 var _splash_cutoff_timer: float = 0.0
+var _active_narrative_state: int = NarrativeState.WAITING_START
 
 
 func _ready() -> void:
@@ -162,6 +163,7 @@ func _process(delta: float) -> void:
 
 ## Notificación recibida desde main.gd al cambiar de estado narrativo
 func on_narrative_state_changed(state: int, zone: int) -> void:
+	_active_narrative_state = state
 	# Sincronizar streams asignados desde el Inspector (solo si han cambiado)
 	_sync_streams()
 
@@ -281,6 +283,8 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 
 ## Notificación enviada desde main.gd al cruzar físicamente la línea de agua
 func on_water_surface_crossed(is_underwater: bool, zone: int) -> void:
+	if _active_narrative_state == NarrativeState.WAITING_START or _active_narrative_state == NarrativeState.Z1_SURFACE_INTRO:
+		return
 	play_splash(is_underwater)
 	if is_underwater:
 		var target_stream := stream_underwater_1_2 if zone <= 2 else stream_underwater_3_4
