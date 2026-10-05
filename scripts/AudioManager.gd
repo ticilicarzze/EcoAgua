@@ -422,7 +422,7 @@ var voice_audios: Dictionary = {
 	12: [preload("res://assets/sounds/Audios/Audio8.mp3"), preload("res://assets/sounds/Audios/Audio9.mp3")],
 	13: [preload("res://assets/sounds/Audios/Audio10.mp3")],
 	16: [preload("res://assets/sounds/Audios/Audio11.mp3")],
-	18: [preload("res://assets/sounds/Audios/Audio12.mp3")] # Falta el Audio13 que el usuario agregará después
+	18: [preload("res://assets/sounds/Audios/Audio12.mp3"), preload("res://assets/sounds/Audios/Audio13.mp3")]
 }
 
 func play_voice_for_state(state: int) -> void:

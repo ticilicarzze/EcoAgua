@@ -184,6 +184,13 @@ const WATER_SURFACE_Y_MARGIN: float = 0.05  # Margen de seguridad: la cámara se
 const LERP_SPEED: float = 2.5
 
 # =========================================================
+# CONSTANTES VR: Posición fija en el carrito y tiempos de transición
+# =========================================================
+const VR_FIXED_EYE_OFFSET: Vector3 = Vector3(0.0, 1.25, 0.0)
+const VR_SURFACE_TRANSITION_TIME: float = 0.4
+const VR_DIVE_TRANSITION_TIME: float = 0.4
+
+# =========================================================
 # ESTADO VISUAL INTERPOLADO
 # =========================================================
 var _current_ambient: float = 1.1
@@ -226,6 +233,12 @@ var _palomas: Array[Node3D] = []
 var _palomas_flying: bool = false
 var _palomas_fly_speed: float = 12.0
 var _palomas_anim_players: Array[AnimationPlayer] = []
+
+# Control de atajo de reinicio rápido de operador (con 1 solo control)
+var _xr_held_buttons: Dictionary = {}
+var _xr_reset_hold_timer: float = 0.0
+const XR_RESET_HOLD_DURATION: float = 3.0
+var _last_haptic_pulse_time: float = 0.0
 
 func _get_active_camera_y() -> float:
 	var vp_cam := get_viewport().get_camera_3d()
@@ -304,6 +317,13 @@ func _ready() -> void:
 	cart.v_offset = surface_height_offset  # Empieza en superficie
 	_current_v_offset = surface_height_offset
 	WaterManager.progress_ratio = 0.0
+	_is_underwater = false
+	_was_underwater = false
+
+	if _xr_origin_node:
+		_xr_origin_node.position = Vector3.ZERO
+		if get_viewport().use_xr:
+			_lock_xr_camera_position()
 
 	# Buscar referencia al HUD para comunicar eventos narrativos
 	if get_viewport().use_xr and has_node("CanvasLayerVR"):
@@ -905,8 +925,10 @@ func _setup_xr_controllers() -> void:
 		left_ctrl.name = "LeftHand"
 		left_ctrl.tracker = &"left_hand"
 		_xr_origin_node.add_child(left_ctrl)
-	if not left_ctrl.button_pressed.is_connected(_on_xr_controller_button_pressed):
-		left_ctrl.button_pressed.connect(_on_xr_controller_button_pressed)
+	if not left_ctrl.button_pressed.is_connected(_on_xr_left_button_pressed):
+		left_ctrl.button_pressed.connect(_on_xr_left_button_pressed)
+	if not left_ctrl.button_released.is_connected(_on_xr_left_button_released):
+		left_ctrl.button_released.connect(_on_xr_left_button_released)
 
 	var right_ctrl := _xr_origin_node.get_node_or_null("RightHand") as XRController3D
 	if not right_ctrl:
@@ -914,21 +936,135 @@ func _setup_xr_controllers() -> void:
 		right_ctrl.name = "RightHand"
 		right_ctrl.tracker = &"right_hand"
 		_xr_origin_node.add_child(right_ctrl)
-	if not right_ctrl.button_pressed.is_connected(_on_xr_controller_button_pressed):
-		right_ctrl.button_pressed.connect(_on_xr_controller_button_pressed)
+	if not right_ctrl.button_pressed.is_connected(_on_xr_right_button_pressed):
+		right_ctrl.button_pressed.connect(_on_xr_right_button_pressed)
+	if not right_ctrl.button_released.is_connected(_on_xr_right_button_released):
+		right_ctrl.button_released.connect(_on_xr_right_button_released)
 
-	print("XR Controllers: LeftHand y RightHand listos para captura de botones.")
+	print("XR Controllers: LeftHand y RightHand listos con atajo de reinicio de operador (1 solo control).")
 
-func _on_xr_controller_button_pressed(button_name: String) -> void:
-	print("XR Controller: Botón presionado '%s'" % button_name)
+func _on_xr_left_button_pressed(btn: String) -> void:
+	var left_ctrl := _xr_origin_node.get_node_or_null("LeftHand") as XRController3D
+	_on_xr_btn_pressed(btn, left_ctrl)
+
+func _on_xr_left_button_released(btn: String) -> void:
+	var left_ctrl := _xr_origin_node.get_node_or_null("LeftHand") as XRController3D
+	_on_xr_btn_released(btn, left_ctrl)
+
+func _on_xr_right_button_pressed(btn: String) -> void:
+	var right_ctrl := _xr_origin_node.get_node_or_null("RightHand") as XRController3D
+	_on_xr_btn_pressed(btn, right_ctrl)
+
+func _on_xr_right_button_released(btn: String) -> void:
+	var right_ctrl := _xr_origin_node.get_node_or_null("RightHand") as XRController3D
+	_on_xr_btn_released(btn, right_ctrl)
+
+func _on_xr_btn_pressed(button_name: String, ctrl: XRController3D) -> void:
+	if not ctrl:
+		return
+	print("XR Controller [%s]: Botón presionado '%s'" % [ctrl.name, button_name])
+	if not _xr_held_buttons.has(ctrl):
+		_xr_held_buttons[ctrl] = {}
+	_xr_held_buttons[ctrl][button_name] = true
+
 	if _narrative_state == NarrativeState.WAITING_START:
 		on_dive_button_pressed()
+	elif _narrative_state == NarrativeState.CREDITS:
+		if _hud and _hud.has_method("advance_credits_slide"):
+			_hud.advance_credits_slide()
+
+func _on_xr_btn_released(button_name: String, ctrl: XRController3D) -> void:
+	if ctrl and _xr_held_buttons.has(ctrl):
+		_xr_held_buttons[ctrl][button_name] = false
+
+func _on_xr_controller_button_pressed(button_name: String) -> void:
+	if _narrative_state == NarrativeState.WAITING_START:
+		on_dive_button_pressed()
+
+func _trigger_controller_haptic(ctrl: XRController3D, frequency: float, amplitude: float, duration_sec: float) -> void:
+	if not is_instance_valid(ctrl):
+		return
+	if ctrl.has_method("trigger_haptic_pulse"):
+		ctrl.trigger_haptic_pulse("haptic", frequency, amplitude, duration_sec, 0.0)
+		ctrl.trigger_haptic_pulse("haptic_pulse", frequency, amplitude, duration_sec, 0.0)
+
+func _is_trigger_active(ctrl: XRController3D, btn_map: Dictionary) -> bool:
+	if btn_map.get("trigger_click", false) or btn_map.get("grip_click", false):
+		return true
+	if ctrl.has_method("is_button_pressed"):
+		if ctrl.is_button_pressed(&"trigger_click") or ctrl.is_button_pressed(&"grip_click"):
+			return true
+	if ctrl.has_method("get_float"):
+		if ctrl.get_float(&"trigger") > 0.6 or ctrl.get_float(&"grip") > 0.6:
+			return true
+	return false
+
+func _is_button_active(ctrl: XRController3D, btn_map: Dictionary) -> bool:
+	if btn_map.get("ax_button", false) or btn_map.get("by_button", false) or \
+	   btn_map.get("menu_button", false) or btn_map.get("primary_click", false):
+		return true
+	if ctrl.has_method("is_button_pressed"):
+		if ctrl.is_button_pressed(&"ax_button") or ctrl.is_button_pressed(&"by_button") or \
+		   ctrl.is_button_pressed(&"menu_button") or ctrl.is_button_pressed(&"primary_click"):
+			return true
+	return false
+
+## Verifica el atajo de reinicio del operador usando UN SOLO control:
+## Mantener presionada la combinación de un gatillo con un botón durante 3 segundos
+func _check_operator_quick_reset(delta: float) -> void:
+	var reset_requested: bool = false
+	var active_ctrl: XRController3D = null
+
+	for ctrl in _xr_held_buttons.keys():
+		if not is_instance_valid(ctrl):
+			continue
+		var btn_map: Dictionary = _xr_held_buttons[ctrl]
+
+		# Combinación de un gatillo (Trigger o Grip) con un botón (A, B, X, Y, Menú o Joystick) en el mismo control
+		var has_trigger: bool = _is_trigger_active(ctrl, btn_map)
+		var has_button: bool = _is_button_active(ctrl, btn_map)
+
+		if has_trigger and has_button:
+			reset_requested = true
+			active_ctrl = ctrl
+			break
+
+	if reset_requested:
+		_xr_reset_hold_timer += delta
+
+		# Pulso háptico suave cada 0.25s en la mano del operador para confirmar que la combinación está activa
+		if active_ctrl and (_xr_reset_hold_timer - _last_haptic_pulse_time) >= 0.25:
+			_last_haptic_pulse_time = _xr_reset_hold_timer
+			# Vibración progresiva: más rápida y marcada a medida que se acerca a los 3 segundos
+			var progress_ratio: float = clamp(_xr_reset_hold_timer / XR_RESET_HOLD_DURATION, 0.0, 1.0)
+			var haptic_freq: float = lerp(60.0, 140.0, progress_ratio)
+			var haptic_amp: float = lerp(0.3, 0.7, progress_ratio)
+			_trigger_controller_haptic(active_ctrl, haptic_freq, haptic_amp, 0.08)
+
+		if _xr_reset_hold_timer >= XR_RESET_HOLD_DURATION:
+			if active_ctrl:
+				_trigger_controller_haptic(active_ctrl, 180.0, 1.0, 0.35)
+			_xr_reset_hold_timer = 0.0
+			quick_restart_tour("Control XR (Gatillo + Botón mantenidos por 3 segundos)")
+	else:
+		_xr_reset_hold_timer = 0.0
+		_last_haptic_pulse_time = 0.0
+
+## Reinicio rápido para el operador (en eventos, ferias o pruebas)
+func quick_restart_tour(source: String = "") -> void:
+	print("Operador: [REINICIO RÁPIDO] Ejecutado desde %s. Reiniciando experiencia al estado inicial..." % source)
+	get_tree().reload_current_scene()
 
 # =========================================================
 # _input / _unhandled_input — GESTIÓN DE ENTRADAS GENERALES
 # =========================================================
 func _input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
+		return
+
+	# Atajo de reinicio rápido para operador desde teclado en PC (tecla R)
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_R:
+		quick_restart_tour("Teclado (tecla R)")
 		return
 
 	# Si estamos esperando iniciar inmersión (WAITING_START), presionar cualquier botón (mando VR, joystick, teclado, touch) inicia la inmersión
@@ -945,6 +1081,21 @@ func _input(event: InputEvent) -> void:
 			print("Inmersión iniciada por evento de entrada (%s)." % event.get_class())
 			on_dive_button_pressed()
 			return
+
+	# Si estamos en créditos (CREDITS), permitir avanzar diapositivas con Space, Enter o clic
+	if _narrative_state == NarrativeState.CREDITS:
+		var advance: bool = false
+		if event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_SPACE or event.keycode == KEY_ENTER):
+			advance = true
+		elif event is InputEventMouseButton and event.pressed and (event.button_index == MOUSE_BUTTON_LEFT or event.button_index == MOUSE_BUTTON_RIGHT):
+			advance = true
+		elif event is InputEventScreenTouch and event.pressed:
+			advance = true
+		
+		if advance:
+			if _hud and _hud.has_method("advance_credits_slide"):
+				_hud.advance_credits_slide()
+				return
 
 	if not _fl_camera:
 		return
@@ -982,7 +1133,15 @@ func _process(delta: float) -> void:
 		return
 	if _narrative_state == NarrativeState.DONE:
 		return
+
+	# En VR, bloquear continuamente la posición del visor para que la cámara
+	# quede siempre fija en el mismo punto del carrito (cancela movimientos físicos de la habitación)
+	if get_viewport().use_xr:
+		_lock_xr_camera_position()
+
 	if _narrative_state == NarrativeState.WAITING_START:
+		cart.v_offset = surface_height_offset
+		_current_v_offset = surface_height_offset
 		# En VR, detectar cualquier botón o gatillo de los mandos mediante XRServer como salvaguarda
 		if get_viewport().use_xr:
 			for tracker_name in ["/user/hand/left", "/user/hand/right"]:
@@ -998,6 +1157,7 @@ func _process(delta: float) -> void:
 							on_dive_button_pressed()
 							return
 		# No hacer nada más; el usuario debe presionar el botón "Sumergirse"
+		_check_operator_quick_reset(delta)
 		_apply_visual_state(delta)
 		_apply_freelook(delta)
 		return
@@ -1054,6 +1214,9 @@ func _process(delta: float) -> void:
 	# ── Bloquear posición vertical del visor VR (evita salir del agua al pararse) ──
 	_clamp_xr_vertical_position()
 
+	# ── Chequear atajo de reinicio rápido de operador (un solo control o teclado) ──
+	_check_operator_quick_reset(delta)
+
 	# ── Aplicar visuales (fog, ambient, partículas) ───────────────────────────
 	_apply_visual_state(delta)
 	_apply_freelook(delta)
@@ -1064,11 +1227,27 @@ func _process(delta: float) -> void:
 # Se separa de _process para poder llamarlo también en WAITING_START
 # =========================================================
 func _apply_visual_state(delta: float) -> void:
+	# Durante los créditos, mantener la atmósfera en negro absoluto
+	if _narrative_state == NarrativeState.CREDITS or _narrative_state == NarrativeState.DONE:
+		var env = $WorldEnvironment.environment
+		if env:
+			env.background_mode = Environment.BG_COLOR
+			env.background_color = Color(0.0, 0.0, 0.0, 1.0)
+			env.ambient_light_energy = 0.0
+			env.fog_enabled = false
+		return
+
 	var cur_zone: int = NARRATIVE_ZONE.get(_narrative_state, 1)
 
-	# Detectar posición respecto al agua usando la cámara activa
-	var cam_y: float = _get_active_camera_y()
-	_is_underwater = cam_y < WATER_SURFACE_Y
+	# Detectar posición respecto al agua:
+	# En VR se desactiva la neblina y las burbujas al subir a la superficie por tiempo,
+	# sin depender de si la cámara cruzó la línea del agua.
+	# En pantalla plana (no-VR) se conserva la detección clásica por coordenada Y.
+	if get_viewport().use_xr:
+		_is_underwater = _is_underwater_by_time_vr()
+	else:
+		var cam_y: float = _get_active_camera_y()
+		_is_underwater = cam_y < WATER_SURFACE_Y
 
 	# Transición instantánea al cruzar la superficie del agua
 	if _is_underwater != _was_underwater:
@@ -1173,57 +1352,57 @@ func _apply_freelook(delta: float) -> void:
 
 
 # =========================================================
-# _clamp_xr_vertical_position — Bloqueo vertical del visor VR
+# _lock_xr_camera_position — Bloqueo posicional fijo en el carrito (VR)
 # =========================================================
-# En modo VR (Meta Quest), el XRCamera3D sigue el tracking físico de la
-# cabeza del usuario. Si el usuario se para mientras está sentado, la cámara
-# sube y puede cruzar la superficie del agua, activando incorrectamente el
-# estado de superficie durante un estado narrativo bajo el agua.
-#
-# Esta función ajusta XROrigin3D.position.y para compensar el exceso de
-# altura y mantener la cámara por debajo de WATER_SURFACE_Y durante los
-# estados bajo el agua. En estados de superficie no se aplica ningún
-# bloqueo.
+# En modo VR (Meta Quest), OpenXR reporta el desplazamiento 6DOF físico de la cabeza
+# del usuario en su habitación. Para evitar que movimientos físicos (pararse, sentarse,
+# dar pasos) desfasen la cámara respecto al carrito o la dejen atrapada bajo el agua,
+# esta función compensa continuamente la posición de XROrigin3D de modo que XRCamera3D
+# quede exactamente en VR_FIXED_EYE_OFFSET relativo a UserCart.
+# Se preserva de forma 100% natural la rotación libre 360° (pitch, yaw, roll).
 # =========================================================
-func _clamp_xr_vertical_position() -> void:
-	# Solo aplica en modo VR con el nodo XROrigin3D disponible
-	if not _xr_origin_node:
-		return
-	if not get_viewport().use_xr:
+func _lock_xr_camera_position() -> void:
+	if not _xr_origin_node or not get_viewport().use_xr:
 		return
 
-	# Determinar si el estado actual requiere bloqueo (bajo el agua)
-	var is_underwater_state: bool = (
-		_narrative_state == NarrativeState.Z1_DIVING or
-		_narrative_state == NarrativeState.Z1_CARD or
-		_narrative_state == NarrativeState.Z1_UNDERWATER or
-		_narrative_state == NarrativeState.Z2_DIVING or
-		_narrative_state == NarrativeState.Z2_CARD or
-		_narrative_state == NarrativeState.Z2_UNDERWATER or
-		_narrative_state == NarrativeState.Z3_DIVING or
-		_narrative_state == NarrativeState.Z3_CARD or
-		_narrative_state == NarrativeState.Z3_UNDERWATER or
-		_narrative_state == NarrativeState.Z4_DIVING or
-		_narrative_state == NarrativeState.Z4_CARD or
-		_narrative_state == NarrativeState.Z4_UNDERWATER
-	)
-
-	if not is_underwater_state:
-		# En superficie: no hay restricción vertical
-		return
-
-	# Obtener la cámara XR activa
 	var xr_cam := _xr_origin_node.get_node_or_null("XRCamera3D") as Node3D
 	if not xr_cam:
 		return
 
-	# Límite máximo de Y global para la cámara: justo debajo de la superficie
-	var max_cam_y: float = WATER_SURFACE_Y - WATER_SURFACE_Y_MARGIN
+	_xr_origin_node.position = VR_FIXED_EYE_OFFSET - xr_cam.position
 
-	# Si la cámara supera el límite, ajustar XROrigin3D hacia abajo
-	var cam_y_global: float = xr_cam.global_position.y
-	if cam_y_global > max_cam_y:
-		_xr_origin_node.position.y -= (cam_y_global - max_cam_y)
+func _clamp_xr_vertical_position() -> void:
+	_lock_xr_camera_position()
+
+# =========================================================
+# _is_underwater_by_time_vr — Detección subacuática por tiempo en VR
+# =========================================================
+## Determina si en VR se está bajo el agua según el tiempo y fase narrativa,
+## sin depender de la altura física de la cámara o cruce de la línea de agua.
+func _is_underwater_by_time_vr() -> bool:
+	match _narrative_state:
+		NarrativeState.WAITING_START, NarrativeState.Z1_SURFACE_INTRO, \
+		NarrativeState.Z4_CLOSING, NarrativeState.CREDITS, NarrativeState.DONE:
+			return false
+
+		NarrativeState.Z1_CARD, NarrativeState.Z1_UNDERWATER, \
+		NarrativeState.Z2_CARD, NarrativeState.Z2_UNDERWATER, \
+		NarrativeState.Z3_CARD, NarrativeState.Z3_UNDERWATER, \
+		NarrativeState.Z4_CARD, NarrativeState.Z4_UNDERWATER:
+			return true
+
+		NarrativeState.Z1_DIVING, NarrativeState.Z2_DIVING, \
+		NarrativeState.Z3_DIVING, NarrativeState.Z4_DIVING:
+			# Durante el segundo de inmersión, entra al agua a los 0.4s
+			return _state_timer >= VR_DIVE_TRANSITION_TIME
+
+		NarrativeState.Z2_SURFACE, NarrativeState.Z3_SURFACE, \
+		NarrativeState.Z4_SURFACE, NarrativeState.Z4_EMERGE:
+			# Al subir a la superficie, desactiva la neblina y burbujas por tiempo (a los 0.4s de emersión)
+			return _state_timer < VR_SURFACE_TRANSITION_TIME
+
+		_:
+			return false
 
 
 # =========================================================
@@ -1272,9 +1451,42 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 		NARRATIVE_DURATIONS.get(new_state, 0.0)
 	])
 
+	# Al entrar a CREDITS, ocultar el entorno 3D para que el fondo sea completamente negro
+	if new_state == NarrativeState.CREDITS:
+		_hide_world_for_credits()
+
 	# Al llegar a DONE (tras los 30s de créditos), reiniciar automáticamente para el próximo usuario
 	if new_state == NarrativeState.DONE:
 		_auto_reset_tour()
+
+## Oculta el entorno 3D durante los créditos para que todo el campo visual sea 100% negro
+func _hide_world_for_credits() -> void:
+	print("Créditos: Ocultando entorno 3D para pantalla completa negra.")
+	if has_node("DirectionalLight3D"):
+		var light := $DirectionalLight3D as DirectionalLight3D
+		if light: light.visible = false
+	if has_node("Water"):
+		var w := $Water as MeshInstance3D
+		if w: w.visible = false
+	if has_node("WorldEnvironment"):
+		var we := $WorldEnvironment as WorldEnvironment
+		if we and we.environment:
+			we.environment.background_mode = Environment.BG_COLOR
+			we.environment.background_color = Color(0.0, 0.0, 0.0, 1.0)
+			we.environment.ambient_light_energy = 0.0
+			we.environment.fog_enabled = false
+	for p in _particle_nodes:
+		if is_instance_valid(p):
+			p.emitting = false
+			p.visible = false
+	var dz1 := get_node_or_null("desaparecerZona1")
+	var dz2 := get_node_or_null("desaparecerZona2")
+	var dz3 := get_node_or_null("desaparecerZona3")
+	var dz4 := get_node_or_null("desaparecerZona4")
+	if dz1: dz1.visible = false
+	if dz2: dz2.visible = false
+	if dz3: dz3.visible = false
+	if dz4: dz4.visible = false
 
 ## Reinicia el recorrido automáticamente para el siguiente usuario
 func _auto_reset_tour() -> void:

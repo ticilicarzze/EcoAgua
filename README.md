@@ -4,7 +4,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20VR%20(Meta%20Quest)%20%7C%20Linux%20%7C%20Windows-brightgreen)](https://ecoagua-unr.netlify.app)
 [![Deployment](https://img.shields.io/badge/Demo_Web-Live_en_Netlify-success?logo=netlify)](https://ecoagua-unr.netlify.app)
 [![License](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
-[![Last Export](https://img.shields.io/badge/Última_exportación-02_oct_2026-informational)](https://github.com/ticilicarzze/EcoAgua)
+[![Last Export](https://img.shields.io/badge/Última_exportación-03_oct_2026-informational)](https://github.com/ticilicarzze/EcoAgua)
 
 
 **EcoAgua UNR** es una simulación interactiva 3D en Realidad Virtual y WebGL desarrollada en **Godot Engine 4** que recrea el ecosistema del arroyo Luduña en la llanura pampeana argentina. El proyecto integra modelado de terreno procedimental, shaders de agua de alta fidelidad e indicadores ecológicos de degradación del agua basados en estudios de laboratorio de la **Universidad Nacional de Rosario (UNR)** y el instituto **ICASFAS**.
@@ -30,23 +30,27 @@
 
 ## 🚦 Estado del Prototipo
 
-> **Primera muestra semifuncional — 21 de agosto de 2026**
+> **Prototipo funcional completo — Octubre de 2026**
 
 | Módulo | Estado |
 |---|---|
-| Entorno 3D del río (terreno + agua) | ✅ Implementado |
-| Shader de agua (Fresnel, cáusticas, espuma) | ✅ Implementado |
-| 4 zonas ecológicas diferenciadas | ✅ Implementado |
-| `WaterManager.gd` — métricas por zona + interpolación | ✅ Implementado |
+| Entorno 3D del río (terreno procedural + lecho multi-textura pampeano) | ✅ Implementado |
+| Shader de agua multi-zona (Fresnel, cáusticas, absorción, espuma) | ✅ Implementado |
+| 4 zonas ecológicas diferenciadas (Cabecera, Agrícola, Periurbano, Crítico) | ✅ Implementado |
+| `WaterManager.gd` — métricas por zona + interpolación en tiempo real | ✅ Implementado |
 | `WaterVisualController.gd` — parámetros visuales reactivos | ✅ Implementado |
-| `HUDController.gd` — ICA y O₂ disuelto en tiempo real | ✅ Implementado |
+| `HUDController.gd` — Panel 2D para Web/Desktop (ICA, O₂, turbidez) | ✅ Implementado |
+| `HUDControllerVR.gd` — HUD 3D estático anclado al carrito para Meta Quest 3 | ✅ Implementado |
 | Fauna acuática animada (Mojarra, Bagre, Dientudo) | ✅ Implementado |
-| Cámara libre Web/Desktop (`FreeLookCamera.gd`) | ✅ Implementado |
-| Soporte VR Meta Quest 3 (APK nativa) | ✅ Implementado |
+| Sistema de audio dinámico y locución por zonas (`AudioManager.gd`) | ✅ Implementado |
+| Assets de degradación en Zonas 3 y 4 (industrias, caños, basura, barriles) | ✅ Implementado |
+| Secuencia narrativa lineal (inmersión, tarjetas, emersión, créditos) | ✅ Implementado |
+| Bloqueo de posición VR 6DOF al carrito con rotación libre 360° | ✅ Implementado |
+| Detección temporal precisa de inmersión/emersión en VR | ✅ Implementado |
+| Atajo de reinicio rápido de operador (Gatillo + Botón por 3 s / Tecla R) | ✅ Implementado |
+| Cámara libre Web/Desktop (`FreeLookCamera.gd` y fallback integrado) | ✅ Implementado |
+| Soporte VR nativo Meta Quest 3 (OpenXR / APK) | ✅ Implementado |
 | Deploy web automatizado (Netlify) | ✅ Implementado |
-| Sistema de audio por zonas | 🔄 Pendiente |
-| Assets de degradación Zonas 3 y 4 | 🔄 Pendiente |
-| Secuencia de alerta crítica (Zona 4) | 🔄 Pendiente |
 
 ---
 
@@ -92,17 +96,14 @@ Cada pez tiene:
 
 El **Bagre** ajusta automáticamente el brillo de su material según la zona (mayor emisión en zonas turbias para mantener visibilidad).
 
-### 📊 HUD en Tiempo Real (`HUDController.gd`)
-Panel flotante que muestra:
-- **ICA** (Índice de Calidad de Agua) en barra con gradiente Verde → Amarillo → Rojo.
-- **O₂ Disuelto** (mg/L) con barra de porcentaje.
-- Efecto de bamboleo sutil para simular la corriente.
-- Actualización reactiva conectada a señales del `WaterManager`.
+### 📊 HUD Dual Reactivo (`HUDController.gd` / `HUDControllerVR.gd`)
+- **Modo Web / Desktop (`HUDController.gd`):** Panel 2D con barras reactivas de **ICA** (Verde → Amarillo → Rojo), **Oxígeno Disuelto** (mg/L), turbidez y bamboleo sutil por corriente.
+- **Modo VR Meta Quest 3 (`HUDControllerVR.gd`):** Panel 3D renderizado en textura `SubViewport` proyectado sobre un Quad frontal fijo al carro de transporte (`UserCart`). Permite lectura estática y cómoda independiente de la orientación de la cabeza, sin oclusiones ni mareos, con subtítulos desactivados en VR para evitar distracciones en el campo visual.
 
-### 🥽 Soporte Multiplataforma
-- **Modo VR (Meta Quest 3):** integración con **Godot XR Tools**, trackers de manos y joysticks para navegación por el `RiverPath`.
-- **Modo Web/Desktop:** cámara libre interactiva con mouse y teclado.
-- Detección automática de plataforma en `main.gd`.
+### 🥽 Soporte VR Standalone (Meta Quest 3)
+- **Tracking 6DOF con cámara anclada:** La rotación 360° de la cabeza es totalmente libre, mientras que los desplazamientos físicos involuntarios (pararse, sentarse) son compensados respecto al carro para garantizar que la vista nunca quede desfasada o sumergida por error.
+- **Transiciones temporizadas de inmersión/emersión:** La activación/desactivación de neblina y partículas subacuáticas se gestiona por sincronización temporal narrativa, asegurando transiciones impecables al emerger a superficie sin depender de umbrales espaciales imprecisos.
+- **Atajo de reinicio con un solo mando:** Diseñado para operadores en eventos (mantener Gatillo + Botón por 3 segundos con respuesta háptica).
 
 ### 🎨 Renderizado AgX
 Implementación del tonemapper **AgX** para preservar la fidelidad cromática sin sobreexposición ni saturación indeseada, optimizado para el backend de Compatibilidad GL.
@@ -128,24 +129,26 @@ Implementación del tonemapper **AgX** para preservar la fidelidad cromática si
 ```text
 EcoAgua/
 ├── assets/
+│   ├── audio/              # Locuciones, efectos de agua y ambientes sonoros
 │   ├── hdris/              # Mapas de iluminación HDRI (4K / 2K)
-│   ├── models/             # Geometría 3D de fauna y entorno
-│   └── textures/           # Cáusticas, espuma y mapas de normales del agua
+│   ├── models/             # Geometría 3D de fauna, flora y entorno
+│   └── textures/           # Cáusticas, espuma y mapas de suelo/normales
 ├── resources/
 │   ├── environments/       # Recursos de ambiente (WorldEnvironment .tres)
 │   └── shaders/            # watershader2.gdshader y shaders de terreno
 ├── scenes/
 │   └── main.tscn           # Escena principal de la simulación
 ├── scripts/
+│   ├── AudioManager.gd         # Gestor central de audio y locuciones narrativas
 │   ├── PezAnimado.gd           # Clase base para toda la fauna acuática
 │   ├── MojarraAnimada.gd       # Comportamiento de bancos de Mojarras
 │   ├── DientudoAnimado.gd      # Comportamiento de Dientudos
 │   ├── BagreAnimado.gd         # Comportamiento de Bagres (con brillo adaptativo)
-│   ├── FreeLookCamera.gd       # Control de cámara libre para Web / Desktop
-│   ├── HUDController.gd        # HUD reactivo de ICA y O₂ disuelto
+│   ├── HUDController.gd        # HUD 2D reactivo de ICA y O₂ para Web/PC
+│   ├── HUDControllerVR.gd      # HUD 3D en quad frontal para Meta Quest 3
 │   ├── WaterManager.gd         # Gestor central de métricas y zonas ecológicas
 │   ├── WaterVisualController.gd # Actualizador de parámetros visuales del shader
-│   └── main.gd                 # Controlador principal y detección de plataforma
+│   └── main.gd                 # Orquestador narrativo, control VR y atajo de reinicio
 ├── custom_shell.html       # Shell web personalizada para WebXR
 ├── deploy.sh               # Script de build y deploy automático a Netlify
 ├── export_presets.cfg      # Configuración de exportación (Web + Android)
@@ -156,20 +159,22 @@ EcoAgua/
 
 ## 🎮 Controles y Navegación
 
+### Modo VR (Meta Quest 3 — Operable con 1 solo control)
+| Control / Gesto | Función |
+|---|---|
+| **Head Tracking (Visor)** | Orientación natural libre en 360° (pitch, yaw, roll). La cámara se mantiene anclada al carro sin desfasarse por movimientos corporales. |
+| **Cualquier Botón o Gatillo** | Iniciar inmersión (al estar en la pantalla inicial de bienvenida). |
+| **Gatillo + Botón (Mantener 3 segundos)** | **Atajo de reinicio rápido para operador:** Mantener presionado cualquier gatillo (*Index Trigger* o *Hand Grip*) junto con cualquier botón (*A*, *B*, *X*, *Y*, *Menú* o *Joystick click*) en un único mando durante **3 segundos**.<br>• *Feedback háptico:* El mando vibra con pulsos que aumentan progresivamente hasta dar una vibración continua a los 3 s, reiniciando la simulación al estado inicial para el siguiente participante. |
+
 ### Modo Web / Desktop (Cámara Libre)
 | Tecla / Acción | Función |
 |---|---|
-| `W / A / S / D` | Desplazar la cámara por el escenario |
-| `Shift` | Turbo de velocidad |
-| `Clic Derecho + Arrastrar` | Orientar la vista en 360° |
-| `Q / E` | Subir / bajar altura de la cámara |
-
-### Modo VR (Meta Quest 3)
-| Acción | Función |
-|---|---|
-| **Head Tracker** | Orientación nativa de la mirada |
-| **Joystick Izquierdo** | Avance por el `RiverPath` |
-| **Joystick Derecho** | Rotación continua (snap o suave) |
+| `W / A / S / D` | Desplazar la cámara por el arroyo |
+| `Shift` | Acelerar velocidad de desplazamiento |
+| `Clic Izquierdo o Derecho + Arrastrar` | Orientar la vista libre en 360° |
+| `Espacio / Enter` | Iniciar inmersión desde la pantalla inicial |
+| `R` | **Atajo de reinicio rápido para operador** (recarga instantánea al inicio) |
+| `Escape` | Liberar captura del cursor del mouse |
 
 ---
 
@@ -262,9 +267,20 @@ La simulación calibra visualmente el estado del agua a lo largo del recorrido d
 
 ---
 
-## 📄 Licencia y Créditos
+## 👥 Equipo y Créditos
+
+### Equipo 5
+- **Promotoras:** Agustina Ferraro & Ana Paula Martin
+- **Gestor:** Jose Luis Gaitan
+- **Desarrollador:** Ticiano Licarzze
+- **Diseño:** Virginia Sofia Guido
+
+---
+
+## 📄 Licencia e Instituciones
 
 Este proyecto está bajo la Licencia **MIT**. Consulta el archivo `LICENSE` para más información.
 
-**Desarrollado para:** Universidad Nacional de Rosario (**UNR**) & **ICASFAS**  
-**Motor:** Godot Engine 4.6 — GL Compatibility Backend
+- **Iniciativa:** **#XperienciaUNR** (Tercera edición)
+- **Desarrollado para:** Universidad Nacional de Rosario (**UNR**) & **ICASFAS**  
+- **Motor:** Godot Engine 4.6 — GL Compatibility Backend

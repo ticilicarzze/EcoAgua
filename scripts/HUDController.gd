@@ -125,6 +125,7 @@ var _ica_bar_fill:    StyleBoxFlat
 # Fuentes
 var _font_bold:    Font = null
 var _font_regular: Font = null
+var _font_saira:   Font = null
 
 # Estado interno
 var _current_zone:        int   = 1
@@ -141,6 +142,10 @@ var _subtitle_voice_lbl: Label   = null  # Etiqueta del nombre de la voz (Arroyo
 var _subtitle_tween:     Tween   = null  # Tween para secuenciar oraciones de subtítulos
 var _dive_button_panel:  Control = null  # Panel con botón "Sumergirse"
 var _credits_panel:      Control = null  # Panel de créditos finales
+var _credits_slides:          Array[Control] = []
+var _credits_slideshow_tween: Tween   = null
+var _credits_slide_index:     int     = 0
+var _is_running_credits:      bool    = false
 var _main_node:          Node    = null  # Referencia al nodo main para llamar on_dive_button_pressed
 var _big_card_visible:   bool    = false # Estado del cartel grande
 
@@ -153,14 +158,15 @@ func _ready() -> void:
 	_load_fonts()
 	_build_hud()
 
-	if WaterManager:
-		if not WaterManager.zone_changed.is_connected(_on_zone_changed):
-			WaterManager.zone_changed.connect(_on_zone_changed)
-		if not WaterManager.metrics_updated.is_connected(_on_metrics_updated):
-			WaterManager.metrics_updated.connect(_on_metrics_updated)
+	var wm: Node = get_node_or_null("/root/WaterManager")
+	if wm:
+		if not wm.zone_changed.is_connected(_on_zone_changed):
+			wm.zone_changed.connect(_on_zone_changed)
+		if not wm.metrics_updated.is_connected(_on_metrics_updated):
+			wm.metrics_updated.connect(_on_metrics_updated)
 		# Estado inicial
-		_on_zone_changed(WaterManager.current_zone)
-		_update_ica(WaterManager.water_quality_index)
+		_on_zone_changed(wm.current_zone)
+		_update_ica(wm.water_quality_index)
 
 	# Buscar nodo main para comunicar el botón "Sumergirse"
 	_main_node = get_tree().get_root().get_node_or_null("Main") \
@@ -187,6 +193,11 @@ func _load_fonts() -> void:
 		_font_regular = load(regular_path)
 	else:
 		push_warning("HUD: Cousine-Regular.ttf no encontrada en assets/fonts/Cousine/Cousine/. Usando fuente por defecto.")
+	var saira_path := "res://assets/fonts/Saira.ttf"
+	if ResourceLoader.exists(saira_path):
+		_font_saira = load(saira_path)
+	else:
+		push_warning("HUD: Saira.ttf no encontrada en assets/fonts/. Usando fuente por defecto.")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTRUCCIÓN DEL HUD
@@ -467,6 +478,16 @@ func _make_label(text: String, bold: bool, size: int, col: Color) -> Label:
 		lbl.add_theme_font_override("font", _font_regular)
 	return lbl
 
+## Crea un Label con tipografía vectorial Saira para los créditos
+func _make_saira_label(text: String, size: int, col: Color = Color.WHITE) -> Label:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.add_theme_color_override("font_color", col)
+	lbl.add_theme_font_size_override("font_size", size)
+	if _font_saira:
+		lbl.add_theme_font_override("font", _font_saira)
+	return lbl
+
 ## StyleBoxFlat semitransparente con borde del color de zona
 func _make_panel_style(zone_color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -623,6 +644,10 @@ func _build_dive_button() -> void:
 
 # ─── Panel de subtítulos / locución ──────────────────────────────────────────
 func _build_subtitle_panel() -> void:
+	# En modo VR no se construyen subtítulos para evitar distracciones en el visor
+	if _is_vr or (get_viewport() and get_viewport().use_xr):
+		return
+
 	_subtitle_panel = PanelContainer.new()
 	_subtitle_panel.name = "SubtitlePanel"
 	_subtitle_panel.visible = false
@@ -791,54 +816,153 @@ func _hide_big_card_animated() -> void:
 	_big_card_panel.anchor_bottom = 0.75
 	_big_card_panel.modulate.a = 1.0
 
-# ─── Panel de créditos ────────────────────────────────────────────────────────
+# ─── Panel de créditos (4 diapositivas) ──────────────────────────────────────
 func _build_credits_panel() -> void:
-	_credits_panel = PanelContainer.new()
+	_credits_panel = Control.new()
 	_credits_panel.name = "CreditsPanel"
 	_credits_panel.visible = false
+	_credits_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_credits_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.0, 0.0, 0.0, 0.92)
-	style.content_margin_left = 40
-	style.content_margin_right = 40
-	style.content_margin_top = 30
-	style.content_margin_bottom = 30
-	_credits_panel.add_theme_stylebox_override("panel", style)
+	# Fondo completamente negro (#000000) a pantalla completa
+	var black_bg := ColorRect.new()
+	black_bg.name = "BlackBackground"
+	black_bg.color = Color(0.0, 0.0, 0.0, 1.0)
+	black_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	black_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_credits_panel.add_child(black_bg)
 
-	_credits_panel.anchor_left   = 0.0
-	_credits_panel.anchor_right  = 1.0
-	_credits_panel.anchor_top    = 0.0
-	_credits_panel.anchor_bottom = 1.0
+	_credits_slides.clear()
 
-	var vbox := VBoxContainer.new()
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 18)
-	_credits_panel.add_child(vbox)
+	# ── Diapositiva 1: Logo EcoAgua ──
+	# CSS: width: 492px; height: 228.57px; centrado horizontal y vertical
+	var slide1 := Control.new()
+	slide1.name = "Slide1"
+	slide1.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	slide1.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slide1.visible = false
+	slide1.modulate.a = 0.0
 
-	var title := _make_label("EcoAgua — Arroyo Ludueña", true, CREDITS_TITLE_FONT_SIZE, ZONE_COLORS[1])
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(title)
+	var tex1 := TextureRect.new()
+	tex1.name = "LogoEcoAgua"
+	tex1.texture = preload("res://assets/textures/credits/credits_slide_1.png")
+	tex1.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex1.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex1.anchor_left = 0.5
+	tex1.anchor_top = 0.5
+	tex1.anchor_right = 0.5
+	tex1.anchor_bottom = 0.5
+	var s1_w: float = 492.0 * (1.35 if _is_vr else 1.0)
+	var s1_h: float = 228.57 * (1.35 if _is_vr else 1.0)
+	tex1.offset_left = -s1_w / 2.0
+	tex1.offset_right = s1_w / 2.0
+	tex1.offset_top = -s1_h / 2.0
+	tex1.offset_bottom = s1_h / 2.0
+	tex1.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	tex1.grow_vertical = Control.GROW_DIRECTION_BOTH
+	tex1.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slide1.add_child(tex1)
 
-	var sub := _make_label("Universidad Nacional de Rosario", false, CREDITS_SUB_FONT_SIZE, Color(0.85, 0.85, 0.80))
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(sub)
+	_credits_panel.add_child(slide1)
+	_credits_slides.append(slide1)
 
-	var sep := HSeparator.new()
-	var sep_st := StyleBoxLine.new()
-	sep_st.color = ZONE_COLORS[1]
-	sep_st.thickness = 1
-	sep.add_theme_stylebox_override("separator", sep_st)
-	vbox.add_child(sep)
+	# ── Diapositiva 2: "Una experiencia inmersiva sobre el Arroyo Ludueña." ──
+	# CSS: width: 776px; height: 50px; Saira 600 32px; centrado
+	# Renderizado tipográfico vectorial nativo para nitidez cristalina en visores VR
+	var slide2 := Control.new()
+	slide2.name = "Slide2"
+	slide2.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	slide2.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slide2.visible = false
+	slide2.modulate.a = 0.0
 
-	var credits_text := [
-		"Investigación y contenido científico: Equipo EcoAgua UNR",
-		"Desarrollo 3D / VR: Taller de Tecnologías Creativas UNR",
-		"Basado en datos reales del Arroyo Ludueña — Amaya et al. (2018)",
+	var s2_font_size: int = int(round(40.0 if _is_vr else 32.0))
+	var lbl2 := _make_saira_label("Una experiencia inmersiva sobre el Arroyo Ludueña.", s2_font_size, Color.WHITE)
+	lbl2.name = "TextExperience"
+	lbl2.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl2.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl2.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	lbl2.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slide2.add_child(lbl2)
+
+	_credits_panel.add_child(slide2)
+	_credits_slides.append(slide2)
+
+	# ── Diapositiva 3: Equipo 5 ──
+	# CSS: width: 546px; height: 234px; Saira 600 24.5px; centrado
+	# Renderizado tipográfico vectorial nativo para nitidez cristalina en visores VR
+	var slide3 := Control.new()
+	slide3.name = "Slide3"
+	slide3.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	slide3.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slide3.visible = false
+	slide3.modulate.a = 0.0
+
+	var team_container := VBoxContainer.new()
+	team_container.name = "TeamContainer"
+	team_container.anchor_left = 0.5
+	team_container.anchor_top = 0.5
+	team_container.anchor_right = 0.5
+	team_container.anchor_bottom = 0.5
+	team_container.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	team_container.grow_vertical = Control.GROW_DIRECTION_BOTH
+	var v_sep: int = int(round(16.0 if _is_vr else 12.0))
+	team_container.add_theme_constant_override("separation", v_sep)
+
+	var team_title_size: int = int(round(34.0 if _is_vr else 28.0))
+	var team_body_size: int = int(round(28.0 if _is_vr else 24.5))
+
+	var lbl_title := _make_saira_label("Equipo 5", team_title_size, Color.WHITE)
+	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	team_container.add_child(lbl_title)
+
+	var team_members: Array[String] = [
+		"Promotora: Agustina Ferraro y Ana Paula Martin",
+		"Gestor: Jose Luis Gaitan",
+		"Desarrollador: Ticiano Licarzze",
+		"Diseño: Virginia Sofia Guido"
 	]
-	for line in credits_text:
-		var lbl := _make_label(line, false, CREDITS_BODY_FONT_SIZE, Color(0.75, 0.75, 0.72))
-		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		vbox.add_child(lbl)
+	for member_txt in team_members:
+		var lbl_member := _make_saira_label(member_txt, team_body_size, Color.WHITE)
+		lbl_member.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		team_container.add_child(lbl_member)
+
+	slide3.add_child(team_container)
+
+	_credits_panel.add_child(slide3)
+	_credits_slides.append(slide3)
+
+	# ── Diapositiva 4: Logos Institucionales (EcoAgua, #XperienciaUNR, UNR) ──
+	# CSS: width: 930px; height: 110.29px; centrado horizontal y vertical
+	var slide4 := Control.new()
+	slide4.name = "Slide4"
+	slide4.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	slide4.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slide4.visible = false
+	slide4.modulate.a = 0.0
+
+	var tex4 := TextureRect.new()
+	tex4.name = "LogosBanner"
+	tex4.texture = preload("res://assets/textures/credits/credits_slide_4.png")
+	tex4.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex4.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex4.anchor_left = 0.5
+	tex4.anchor_top = 0.5
+	tex4.anchor_right = 0.5
+	tex4.anchor_bottom = 0.5
+	var s4_w: float = 930.0 * (1.25 if _is_vr else 1.0)
+	var s4_h: float = 110.29 * (1.25 if _is_vr else 1.0)
+	tex4.offset_left = -s4_w / 2.0
+	tex4.offset_right = s4_w / 2.0
+	tex4.offset_top = -s4_h / 2.0
+	tex4.offset_bottom = s4_h / 2.0
+	tex4.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	tex4.grow_vertical = Control.GROW_DIRECTION_BOTH
+	tex4.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slide4.add_child(tex4)
+
+	_credits_panel.add_child(slide4)
+	_credits_slides.append(slide4)
 
 	_root.add_child(_credits_panel)
 
@@ -888,29 +1012,106 @@ func on_narrative_state_changed(state_int: int, zone: int) -> void:
 		18: # Z4_CLOSING — subtítulos del cierre
 			_show_subtitle(state_int)
 
-		19: # CREDITS — pantalla final de créditos (dura 30s)
-			if _credits_panel:
-				_credits_panel.visible = true
-				_credits_panel.modulate.a = 0.0
-				var tw := create_tween()
-				tw.tween_property(_credits_panel, "modulate:a", 1.0, 1.0)
-			# Ocultar HUD y subtítulos
+		19: # CREDITS — pantalla final de 4 diapositivas (dura 30s)
 			if _param_panel:    _param_panel.visible    = false
 			if _ica_panel:      _ica_panel.visible      = false
 			if _subtitle_panel: _subtitle_panel.visible = false
+			_start_credits_slideshow()
 
 		20: # DONE — manejado por main._auto_reset_tour()
 			pass
 
+## Inicia la secuencia de 4 diapositivas de créditos
+func _start_credits_slideshow() -> void:
+	if _credits_slideshow_tween and _credits_slideshow_tween.is_valid():
+		_credits_slideshow_tween.kill()
+		_credits_slideshow_tween = null
+
+	_is_running_credits = true
+	_credits_slide_index = 0
+
+	for slide in _credits_slides:
+		slide.visible = false
+		slide.modulate.a = 0.0
+
+	if _credits_panel:
+		_credits_panel.visible = true
+		_credits_panel.modulate.a = 1.0
+
+	_show_slide(0)
+
+## Muestra una diapositiva individual con transiciones suaves
+func _show_slide(index: int) -> void:
+	if not _is_running_credits or index < 0 or index >= _credits_slides.size():
+		return
+
+	_credits_slide_index = index
+
+	for i in range(_credits_slides.size()):
+		if i != index:
+			_credits_slides[i].visible = false
+			_credits_slides[i].modulate.a = 0.0
+
+	var slide: Control = _credits_slides[index]
+	slide.visible = true
+	slide.modulate.a = 0.0
+
+	# Duraciones:
+	# Slide 0 (Logo): 6.5s (in 1.0, hold 4.7, out 0.8)
+	# Slide 1 (Texto inmersivo): 6.5s (in 0.8, hold 4.9, out 0.8)
+	# Slide 2 (Equipo 5): 7.5s (in 0.8, hold 5.9, out 0.8)
+	# Slide 3 (Logos): 7.5s (in 0.8, hold 5.7, out 1.0)
+	var fade_in: float = 1.0 if index == 0 else 0.8
+	var hold_time: float = 5.9 if index == 2 else (5.7 if index == 3 else 4.8)
+	var fade_out: float = 1.0 if index == 3 else 0.8
+
+	if _credits_slideshow_tween and _credits_slideshow_tween.is_valid():
+		_credits_slideshow_tween.kill()
+
+	var tw := create_tween()
+	_credits_slideshow_tween = tw
+	tw.tween_property(slide, "modulate:a", 1.0, fade_in)
+	tw.tween_interval(hold_time)
+	tw.tween_property(slide, "modulate:a", 0.0, fade_out)
+	tw.tween_callback(func():
+		slide.visible = false
+		if _is_running_credits:
+			var next_idx: int = index + 1
+			if next_idx < _credits_slides.size():
+				_show_slide(next_idx)
+	)
+
+## Avanza inmediatamente a la siguiente diapositiva si el usuario presiona un botón
+func advance_credits_slide() -> void:
+	if not _is_running_credits:
+		return
+	if _credits_slideshow_tween and _credits_slideshow_tween.is_valid():
+		_credits_slideshow_tween.kill()
+		_credits_slideshow_tween = null
+
+	var next_idx: int = _credits_slide_index + 1
+	if next_idx < _credits_slides.size():
+		_show_slide(next_idx)
+	else:
+		for slide in _credits_slides:
+			slide.visible = false
+			slide.modulate.a = 0.0
+
 ## Desvanece suavemente la pantalla de créditos antes del reinicio
 func fade_out_credits(duration: float = 1.0) -> void:
+	_is_running_credits = false
+	if _credits_slideshow_tween and _credits_slideshow_tween.is_valid():
+		_credits_slideshow_tween.kill()
+		_credits_slideshow_tween = null
+
 	if _credits_panel and _credits_panel.visible:
 		var tw := create_tween()
 		tw.tween_property(_credits_panel, "modulate:a", 0.0, duration)
 		await tw.finished
+		_credits_panel.visible = false
 
 func _show_subtitle(state_int: int) -> void:
-	if not _subtitle_panel:
+	if _is_vr or (get_viewport() and get_viewport().use_xr) or not _subtitle_panel:
 		return
 	
 	if _subtitle_tween:
