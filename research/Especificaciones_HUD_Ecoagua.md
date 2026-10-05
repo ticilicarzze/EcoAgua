@@ -34,9 +34,9 @@ Aplicable a los paneles de todas las zonas:
 ## 3. Sistema de Colores por Zona
 Códigos de color utilizados para los indicadores de estado y trazos de cada nivel:
 
-* **ZONA 1 (Estado Excelente):** `#1AAC04`
-* **ZONA 2:** `#D0D536`
-* **ZONA 3:** `#EB7600`
+* **ZONA 1 (Estado Excelente):** `#1A1AFC`
+* **ZONA 2:** `#1AAC04`
+* **ZONA 3:** `#D0D536`
 * **ZONA 4:** `#FF0000`
 
 ---

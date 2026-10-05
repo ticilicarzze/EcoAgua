@@ -18,9 +18,9 @@ class_name HUDController
 # ─── Colores por zona ─────────────────────────────────────────────────────────
 const ZONE_COLORS: Array[Color] = [
 	Color(0, 0, 0, 0),                              # índice 0 reservado
-	Color(0x1A / 255.0, 0xAC / 255.0, 0x04 / 255.0), # Z1 #1AAC04 — Verde Excelente
-	Color(0xD0 / 255.0, 0xD5 / 255.0, 0x36 / 255.0), # Z2 #D0D536 — Amarillo Bueno
-	Color(0xEB / 255.0, 0x76 / 255.0, 0x00 / 255.0), # Z3 #EB7600 — Naranja Regular
+	Color(0x1A / 255.0, 0x1A / 255.0, 0xFC / 255.0), # Z1 #1A1AFC — Azul Excelente
+	Color(0x1A / 255.0, 0xAC / 255.0, 0x04 / 255.0), # Z2 #1AAC04 — Verde Bueno
+	Color(0xD0 / 255.0, 0xD5 / 255.0, 0x36 / 255.0), # Z3 #D0D536 — Amarillo Regular
 	Color(0xFF / 255.0, 0x00 / 255.0, 0x00 / 255.0), # Z4 #FF0000 — Rojo Pésimo
 ]
 
