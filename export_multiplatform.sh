@@ -81,8 +81,8 @@ info "6/6 Actualizando README y subiendo a GitHub..."
 FECHA_README=$(date '+%d-%m-%Y %H:%M')
 FECHA_BADGE=$(date '+%d_%b_%Y' | tr '[:upper:]' '[:lower:]')
 # Actualiza la línea "Última exportación" en la sección de descargas
-if grep -q "Última exportación:" "$PROJECT_DIR/README.md"; then
-    sed -i "s|Última exportación: .*|Última exportación: $FECHA_README|" "$PROJECT_DIR/README.md"
+if grep -q "Última exportación" "$PROJECT_DIR/README.md"; then
+    sed -i "s|\*\*Última exportación:\*\* .*|\*\*Última exportación:\*\* $FECHA_README|" "$PROJECT_DIR/README.md"
 else
     echo "> **Última exportación:** $FECHA_README" >> "$PROJECT_DIR/README.md"
 fi

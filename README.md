@@ -200,7 +200,7 @@ git clone https://github.com/ticilicarzze/EcoAgua.git
 
 ## 📦 Descargas por Plataforma
 
-> **Última exportación:** Septiembre 2026
+> **Última exportación:** 05-10-2026 13:52
 
 Los binarios se generan automáticamente con `export_multiplatform.sh`. Los exports se guardan junto al repositorio en:
 
