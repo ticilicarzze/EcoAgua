@@ -84,22 +84,22 @@ enum NarrativeState {
 const NARRATIVE_DURATIONS: Dictionary = {
 	NarrativeState.WAITING_START:    0.0,   # Sin timer — espera interacción del usuario
 	NarrativeState.Z1_SURFACE_INTRO: 21.5,  # 3 s ambiente + 15 s locución Arroyo
-	NarrativeState.Z1_DIVING:        1.0,
+	NarrativeState.Z1_DIVING:        2.5,   # Inmersión pausada y fluida (antes 1.0 s)
 	NarrativeState.Z1_CARD:          3.0,
 	NarrativeState.Z1_UNDERWATER:   22.5,   # 7 s Arroyo + 12 s Intérprete
-	NarrativeState.Z2_SURFACE:       12.8,  # 3 s ambiente + 10 s locución Arroyo
-	NarrativeState.Z2_DIVING:        1.0,
+	NarrativeState.Z2_SURFACE:       12.8,  # 3 s ambiente (ascenso suave de 2.6 s) + 10 s locución Arroyo
+	NarrativeState.Z2_DIVING:        2.5,   # Inmersión pausada y fluida (antes 1.0 s)
 	NarrativeState.Z2_CARD:          3.0,
 	NarrativeState.Z2_UNDERWATER:   24.5,   # 17 s Intérprete + 10 s Intérprete
-	NarrativeState.Z3_SURFACE:       18.8,  # 3 s ambiente + 15 s locución Arroyo
-	NarrativeState.Z3_DIVING:        1.0,
+	NarrativeState.Z3_SURFACE:       18.8,  # 3 s ambiente (ascenso suave de 2.6 s) + 15 s locución Arroyo
+	NarrativeState.Z3_DIVING:        2.5,   # Inmersión pausada y fluida (antes 1.0 s)
 	NarrativeState.Z3_CARD:          3.0,
 	NarrativeState.Z3_UNDERWATER:   25.5,   # 20 s Intérprete + 8 s Intérprete
-	NarrativeState.Z4_SURFACE:       25.5,  # 3 s ambiente + 20 s locución Arroyo
-	NarrativeState.Z4_DIVING:        1.0,
+	NarrativeState.Z4_SURFACE:       25.5,  # 3 s ambiente (ascenso suave de 2.6 s) + 20 s locución Arroyo
+	NarrativeState.Z4_DIVING:        2.5,   # Inmersión pausada y fluida (antes 1.0 s)
 	NarrativeState.Z4_CARD:          3.0,
 	NarrativeState.Z4_UNDERWATER:   24.0,   # 25 s Intérprete
-	NarrativeState.Z4_EMERGE:        2.0,
+	NarrativeState.Z4_EMERGE:        2.6,   # Emersión final pausada y fluida (antes 2.0 s)
 	NarrativeState.Z4_CLOSING:      16.5,   # 9.75 s Intérprete + 6.75 s Arroyo
 	NarrativeState.CREDITS:          30.0,  # 30 s de créditos antes del auto-reset
 	NarrativeState.DONE:             0.0,
@@ -181,14 +181,16 @@ const SF_AMBIENT_ENERGY: float = 1.2
 const SF_AMBIENT_COLOR: Color = Color(0.72, 0.72, 0.68, 1.0)
 const WATER_SURFACE_Y: float = 0.25   # Umbral: coincide con la cresta de las olas del shader
 const WATER_SURFACE_Y_MARGIN: float = 0.05  # Margen de seguridad: la cámara se mantiene este valor por debajo de la superficie
-const LERP_SPEED: float = 2.5
+const LERP_SPEED: float = 2.0
 
 # =========================================================
-# CONSTANTES VR: Posición fija en el carrito y tiempos de transición
+# CONSTANTES VR Y TRANSICIÓN VERTICAL SUAVE
 # =========================================================
 const VR_FIXED_EYE_OFFSET: Vector3 = Vector3(0.0, 1.25, 0.0)
-const VR_SURFACE_TRANSITION_TIME: float = 0.4
-const VR_DIVE_TRANSITION_TIME: float = 0.4
+const VERTICAL_TRANSITION_DURATION_DIVE: float    = 2.5   # Duración del descenso paulatino (segundos)
+const VERTICAL_TRANSITION_DURATION_SURFACE: float = 2.6   # Duración del ascenso a la superficie (segundos)
+const VR_SURFACE_TRANSITION_TIME: float           = 1.25  # Cruce de línea de agua en ascenso VR (segundos)
+const VR_DIVE_TRANSITION_TIME: float              = 1.25  # Cruce de línea de agua en descenso VR (segundos)
 
 # =========================================================
 # ESTADO VISUAL INTERPOLADO
@@ -201,7 +203,13 @@ var _is_underwater: bool = false    # Arranca en superficie (estado WAITING_STAR
 var _was_underwater: bool = false
 var _base_fov: float = 75.0
 var _current_fov: float = 75.0
-var _current_v_offset: float = 0.0
+var _current_v_offset: float = 3.5
+
+# Variables de la transición vertical suave (Smootherstep S-Curve)
+var _v_transition_start_val: float  = 3.5
+var _v_transition_target_val: float = 3.5
+var _v_transition_duration: float   = 2.6
+var _v_transition_elapsed: float    = 2.6
 
 
 
@@ -316,6 +324,10 @@ func _ready() -> void:
 	cart.progress = 200.0
 	cart.v_offset = surface_height_offset  # Empieza en superficie
 	_current_v_offset = surface_height_offset
+	_v_transition_start_val = surface_height_offset
+	_v_transition_target_val = surface_height_offset
+	_v_transition_duration = VERTICAL_TRANSITION_DURATION_SURFACE
+	_v_transition_elapsed = VERTICAL_TRANSITION_DURATION_SURFACE
 	WaterManager.progress_ratio = 0.0
 	_is_underwater = false
 	_was_underwater = false
@@ -1142,6 +1154,9 @@ func _process(delta: float) -> void:
 	if _narrative_state == NarrativeState.WAITING_START:
 		cart.v_offset = surface_height_offset
 		_current_v_offset = surface_height_offset
+		_v_transition_start_val = surface_height_offset
+		_v_transition_target_val = surface_height_offset
+		_v_transition_elapsed = _v_transition_duration
 		# En VR, detectar cualquier botón o gatillo de los mandos mediante XRServer como salvaguarda
 		if get_viewport().use_xr:
 			for tracker_name in ["/user/hand/left", "/user/hand/right"]:
@@ -1183,19 +1198,17 @@ func _process(delta: float) -> void:
 		var active_progress: float = clamp(cart.progress - 200.0, 0.0, 294.0)
 		WaterManager.progress_ratio = active_progress / 294.0
 
-	# ── Target de v_offset según si estamos en superficie o bajo el agua ─────
-	var want_surface: bool = (
-		_narrative_state == NarrativeState.WAITING_START or
-		_narrative_state == NarrativeState.Z1_SURFACE_INTRO or
-		_narrative_state == NarrativeState.Z2_SURFACE or
-		_narrative_state == NarrativeState.Z3_SURFACE or
-		_narrative_state == NarrativeState.Z4_SURFACE or
-		_narrative_state == NarrativeState.Z4_EMERGE or
-		_narrative_state == NarrativeState.Z4_CLOSING or
-		_narrative_state == NarrativeState.CREDITS
-	)
-	var target_v: float = surface_height_offset if want_surface else 0.0
-	_current_v_offset = lerp(_current_v_offset, target_v, LERP_SPEED * delta)
+	# ── Actualizar v_offset con curva suave (Smootherstep S-Curve) ───────────
+	# Elimina tirones bruscos y aceleraciones instantáneas que producen mareo en VR.
+	# Velocidad y aceleración inician y terminan exactamente en 0 (curva de Ken Perlin).
+	if _v_transition_elapsed < _v_transition_duration:
+		_v_transition_elapsed += delta
+		var progress: float = clamp(_v_transition_elapsed / _v_transition_duration, 0.0, 1.0)
+		var ease_weight: float = progress * progress * progress * (progress * (progress * 6.0 - 15.0) + 10.0)
+		_current_v_offset = lerp(_v_transition_start_val, _v_transition_target_val, ease_weight)
+	else:
+		_current_v_offset = _v_transition_target_val
+
 	cart.v_offset = _current_v_offset
 
 	# ── Chequear si falta 1 segundo para salir a la superficie de Zona 3 ──
@@ -1375,6 +1388,22 @@ func _clamp_xr_vertical_position() -> void:
 	_lock_xr_camera_position()
 
 # =========================================================
+# _is_surface_state — Clasifica si el estado transcurre en superficie o bajo el agua
+# =========================================================
+func _is_surface_state(state: NarrativeState) -> bool:
+	return (
+		state == NarrativeState.WAITING_START or
+		state == NarrativeState.Z1_SURFACE_INTRO or
+		state == NarrativeState.Z2_SURFACE or
+		state == NarrativeState.Z3_SURFACE or
+		state == NarrativeState.Z4_SURFACE or
+		state == NarrativeState.Z4_EMERGE or
+		state == NarrativeState.Z4_CLOSING or
+		state == NarrativeState.CREDITS or
+		state == NarrativeState.DONE
+	)
+
+# =========================================================
 # _is_underwater_by_time_vr — Detección subacuática por tiempo en VR
 # =========================================================
 ## Determina si en VR se está bajo el agua según el tiempo y fase narrativa,
@@ -1393,12 +1422,12 @@ func _is_underwater_by_time_vr() -> bool:
 
 		NarrativeState.Z1_DIVING, NarrativeState.Z2_DIVING, \
 		NarrativeState.Z3_DIVING, NarrativeState.Z4_DIVING:
-			# Durante el segundo de inmersión, entra al agua a los 0.4s
+			# Durante el descenso paulatino, cruza la línea del agua a mitad del trayecto (1.25s)
 			return _state_timer >= VR_DIVE_TRANSITION_TIME
 
 		NarrativeState.Z2_SURFACE, NarrativeState.Z3_SURFACE, \
 		NarrativeState.Z4_SURFACE, NarrativeState.Z4_EMERGE:
-			# Al subir a la superficie, desactiva la neblina y burbujas por tiempo (a los 0.4s de emersión)
+			# Al subir suavemente a la superficie, emerge del agua a los 1.25s
 			return _state_timer < VR_SURFACE_TRANSITION_TIME
 
 		_:
@@ -1423,6 +1452,19 @@ func _enter_narrative_state(new_state: NarrativeState) -> void:
 	_state_timer     = 0.0
 
 	var zone: int = NARRATIVE_ZONE.get(new_state, 1)
+
+	# Iniciar transición vertical suave (Smootherstep S-Curve)
+	var want_surface: bool = _is_surface_state(new_state)
+	var new_target_v: float = surface_height_offset if want_surface else 0.0
+	if not is_equal_approx(new_target_v, _v_transition_target_val):
+		_v_transition_start_val = _current_v_offset
+		_v_transition_target_val = new_target_v
+		_v_transition_duration = VERTICAL_TRANSITION_DURATION_SURFACE if want_surface else VERTICAL_TRANSITION_DURATION_DIVE
+		_v_transition_elapsed = 0.0
+		print("Transición vertical fluida: de %.2f m a %.2f m en %.2f s (%s)" % [
+			_v_transition_start_val, _v_transition_target_val, _v_transition_duration,
+			"Ascenso a superficie" if want_surface else "Descenso al agua"
+		])
 
 	# Mantener progress_ratio continuo con la posición física del carrito (evita saltos bruscos)
 	var active_prog: float = clamp(cart.progress - 200.0, 0.0, 294.0)

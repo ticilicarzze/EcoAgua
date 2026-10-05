@@ -206,8 +206,8 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 		NarrativeState.Z1_DIVING:
 			play_splash()
 			_birds_active = false
-			_fade_out(_player_birds, 0.4)
-			_fade_out(_player_rio, 0.8)
+			_fade_out(_player_birds, 1.2)
+			_fade_out(_player_rio, 1.5)
 			_play_underwater(stream_underwater_1_2, vol_underwater_1_2)
 
 		# --- BAJO EL AGUA ZONA 1 ---
@@ -220,15 +220,15 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 			_current_surface_zone = 2
 			_birds_active = true
 			_next_bird_timer = randf_range(1.5, 3.5)
-			_fade_out(_player_underwater)
-			_fade_in(_player_rio, vol_rio_fondo)
+			_fade_out(_player_underwater, 1.5)
+			_fade_in(_player_rio, vol_rio_fondo, 1.5)
 
 		# --- INMERSIÓN ZONA 2 ---
 		NarrativeState.Z2_DIVING:
 			play_splash()
 			_birds_active = false
-			_fade_out(_player_birds, 0.4)
-			_fade_out(_player_rio, 0.8)
+			_fade_out(_player_birds, 1.2)
+			_fade_out(_player_rio, 1.5)
 			_play_underwater(stream_underwater_1_2, vol_underwater_1_2)
 
 		# --- BAJO EL AGUA ZONA 2 ---
@@ -239,59 +239,59 @@ func on_narrative_state_changed(state: int, zone: int) -> void:
 		NarrativeState.Z3_SURFACE:
 			play_splash()
 			_birds_active = false
-			_fade_out(_player_birds, 0.3)
-			_fade_out(_player_rio)
-			_fade_out(_player_underwater)
-			_fade_out(_player_factory_z4)
+			_fade_out(_player_birds, 1.0)
+			_fade_out(_player_rio, 1.5)
+			_fade_out(_player_underwater, 1.5)
+			_fade_out(_player_factory_z4, 1.5)
 			# En Zona 3 se combinan Ciudad e Industria
-			_fade_in(_player_ciudad_z3, vol_ciudad_z3)
-			_fade_in(_player_industrial_z3, vol_industrial_z3)
+			_fade_in(_player_ciudad_z3, vol_ciudad_z3, 1.5)
+			_fade_in(_player_industrial_z3, vol_industrial_z3, 1.5)
 
 		# --- INMERSIÓN ZONA 3 ---
 		NarrativeState.Z3_DIVING:
 			play_splash()
-			_fade_out(_player_ciudad_z3, 0.8)
-			_fade_out(_player_industrial_z3, 0.8)
+			_fade_out(_player_ciudad_z3, 1.5)
+			_fade_out(_player_industrial_z3, 1.5)
 			_play_underwater(stream_underwater_3_4, vol_underwater_3_4)
 
 		# --- BAJO EL AGUA ZONA 3 ---
 		NarrativeState.Z3_CARD, NarrativeState.Z3_UNDERWATER:
-			_fade_out(_player_ciudad_z3, 0.5)
-			_fade_out(_player_industrial_z3, 0.5)
+			_fade_out(_player_ciudad_z3, 1.0)
+			_fade_out(_player_industrial_z3, 1.0)
 			_play_underwater(stream_underwater_3_4, vol_underwater_3_4)
 
 		# --- EMERSIÓN Y SUPERFICIE ZONA 4 ---
 		NarrativeState.Z4_SURFACE:
 			play_splash()
-			_fade_out(_player_underwater)
-			_fade_out(_player_ciudad_z3)
-			_fade_out(_player_industrial_z3)
-			_fade_out(_player_factory_z4) # Silencio absoluto según guión
+			_fade_out(_player_underwater, 1.5)
+			_fade_out(_player_ciudad_z3, 1.5)
+			_fade_out(_player_industrial_z3, 1.5)
+			_fade_out(_player_factory_z4, 1.5) # Silencio absoluto según guión
 
 		# --- INMERSIÓN ZONA 4 ---
 		NarrativeState.Z4_DIVING:
 			play_splash()
-			_fade_out(_player_factory_z4, 0.5)
-			_fade_out(_player_ciudad_z3)
-			_fade_out(_player_industrial_z3)
+			_fade_out(_player_factory_z4, 1.2)
+			_fade_out(_player_ciudad_z3, 1.2)
+			_fade_out(_player_industrial_z3, 1.2)
 			_play_underwater(stream_underwater_3_4, vol_underwater_3_4)
 
 		# --- BAJO EL AGUA ZONA 4 (CARTEL Y RODAJE BAJO AGUA) ---
 		NarrativeState.Z4_CARD, NarrativeState.Z4_UNDERWATER:
-			_fade_out(_player_factory_z4, 0.5)
-			_fade_out(_player_ciudad_z3)
-			_fade_out(_player_industrial_z3)
+			_fade_out(_player_factory_z4, 1.0)
+			_fade_out(_player_ciudad_z3, 1.0)
+			_fade_out(_player_industrial_z3, 1.0)
 			_play_underwater(stream_underwater_3_4, vol_underwater_3_4)
 
 		# --- EMERSIÓN FINAL Y CIERRE ZONA 4 (SALE A TIERRA) ---
 		NarrativeState.Z4_EMERGE:
 			play_splash()
-			_fade_out(_player_underwater)
-			_fade_out(_player_factory_z4) # Sigue el vacío
+			_fade_out(_player_underwater, 1.5)
+			_fade_out(_player_factory_z4, 1.5) # Sigue el vacío
 
 		NarrativeState.Z4_CLOSING:
-			_fade_out(_player_underwater)
-			_fade_out(_player_factory_z4)
+			_fade_out(_player_underwater, 1.0)
+			_fade_out(_player_factory_z4, 1.0)
 
 		# --- CRÉDITOS Y DONE ---
 		NarrativeState.CREDITS, NarrativeState.DONE:
