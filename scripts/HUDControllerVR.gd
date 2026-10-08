@@ -79,7 +79,14 @@ func _enter_tree() -> void:
 	_setup_vr_3d_display()
 
 func _ready() -> void:
-	pass
+	super._ready()
+	print("HUDControllerVR: _ready() completado. SubViewport hijos: %d, HUDRoot hijos: %d" % [
+		_sub_viewport.get_child_count() if _sub_viewport else 0,
+		_root.get_child_count() if _root else 0
+	])
+	if _root:
+		for c in _root.get_children():
+			print("  - HUD VR Elemento: %s (visible: %s)" % [c.name, c.visible])
 
 func _setup_vr_3d_display() -> void:
 	# 1. Crear el SubViewport que renderizará la UI 2D en textura con Anti-Aliasing de alta calidad
@@ -88,7 +95,8 @@ func _setup_vr_3d_display() -> void:
 	_sub_viewport.size = Vector2i(1920, 1080)
 	_sub_viewport.transparent_bg = true
 	_sub_viewport.msaa_2d = Viewport.MSAA_4X
-	_sub_viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
+	if RenderingServer.get_rendering_device():
+		_sub_viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
 	_sub_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	_sub_viewport.handle_input_locally = false
 	add_child(_sub_viewport)
@@ -122,13 +130,15 @@ func _attach_quad_to_cart() -> void:
 	if not cart_target:
 		cart_target = get_tree().root.find_child("XROrigin3D", true, false) as Node3D
 
+	var should_be_visible: bool = visible or (get_viewport() != null and get_viewport().use_xr)
+
 	if cart_target:
 		if _mesh_instance.get_parent():
 			_mesh_instance.get_parent().remove_child(_mesh_instance)
 		cart_target.add_child(_mesh_instance)
 		_mesh_instance.position = CART_HUD_POSITION
 		_mesh_instance.rotation = Vector3.ZERO
-		_mesh_instance.visible = visible
+		_mesh_instance.visible = should_be_visible
 		print("HUDControllerVR: Quad 3D anclado al carrito (%s) en %s (estático respecto al visor, mayor legibilidad)." % [
 			cart_target.name, CART_HUD_POSITION
 		])
@@ -140,14 +150,14 @@ func _attach_quad_to_cart() -> void:
 			xr_cam.add_child(_mesh_instance)
 			_mesh_instance.position = Vector3(0.0, 0.0, -1.8)
 			_mesh_instance.rotation = Vector3.ZERO
-			_mesh_instance.visible = visible
+			_mesh_instance.visible = should_be_visible
 			push_warning("HUDControllerVR: Carrito no encontrado. Anclado como fallback a XRCamera3D.")
 		else:
 			push_warning("HUDControllerVR: Ni el carrito ni XRCamera3D fueron encontrados para fijar el HUD 3D.")
 
 func _on_layer_visibility_changed() -> void:
 	if _mesh_instance:
-		_mesh_instance.visible = visible
+		_mesh_instance.visible = visible or (get_viewport() != null and get_viewport().use_xr)
 
 func _get_hud_parent() -> Node:
 	return _sub_viewport if _sub_viewport else self
@@ -163,8 +173,10 @@ func on_narrative_state_changed(state_int: int, zone: int) -> void:
 ## Inicia el modo de créditos con posicionamiento ergonómico y Lazy Horizon Follow
 func _enter_credits_mode() -> void:
 	_is_in_credits_mode = true
-	if _mesh_instance and _mesh_instance.mesh is QuadMesh:
-		(_mesh_instance.mesh as QuadMesh).size = CREDITS_QUAD_SIZE
+	if _mesh_instance:
+		_mesh_instance.visible = true
+		if _mesh_instance.mesh is QuadMesh:
+			(_mesh_instance.mesh as QuadMesh).size = CREDITS_QUAD_SIZE
 	_recenter_credits_immediately()
 	print("HUDControllerVR: Créditos iniciados en modo cine VR (Lazy Horizon Follow). Pantalla re-centrada frente al usuario.")
 

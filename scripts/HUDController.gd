@@ -1006,6 +1006,8 @@ func _build_credits_panel() -> void:
 	_credits_panel.visible = false
 	_credits_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_credits_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _is_vr:
+		_credits_panel.custom_minimum_size = Vector2(1920, 1080)
 
 	# Fondo completamente negro (#000000) a pantalla completa
 	var black_bg := ColorRect.new()
@@ -1013,6 +1015,8 @@ func _build_credits_panel() -> void:
 	black_bg.color = Color(0.0, 0.0, 0.0, 1.0)
 	black_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	black_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _is_vr:
+		black_bg.custom_minimum_size = Vector2(1920, 1080)
 	_credits_panel.add_child(black_bg)
 
 	_credits_slides.clear()
@@ -1025,6 +1029,8 @@ func _build_credits_panel() -> void:
 	slide1.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slide1.visible = false
 	slide1.modulate.a = 0.0
+	if _is_vr:
+		slide1.custom_minimum_size = Vector2(1920, 1080)
 
 	var tex1 := TextureRect.new()
 	tex1.name = "LogoEcoAgua"
@@ -1058,6 +1064,8 @@ func _build_credits_panel() -> void:
 	slide2.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slide2.visible = false
 	slide2.modulate.a = 0.0
+	if _is_vr:
+		slide2.custom_minimum_size = Vector2(1920, 1080)
 
 	var s2_font_size: int = int(round(40.0 if _is_vr else 32.0))
 	var lbl2 := _make_saira_label("Una experiencia inmersiva sobre el Arroyo Ludueña.", s2_font_size, Color.WHITE)
@@ -1080,6 +1088,8 @@ func _build_credits_panel() -> void:
 	slide3.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slide3.visible = false
 	slide3.modulate.a = 0.0
+	if _is_vr:
+		slide3.custom_minimum_size = Vector2(1920, 1080)
 
 	var team_container := VBoxContainer.new()
 	team_container.name = "TeamContainer"
@@ -1123,6 +1133,8 @@ func _build_credits_panel() -> void:
 	slide4.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	slide4.visible = false
 	slide4.modulate.a = 0.0
+	if _is_vr:
+		slide4.custom_minimum_size = Vector2(1920, 1080)
 
 	var tex4 := TextureRect.new()
 	tex4.name = "LogosBanner"
