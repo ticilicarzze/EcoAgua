@@ -282,5 +282,5 @@ La simulación calibra visualmente el estado del agua a lo largo del recorrido d
 Este proyecto está bajo la Licencia **MIT**. Consulta el archivo `LICENSE` para más información.
 
 - **Iniciativa:** **#XperienciaUNR** (Tercera edición)
-- **Desarrollado para:** Universidad Nacional de Rosario (**UNR**) & **ICASFAS**  
+- **Desarrollado para:** Universidad Nacional de Rosario (**UNR**)  
 - **Motor:** Godot Engine 4.6 — GL Compatibility Backend
