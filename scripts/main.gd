@@ -247,6 +247,7 @@ var _xr_held_buttons: Dictionary = {}
 var _xr_reset_hold_timer: float = 0.0
 const XR_RESET_HOLD_DURATION: float = 3.0
 var _last_haptic_pulse_time: float = 0.0
+var _is_vr_simulating: bool = false
 
 func _get_active_camera_y() -> float:
 	var vp_cam := get_viewport().get_camera_3d()
@@ -355,6 +356,18 @@ func _ready() -> void:
 	# Entrar al primer estado narrativo
 	_enter_narrative_state(NarrativeState.WAITING_START)
 	print("Narrativa: estado WAITING_START — esperando botón 'Sumergirse'. Velocidad de riel: %.2f m/s" % speed)
+
+	# Chequear si se solicita modo simulación VR por argumento CLI (--simulate-vr o --vr-sim)
+	if not get_viewport().use_xr:
+		for arg in OS.get_cmdline_user_args():
+			if arg in ["--simulate-vr", "--vr-sim", "-vr"]:
+				_toggle_vr_simulation()
+				break
+		if not _is_vr_simulating:
+			for arg in OS.get_cmdline_args():
+				if arg in ["--simulate-vr", "--vr-sim", "-vr"]:
+					_toggle_vr_simulation()
+					break
 
 
 # =========================================================
@@ -1082,6 +1095,11 @@ func _input(event: InputEvent) -> void:
 		quick_restart_tour("Teclado (tecla R)")
 		return
 
+	# Atajo para alternar simulación de VR en PC (tecla F8)
+	if not get_viewport().use_xr and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F8:
+		_toggle_vr_simulation()
+		return
+
 	# Si estamos esperando iniciar inmersión (WAITING_START), presionar cualquier botón (mando VR, joystick, teclado, touch) inicia la inmersión
 	if _narrative_state == NarrativeState.WAITING_START:
 		var should_dive: bool = false
@@ -1369,8 +1387,52 @@ func _apply_freelook(delta: float) -> void:
 	if Input.is_key_pressed(KEY_DOWN)  or Input.is_key_pressed(KEY_S): fl_pitch_d -= FL_KEY_SPEED * delta
 	_fl_yaw   += fl_turn
 	_fl_pitch = clamp(_fl_pitch + fl_pitch_d, deg_to_rad(-FL_PITCH_LIMIT), deg_to_rad(FL_PITCH_LIMIT))
-	_fl_camera.global_position = cart.global_position
-	_fl_camera.rotation = Vector3(_fl_pitch, _fl_yaw, 0.0)
+	if _is_vr_simulating:
+		_fl_camera.position = VR_FIXED_EYE_OFFSET
+		_fl_camera.rotation = Vector3(_fl_pitch, _fl_yaw, 0.0)
+	else:
+		_fl_camera.global_position = cart.global_position
+		_fl_camera.rotation = Vector3(_fl_pitch, _fl_yaw, 0.0)
+
+## Alterna entre el modo estándar de pantalla plana y la simulación visual/funcional del visor VR en PC
+func _toggle_vr_simulation() -> void:
+	if get_viewport().use_xr:
+		return
+	_is_vr_simulating = not _is_vr_simulating
+	if _is_vr_simulating:
+		print("VR Simulation: Activado modo simulador VR en PC (F8 / CLI).")
+		if has_node("CanvasLayer"):
+			$CanvasLayer.visible = false
+		if has_node("CanvasLayerVR"):
+			$CanvasLayerVR.visible = true
+			_hud = $CanvasLayerVR
+			var cur_zone: int = NARRATIVE_ZONE.get(_narrative_state, 1)
+			if _hud.has_method("on_narrative_state_changed"):
+				_hud.on_narrative_state_changed(_narrative_state, cur_zone)
+		var xr_cam := get_node_or_null("RiverPath/UserCart/XROrigin3D/XRCamera3D") as Camera3D
+		if xr_cam:
+			_fl_camera = xr_cam
+			xr_cam.current = true
+			xr_cam.position = VR_FIXED_EYE_OFFSET
+			if has_node("FlatCamera"):
+				$FlatCamera.current = false
+	else:
+		print("VR Simulation: Desactivado modo simulador VR (volviendo a pantalla plana).")
+		if has_node("CanvasLayerVR"):
+			$CanvasLayerVR.visible = false
+		if has_node("CanvasLayer"):
+			$CanvasLayer.visible = true
+			_hud = $CanvasLayer
+			var cur_zone: int = NARRATIVE_ZONE.get(_narrative_state, 1)
+			if _hud.has_method("on_narrative_state_changed"):
+				_hud.on_narrative_state_changed(_narrative_state, cur_zone)
+		if has_node("FlatCamera"):
+			_fl_camera = $FlatCamera
+			$FlatCamera.current = true
+			var xr_cam := get_node_or_null("RiverPath/UserCart/XROrigin3D/XRCamera3D") as Camera3D
+			if xr_cam:
+				xr_cam.current = false
+
 
 
 # =========================================================
