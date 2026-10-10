@@ -53,7 +53,7 @@ var PARAM_PANEL_WIDTH:        int   = 260  # Ancho del panel de parámetros (px)
 var PARAM_VAL_COL_WIDTH:      int   = 90   # Ancho de la columna de valores (px)
 var ICA_PANEL_HALF_W:         int   = 160  # Semiancho del panel ICA (px)
 var ICA_BAR_HEIGHT:           int   = 10   # Altura de la barra ICA (px)
-var VR_PANELS_GAP:            float = 24.0 # Separación entre paneles en VR (px)
+var VR_PANELS_GAP:            float = 14.0 # Separación vertical entre paneles en VR (px)
 
 # Subtítulos
 var SUBTITLE_ANCHOR_LEFT:     float = 0.25
@@ -137,9 +137,13 @@ var _font_saira:   Font = null
 
 # Estado interno
 var _current_zone:        int   = 1
-var _floating_time:       float = 0.0
-var _param_panel_base_y:  float = 0.0
-var _ica_panel_base_y:    float = 0.0
+var _floating_time:           float = 0.0
+var _param_panel_base_y:      float = 0.0
+var _ica_panel_base_y:        float = 0.0
+var _param_panel_base_top:    float = 0.0
+var _param_panel_base_bottom: float = 0.0
+var _ica_panel_base_top:      float = 0.0
+var _ica_panel_base_bottom:   float = 0.0
 
 # Estilos activos y animación de color
 var _param_panel_style:   StyleBoxFlat = null
@@ -234,28 +238,34 @@ func _build_hud() -> void:
 		_root.custom_minimum_size = Vector2(1920, 1080)
 	parent_node.add_child(_root)
 
-	_build_param_panel()
 	_build_ica_panel()
+	_build_param_panel()
 
-# ─── Panel de parámetros (inferior-izquierdo) ─────────────────────────────────
+# ─── Panel de parámetros (superior en VR / inferior-izquierdo en PC) ──────────
 func _build_param_panel() -> void:
 	_param_panel = PanelContainer.new()
 	_param_panel.name = "ParamPanel"
 	_param_panel_style = _make_panel_style(_current_hud_color)
 	_param_panel.add_theme_stylebox_override("panel", _param_panel_style)
 
-	# Ancla y posicionamiento según el modo (VR centrado en campo visual / Pantalla plana borde inferior-izquierdo)
+	# Ancla y posicionamiento según el modo (VR centrado apilado ARRIBA / Pantalla plana borde inferior-izquierdo)
 	if _is_vr:
+		var ica_h: float = 60.0
+		if _ica_panel:
+			_ica_panel.reset_size()
+			ica_h = max(_ica_panel.get_combined_minimum_size().y, 60.0)
+		var param_bottom: float = -MARGIN_BOTTOM - ica_h - VR_PANELS_GAP
+
 		_param_panel.anchor_left     = 0.5
 		_param_panel.anchor_top      = 1.0
 		_param_panel.anchor_right    = 0.5
 		_param_panel.anchor_bottom   = 1.0
-		_param_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		_param_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 		_param_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
-		_param_panel.offset_right    = -VR_PANELS_GAP / 2.0
-		_param_panel.offset_left     = -VR_PANELS_GAP / 2.0 - PARAM_PANEL_WIDTH
-		_param_panel.offset_bottom   = -MARGIN_BOTTOM
-		_param_panel.offset_top      = -MARGIN_BOTTOM
+		_param_panel.offset_left     = -PARAM_PANEL_WIDTH / 2.0
+		_param_panel.offset_right    =  PARAM_PANEL_WIDTH / 2.0
+		_param_panel.offset_bottom   = param_bottom
+		_param_panel.offset_top      = param_bottom - 100.0
 	else:
 		_param_panel.anchor_left     = 0.0
 		_param_panel.anchor_top      = 1.0
@@ -266,8 +276,7 @@ func _build_param_panel() -> void:
 		_param_panel.offset_left     = MARGIN_SCREEN
 		_param_panel.offset_right    = MARGIN_SCREEN + PARAM_PANEL_WIDTH
 		_param_panel.offset_bottom   = -MARGIN_BOTTOM
-		_param_panel.offset_top      = -MARGIN_BOTTOM
-	_param_panel_base_y = _param_panel.offset_top
+		_param_panel.offset_top      = -MARGIN_BOTTOM - 100.0
 
 	_root.add_child(_param_panel)
 
@@ -295,6 +304,8 @@ func _build_param_panel() -> void:
 		row_data["row"].visible = false
 		vbox.add_child(row_data["row"])
 		_param_rows.append(row_data)
+
+	_update_param_panel_size()
 
 # Construye una fila de parámetro vacía reutilizable
 func _build_param_row(col: Color) -> Dictionary:
@@ -327,30 +338,18 @@ func _build_ica_panel() -> void:
 	_ica_panel_style = _make_panel_style(_current_hud_color)
 	_ica_panel.add_theme_stylebox_override("panel", _ica_panel_style)
 
-	# Ancla y posicionamiento según el modo (VR emparejado lado a lado / Pantalla plana centrado)
-	if _is_vr:
-		_ica_panel.anchor_left     = 0.5
-		_ica_panel.anchor_top      = 1.0
-		_ica_panel.anchor_right    = 0.5
-		_ica_panel.anchor_bottom   = 1.0
-		_ica_panel.grow_horizontal = Control.GROW_DIRECTION_END
-		_ica_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
-		_ica_panel.offset_left     = VR_PANELS_GAP / 2.0
-		_ica_panel.offset_right    = VR_PANELS_GAP / 2.0 + (ICA_PANEL_HALF_W * 2)
-		_ica_panel.offset_bottom   = -MARGIN_BOTTOM
-		_ica_panel.offset_top      = -MARGIN_BOTTOM - 60
-	else:
-		_ica_panel.anchor_left   = 0.5
-		_ica_panel.anchor_top    = 1.0
-		_ica_panel.anchor_right  = 0.5
-		_ica_panel.anchor_bottom = 1.0
-		_ica_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-		_ica_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
-		_ica_panel.offset_left   = -ICA_PANEL_HALF_W
-		_ica_panel.offset_right  =  ICA_PANEL_HALF_W
-		_ica_panel.offset_bottom = -MARGIN_BOTTOM
-		_ica_panel.offset_top    = -MARGIN_BOTTOM - 52
-	_ica_panel_base_y = _ica_panel.offset_top
+	# Ancla: borde inferior, centrado horizontalmente
+	_ica_panel.anchor_left     = 0.5
+	_ica_panel.anchor_top      = 1.0
+	_ica_panel.anchor_right    = 0.5
+	_ica_panel.anchor_bottom   = 1.0
+	_ica_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_ica_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
+	_ica_panel.offset_left     = -ICA_PANEL_HALF_W
+	_ica_panel.offset_right    =  ICA_PANEL_HALF_W
+	_ica_panel.offset_bottom   = -MARGIN_BOTTOM
+	_ica_panel.offset_top      = -MARGIN_BOTTOM - (60.0 if _is_vr else 52.0)
+	_ica_panel_base_y          = _ica_panel.offset_top
 
 	_root.add_child(_ica_panel)
 
@@ -377,7 +376,7 @@ func _build_ica_panel() -> void:
 	_ica_bar.max_value       = 100.0
 	_ica_bar.value           = 95.0
 	_ica_bar.show_percentage = false
-	_ica_bar.custom_minimum_size = Vector2(ICA_PANEL_HALF_W * 2 - 20, ICA_BAR_HEIGHT)
+	_ica_bar.custom_minimum_size = Vector2(ICA_PANEL_HALF_W * 2 - (32 if _is_vr else 20), ICA_BAR_HEIGHT)
 
 	# Estilo del fondo de la barra
 	var bar_bg := StyleBoxFlat.new()
@@ -395,12 +394,16 @@ func _build_ica_panel() -> void:
 	_ica_bar_fill.corner_radius_top_right    = 4
 	_ica_bar_fill.corner_radius_bottom_left  = 4
 	_ica_bar_fill.corner_radius_bottom_right = 4
+	_ica_bar.add_theme_stylebox_override("fill", _ica_bar_fill)
 	vbox.add_child(_ica_bar)
 
 	_ica_panel.reset_size()
 	var ica_h: float = _ica_panel.get_combined_minimum_size().y
-	_ica_panel.offset_top = -MARGIN_BOTTOM - max(ica_h, 60.0 if _is_vr else 52.0)
-	_ica_panel_base_y = _ica_panel.offset_top
+	_ica_panel.offset_bottom = -MARGIN_BOTTOM
+	_ica_panel.offset_top    = -MARGIN_BOTTOM - max(ica_h, 60.0 if _is_vr else 52.0)
+	_ica_panel_base_top      = _ica_panel.offset_top
+	_ica_panel_base_bottom   = _ica_panel.offset_bottom
+	_ica_panel_base_y        = _ica_panel.offset_top
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ACTUALIZACIÓN DE ZONA Y TRANSICIÓN FLUIDA DE COLOR
@@ -449,6 +452,8 @@ func _apply_hud_color(col: Color) -> void:
 	# Barra ICA y número
 	if _ica_bar_fill:
 		_ica_bar_fill.bg_color = col
+	if _ica_bar and is_instance_valid(_ica_bar) and _ica_bar_fill:
+		_ica_bar.add_theme_stylebox_override("fill", _ica_bar_fill)
 	if _ica_value_lbl and is_instance_valid(_ica_value_lbl):
 		_ica_value_lbl.add_theme_color_override("font_color", col)
 
@@ -494,9 +499,20 @@ func _update_param_panel_size() -> void:
 		return
 	_param_panel.reset_size()
 	var panel_height: float = _param_panel.get_combined_minimum_size().y
-	_param_panel.offset_top = -MARGIN_BOTTOM - panel_height
-	_param_panel.offset_bottom = -MARGIN_BOTTOM
-	_param_panel_base_y = _param_panel.offset_top
+	if _is_vr:
+		var ica_h: float = 60.0
+		if _ica_panel:
+			_ica_panel.reset_size()
+			ica_h = max(_ica_panel.get_combined_minimum_size().y, 60.0)
+		var param_bottom: float = -MARGIN_BOTTOM - ica_h - VR_PANELS_GAP
+		_param_panel.offset_bottom = param_bottom
+		_param_panel.offset_top    = param_bottom - panel_height
+	else:
+		_param_panel.offset_bottom = -MARGIN_BOTTOM
+		_param_panel.offset_top    = -MARGIN_BOTTOM - panel_height
+	_param_panel_base_top    = _param_panel.offset_top
+	_param_panel_base_bottom = _param_panel.offset_bottom
+	_param_panel_base_y      = _param_panel.offset_top
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ACTUALIZACIÓN DE MÉTRICAS (cada frame activo de WaterManager)
@@ -526,16 +542,19 @@ func _update_ica(wqi: float) -> void:
 # _process — Efecto de flotación sutil en ambos paneles
 # ─────────────────────────────────────────────────────────────────────────────
 func _process(delta: float) -> void:
+	update_hud_floating(delta)
+
+func update_hud_floating(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	_floating_time += delta * 1.4
 	var wave: float = sin(_floating_time) * 2.0
 	if _param_panel:
-		_param_panel.offset_top = _param_panel_base_y + wave
-		_param_panel.offset_bottom = -MARGIN_BOTTOM + wave
+		_param_panel.offset_top    = _param_panel_base_top + wave
+		_param_panel.offset_bottom = _param_panel_base_bottom + wave
 	if _ica_panel:
-		_ica_panel.offset_top = _ica_panel_base_y + wave * 0.7
-		_ica_panel.offset_bottom = -MARGIN_BOTTOM + wave * 0.7
+		_ica_panel.offset_top    = _ica_panel_base_top + (wave if _is_vr else wave * 0.7)
+		_ica_panel.offset_bottom = _ica_panel_base_bottom + (wave if _is_vr else wave * 0.7)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # UTILIDADES
@@ -1071,8 +1090,8 @@ func _build_credits_panel() -> void:
 	tex1.anchor_top = 0.5
 	tex1.anchor_right = 0.5
 	tex1.anchor_bottom = 0.5
-	var s1_w: float = 492.0 * (1.35 if _is_vr else 1.0)
-	var s1_h: float = 228.57 * (1.35 if _is_vr else 1.0)
+	var s1_w: float = 492.0 * (1.4 if _is_vr else 1.0)
+	var s1_h: float = 228.57 * (1.4 if _is_vr else 1.0)
 	tex1.offset_left = -s1_w / 2.0
 	tex1.offset_right = s1_w / 2.0
 	tex1.offset_top = -s1_h / 2.0
@@ -1097,7 +1116,7 @@ func _build_credits_panel() -> void:
 	if _is_vr:
 		slide2.custom_minimum_size = Vector2(1920, 1080)
 
-	var s2_font_size: int = int(round(40.0 if _is_vr else 32.0))
+	var s2_font_size: int = int(round(46.0 if _is_vr else 32.0))
 	var lbl2 := _make_saira_label("Una experiencia inmersiva sobre el Arroyo Ludueña.", s2_font_size, Color.WHITE)
 	lbl2.name = "TextExperience"
 	lbl2.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1129,11 +1148,11 @@ func _build_credits_panel() -> void:
 	team_container.anchor_bottom = 0.5
 	team_container.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	team_container.grow_vertical = Control.GROW_DIRECTION_BOTH
-	var v_sep: int = int(round(16.0 if _is_vr else 12.0))
+	var v_sep: int = int(round(20.0 if _is_vr else 12.0))
 	team_container.add_theme_constant_override("separation", v_sep)
 
-	var team_title_size: int = int(round(34.0 if _is_vr else 28.0))
-	var team_body_size: int = int(round(28.0 if _is_vr else 24.5))
+	var team_title_size: int = int(round(42.0 if _is_vr else 28.0))
+	var team_body_size: int = int(round(34.0 if _is_vr else 24.5))
 
 	var lbl_title := _make_saira_label("Equipo 5", team_title_size, Color.WHITE)
 	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1175,8 +1194,8 @@ func _build_credits_panel() -> void:
 	tex4.anchor_top = 0.5
 	tex4.anchor_right = 0.5
 	tex4.anchor_bottom = 0.5
-	var s4_w: float = 930.0 * (1.25 if _is_vr else 1.0)
-	var s4_h: float = 110.29 * (1.25 if _is_vr else 1.0)
+	var s4_w: float = 930.0 * (1.3 if _is_vr else 1.0)
+	var s4_h: float = 110.29 * (1.3 if _is_vr else 1.0)
 	tex4.offset_left = -s4_w / 2.0
 	tex4.offset_right = s4_w / 2.0
 	tex4.offset_top = -s4_h / 2.0

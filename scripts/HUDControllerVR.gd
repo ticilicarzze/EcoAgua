@@ -28,7 +28,7 @@ const NORMAL_QUAD_ROTATION: Vector3 = Vector3(-0.244346, 0.0, 0.0) # Inclinació
 const CREDITS_DISTANCE: float     = 2.0          # Distancia focal óptima para lectura relajada en visores
 const CREDITS_DEADZONE_DEG: float = 28.0         # Zona muerta: pantalla fija para lectura natural sin mareos
 const CREDITS_FOLLOW_SPEED: float = 2.2          # Velocidad de re-centrado suave fuera de la zona muerta
-const CREDITS_QUAD_SIZE: Vector2  = Vector2(2.6, 1.4625) # Proporción 16:9 cinematográfica a 2.0m
+const CREDITS_QUAD_SIZE: Vector2  = Vector2(2.8, 1.575) # Proporción 16:9 cinematográfica a 2.0m
 
 var _sub_viewport: SubViewport       = null
 var _mesh_instance: MeshInstance3D   = null
@@ -46,14 +46,14 @@ func _enter_tree() -> void:
 	PARAM_FONT_SIZE          = 28   # Subtiende ~1.15° de ángulo visual (estándar de confort Meta)
 	TITLE_FONT_SIZE          = 30   # Subtiende ~1.25° de ángulo visual
 	ICA_NUM_FONT_SIZE        = 34   # Subtiende ~1.40° de ángulo visual
-	PARAM_PANEL_WIDTH        = 480  # Ancho proporcional equilibrado
-	PARAM_VAL_COL_WIDTH      = 170  # Ancho cómodo para valores numéricos y unidades
-	ICA_PANEL_HALF_W         = 240  # 480 px de ancho total (exactamente simétrico a ParamPanel)
-	ICA_BAR_HEIGHT           = 20
+	PARAM_PANEL_WIDTH        = 540  # Ancho idéntico unificado para ambos paneles en VR
+	PARAM_VAL_COL_WIDTH      = 210  # Ancho generoso para valores y unidades ("3.090 UFC/100mL")
+	ICA_PANEL_HALF_W         = 270  # 540 px de ancho total (270 * 2), idéntico a ParamPanel
+	ICA_BAR_HEIGHT           = 22
 	BORDER_WIDTH             = 3
 	CORNER_RADIUS            = 12
 	MARGIN_BOTTOM            = 45
-	VR_PANELS_GAP            = 28.0 # Separación central entre ambos paneles en VR
+	VR_PANELS_GAP            = 14.0 # Separación vertical entre paneles apilados en VR
 
 	# Subtítulos VR (deshabilitados en VR para mayor inmersión)
 	SUBTITLE_ANCHOR_LEFT     = 0.18
@@ -80,7 +80,7 @@ func _enter_tree() -> void:
 	_setup_vr_3d_display()
 
 func _ready() -> void:
-	super._ready()
+	super()
 	print("HUDControllerVR: _ready() completado. SubViewport hijos: %d, HUDRoot hijos: %d" % [
 		_sub_viewport.get_child_count() if _sub_viewport else 0,
 		_root.get_child_count() if _root else 0
@@ -165,7 +165,7 @@ func _get_hud_parent() -> Node:
 
 # ─── Control de Estados Narrativos en VR ─────────────────────────────────────
 func on_narrative_state_changed(state_int: int, zone: int) -> void:
-	super.on_narrative_state_changed(state_int, zone)
+	super(state_int, zone)
 	if state_int == 19: # CREDITS
 		_enter_credits_mode()
 	elif state_int == 0 or state_int == 20: # WAITING_START o DONE
@@ -207,13 +207,13 @@ func _recenter_credits_immediately() -> void:
 
 ## Al avanzar manualmente de diapositiva con el joystick/botón, re-centrar suavemente frente a la vista
 func advance_credits_slide() -> void:
-	super.advance_credits_slide()
+	super()
 	if _is_in_credits_mode:
 		_recenter_credits_immediately()
 
 ## Actualización continua en cada fotograma
 func _process(delta: float) -> void:
-	super._process(delta)
+	update_hud_floating(delta)
 	if not _is_in_credits_mode or not is_instance_valid(_mesh_instance):
 		return
 
