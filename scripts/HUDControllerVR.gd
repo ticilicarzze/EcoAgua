@@ -20,7 +20,7 @@ class_name HUDControllerVR
 ##        exponencial (lerp suave) manteniendo el horizonte estrictamente nivelado (Roll = 0°).
 ##     4. Tipografía vectorial Saira renderizada en tiempo real con MSAA 4X para nitidez cristalina en Quest 3.
 
-const CART_HUD_POSITION: Vector3    = Vector3(0.0, 0.95, -1.35) # Ubicado ergonómicamente sobre el frente del carrito
+const CART_HUD_POSITION: Vector3    = Vector3(0.0, -0.30, -1.35) # Ubicado ergonómicamente 30cm debajo de los ojos sobre el frente del carrito
 const NORMAL_QUAD_SIZE: Vector2     = Vector2(1.8, 1.01)        # Proporción 16:9 optimizada para campo visual
 const NORMAL_QUAD_ROTATION: Vector3 = Vector3(-0.244346, 0.0, 0.0) # Inclinación de 14° hacia los ojos (perpendicular a la mirada)
 
@@ -43,17 +43,17 @@ func _enter_tree() -> void:
 	_is_vr = true
 
 	# ── Estándares ergonómicos y escala visual para VR (Meta Quest 3) ─────────────
-	PARAM_FONT_SIZE          = 28   # Subtiende ~1.15° de ángulo visual (estándar de confort Meta)
-	TITLE_FONT_SIZE          = 30   # Subtiende ~1.25° de ángulo visual
-	ICA_NUM_FONT_SIZE        = 34   # Subtiende ~1.40° de ángulo visual
-	PARAM_PANEL_WIDTH        = 540  # Ancho idéntico unificado para ambos paneles en VR
-	PARAM_VAL_COL_WIDTH      = 210  # Ancho generoso para valores y unidades ("3.090 UFC/100mL")
-	ICA_PANEL_HALF_W         = 270  # 540 px de ancho total (270 * 2), idéntico a ParamPanel
-	ICA_BAR_HEIGHT           = 22
-	BORDER_WIDTH             = 3
-	CORNER_RADIUS            = 12
-	MARGIN_BOTTOM            = 45
-	VR_PANELS_GAP            = 14.0 # Separación vertical entre paneles apilados en VR
+	PARAM_FONT_SIZE          = 26   # Óptimo para nitidez y legibilidad en visores VR
+	TITLE_FONT_SIZE          = 30   # Título ZONA X - ESTADO Y nítido y destacado
+	ICA_NUM_FONT_SIZE        = 32   # Número de ICA grande y legible
+	PARAM_PANEL_WIDTH        = 800  # Ancho total de la tarjeta unificada en VR
+	PARAM_VAL_COL_WIDTH      = 230  # Ancho generoso para valores y unidades ("5000 UFC/ 100 mL")
+	ICA_PANEL_HALF_W         = 400  # Por compatibilidad
+	ICA_BAR_HEIGHT           = 18   # Altura ergonómica de la barra ICA
+	BORDER_WIDTH             = 3    # Borde de 3px del color de zona
+	CORNER_RADIUS            = 14   # Esquinas redondeadas suaves
+	MARGIN_BOTTOM            = 45   # Margen inferior
+	VR_PANELS_GAP            = 0.0  # Sin separación (tarjeta fusionada única)
 
 	# Subtítulos VR (deshabilitados en VR para mayor inmersión)
 	SUBTITLE_ANCHOR_LEFT     = 0.18
@@ -95,9 +95,7 @@ func _setup_vr_3d_display() -> void:
 	_sub_viewport.name = "VRHUDViewport"
 	_sub_viewport.size = Vector2i(1920, 1080)
 	_sub_viewport.transparent_bg = true
-	_sub_viewport.msaa_2d = Viewport.MSAA_4X
-	if RenderingServer.get_rendering_device():
-		_sub_viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
+	_sub_viewport.msaa_2d = Viewport.MSAA_8X
 	_sub_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	_sub_viewport.handle_input_locally = false
 	add_child(_sub_viewport)
@@ -190,19 +188,28 @@ func _exit_credits_mode() -> void:
 		_mesh_instance.position = CART_HUD_POSITION
 		_mesh_instance.rotation = NORMAL_QUAD_ROTATION
 
+## Calcula el yaw horizontal de la cámara libre de bloqueos de cardán (gimbal lock)
+func _get_camera_yaw(cam: Node3D) -> float:
+	var fwd := -cam.transform.basis.z
+	fwd.y = 0.0
+	if fwd.length_squared() < 0.0001:
+		return _credits_quad_yaw
+	fwd = fwd.normalized()
+	return atan2(-fwd.x, -fwd.z)
+
 ## Re-centra inmediatamente el panel de créditos frente a la mirada actual del usuario
 func _recenter_credits_immediately() -> void:
 	if not _mesh_instance:
 		return
 	var cam := _get_xr_camera()
 	if cam:
-		_credits_quad_yaw = cam.rotation.y
+		_credits_quad_yaw = _get_camera_yaw(cam)
 	else:
 		_credits_quad_yaw = 0.0
 
 	var px: float = -sin(_credits_quad_yaw) * CREDITS_DISTANCE
 	var pz: float = -cos(_credits_quad_yaw) * CREDITS_DISTANCE
-	_mesh_instance.position = Vector3(px, 1.25, pz)
+	_mesh_instance.position = Vector3(px, 0.0, pz)
 	_mesh_instance.rotation = Vector3(0.0, _credits_quad_yaw, 0.0)
 
 ## Al avanzar manualmente de diapositiva con el joystick/botón, re-centrar suavemente frente a la vista
@@ -221,8 +228,8 @@ func _process(delta: float) -> void:
 	if not cam:
 		return
 
-	# Ángulo yaw actual de la cabeza del usuario
-	var head_yaw: float = cam.rotation.y
+	# Ángulo yaw horizontal actual de la cabeza del usuario (proyección robusta)
+	var head_yaw: float = _get_camera_yaw(cam)
 	var diff: float = wrapf(head_yaw - _credits_quad_yaw, -PI, PI)
 	var deadzone_rad: float = deg_to_rad(CREDITS_DEADZONE_DEG)
 
@@ -236,7 +243,7 @@ func _process(delta: float) -> void:
 		_credits_quad_yaw = lerp_angle(_credits_quad_yaw, target_yaw, CREDITS_FOLLOW_SPEED * delta)
 		var px: float = -sin(_credits_quad_yaw) * CREDITS_DISTANCE
 		var pz: float = -cos(_credits_quad_yaw) * CREDITS_DISTANCE
-		_mesh_instance.position = Vector3(px, 1.25, pz)
+		_mesh_instance.position = Vector3(px, 0.0, pz)
 		_mesh_instance.rotation = Vector3(0.0, _credits_quad_yaw, 0.0)
 
 func _get_xr_camera() -> Node3D:

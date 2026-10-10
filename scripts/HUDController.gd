@@ -29,7 +29,7 @@ const ZONE_STATUS_LABELS: Array[String] = [
 	"ESTADO EXCELENTE",
 	"ESTADO BUENO",
 	"ESTADO REGULAR",
-	"ESTADO PÉSIMO",
+	"ESTADO CRÍTICO",
 ]
 
 const ZONE_DESCRIPTIONS: Dictionary = {
@@ -86,27 +86,27 @@ var CREDITS_BODY_FONT_SIZE:   int   = 13
 const ZONE_PARAMS: Dictionary = {
 	1: [
 		["Oxígeno Disuelto", "do",  "mg/L"],
-		["Amonio",           "nh4", "mg/L"],
-		["Nitratos",         "no3", "mg/L"],
-		["Fosfatos",         "po4", "mg/L"],
+		["Amonio (NH₄⁺)",    "nh4", "mg/L"],
+		["Nitratos (NO₃⁻)",  "no3", "mg/L"],
+		["Fosfatos (PO₄³⁻)", "po4", "mg/L"],
 	],
 	2: [
 		["Oxígeno Disuelto", "do",  "mg/L"],
-		["Nitratos",         "no3", "mg/L"],
-		["Fosfatos",         "po4", "mg/L"],
+		["Nitratos (NO₃⁻)",  "no3", "mg/L"],
+		["Fosfatos (PO₄³⁻)", "po4", "mg/L"],
 	],
 	3: [
-		["Oxígeno Disuelto", "do",        "mg/L"],
-		["Amonio",           "nh4",       "mg/L"],
-		["DBO",              "dbo",       "mg/L"],
-		["Coliformes Fec.",  "coliforms", "UFC/100mL"],
+		["Oxígeno Disuelto",                    "do",        "mg/L"],
+		["Amonio (NH₄⁺)",                       "nh4",       "mg/L"],
+		["DBO(Demanda bioquímica de oxígeno)", "dbo",       "mg/L"],
+		["Coliformes fecales",                  "coliforms", "UFC/ 100 mL"],
 	],
 	4: [
-		["Oxígeno Disuelto", "do",        "mg/L"],
-		["Amonio",           "nh4",       "mg/L"],
-		["DBO",              "dbo",       "mg/L"],
-		["Coliformes Fec.",  "coliforms", "UFC/100mL"],
-		["Cromo Total",      "cr",        "µg/L"],
+		["Oxígeno Disuelto",                    "do",        "mg/L"],
+		["Amonio (NH₄⁺)",                       "nh4",       "mg/L"],
+		["DBO(Demanda bioquímica de oxígeno)", "dbo",       "mg/L"],
+		["Coliformes fecales",                  "coliforms", "UFC/ 100 mL"],
+		["Cromo (Cr)",                          "cr",        "µg/L"],
 	],
 }
 
@@ -131,9 +131,11 @@ var _ica_bar:         ProgressBar
 var _ica_bar_fill:    StyleBoxFlat
 
 # Fuentes
-var _font_bold:    Font = null
-var _font_regular: Font = null
-var _font_saira:   Font = null
+var _font_bold:         Font = null
+var _font_regular:      Font = null
+var _font_saira:        Font = null # Saira SemiBold (600)
+var _font_saira_bold:   Font = null # Saira Bold (700)
+var _font_saira_italic: Font = null # Saira SemiBold Slanted/Italic (600)
 
 # Estado interno
 var _current_zone:        int   = 1
@@ -206,15 +208,48 @@ func _load_fonts() -> void:
 	var regular_path := "res://assets/fonts/Cousine/Cousine/Cousine-Regular.ttf"
 	if ResourceLoader.exists(bold_path):
 		_font_bold = load(bold_path)
+		if _font_bold is FontFile:
+			_font_bold.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
+			_font_bold.generate_mipmaps = true
+			_font_bold.hinting = TextServer.HINTING_NONE
+			_font_bold.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_ONE_QUARTER
+			_font_bold.oversampling = 2.0
 	else:
 		push_warning("HUD: Cousine-Bold.ttf no encontrada en assets/fonts/Cousine/Cousine/. Usando fuente por defecto.")
 	if ResourceLoader.exists(regular_path):
 		_font_regular = load(regular_path)
+		if _font_regular is FontFile:
+			_font_regular.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
+			_font_regular.generate_mipmaps = true
+			_font_regular.hinting = TextServer.HINTING_NONE
+			_font_regular.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_ONE_QUARTER
+			_font_regular.oversampling = 2.0
 	else:
 		push_warning("HUD: Cousine-Regular.ttf no encontrada en assets/fonts/Cousine/Cousine/. Usando fuente por defecto.")
 	var saira_path := "res://assets/fonts/Saira.ttf"
 	if ResourceLoader.exists(saira_path):
-		_font_saira = load(saira_path)
+		var base_saira: Font = load(saira_path)
+		var ts := TextServerManager.get_primary_interface()
+		var wght_tag: int = ts.name_to_tag("wght") if ts else 2003265652
+
+		# Saira SemiBold (600) — peso nativo para legibilidad y nitidez en visores VR y pantallas
+		var fv_semibold := FontVariation.new()
+		fv_semibold.base_font = base_saira
+		fv_semibold.variation_opentype = { wght_tag: 600 }
+		_font_saira = fv_semibold
+
+		# Saira Bold (700) — para títulos destacados ("Equipo 5")
+		var fv_bold := FontVariation.new()
+		fv_bold.base_font = base_saira
+		fv_bold.variation_opentype = { wght_tag: 700 }
+		_font_saira_bold = fv_bold
+
+		# Saira Italic (600) — para roles en créditos ("Promotora:", "Gestor:", etc.)
+		var fv_italic := FontVariation.new()
+		fv_italic.base_font = base_saira
+		fv_italic.variation_opentype = { wght_tag: 600 }
+		fv_italic.variation_transform = Transform2D(Vector2(1.0, 0.0), Vector2(0.22, 1.0), Vector2.ZERO)
+		_font_saira_italic = fv_italic
 	else:
 		push_warning("HUD: Saira.ttf no encontrada en assets/fonts/. Usando fuente por defecto.")
 
@@ -238,8 +273,113 @@ func _build_hud() -> void:
 		_root.custom_minimum_size = Vector2(1920, 1080)
 	parent_node.add_child(_root)
 
-	_build_ica_panel()
-	_build_param_panel()
+	if _is_vr:
+		_build_vr_unified_panel()
+	else:
+		_build_ica_panel()
+		_build_param_panel()
+
+## Construye el panel unificado del HUD para VR (integra Título, Separador, ICA y Parámetros en una sola tarjeta diegética)
+func _build_vr_unified_panel() -> void:
+	_param_panel = PanelContainer.new()
+	_param_panel.name = "VRUnifiedPanel"
+	_param_panel_style = _make_panel_style(_current_hud_color)
+	_param_panel.add_theme_stylebox_override("panel", _param_panel_style)
+
+	_param_panel.custom_minimum_size = Vector2(PARAM_PANEL_WIDTH, 0)
+	_param_panel.anchor_left     = 0.5
+	_param_panel.anchor_top      = 1.0
+	_param_panel.anchor_right    = 0.5
+	_param_panel.anchor_bottom   = 1.0
+	_param_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_param_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
+	_param_panel.offset_left     = -PARAM_PANEL_WIDTH / 2.0
+	_param_panel.offset_right    =  PARAM_PANEL_WIDTH / 2.0
+	_param_panel.offset_bottom   = -MARGIN_BOTTOM
+	_param_panel.offset_top      = -MARGIN_BOTTOM - 340.0
+
+	_root.add_child(_param_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.name = "UnifiedVBox"
+	vbox.add_theme_constant_override("separation", 10)
+	_param_panel.add_child(vbox)
+
+	# 1. Título de zona: "ZONA 1 - ESTADO EXCELENTE" (Cousine-Bold, Blanco, alineado a la izquierda)
+	var status: String = ZONE_STATUS_LABELS[_current_zone] if _current_zone < ZONE_STATUS_LABELS.size() else "ESTADO EXCELENTE"
+	_zone_title = _make_label("ZONA %d - %s" % [_current_zone, status], true, TITLE_FONT_SIZE, Color.WHITE)
+	_zone_title.name = "ZoneTitle"
+	vbox.add_child(_zone_title)
+
+	# 2. Separador horizontal con el color de la zona
+	_separator = HSeparator.new()
+	_separator.name = "TitleSeparator"
+	_sep_style = StyleBoxLine.new()
+	_sep_style.color = _current_hud_color
+	_sep_style.thickness = 2
+	_separator.add_theme_stylebox_override("separator", _sep_style)
+	_separator.add_theme_constant_override("separation", 4)
+	vbox.add_child(_separator)
+
+	# 3. Fila superior de ICA: "ICA (Índice de Calidad de Agua)" a la izquierda, número a la derecha
+	var ica_row := HBoxContainer.new()
+	ica_row.name = "ICARow"
+	ica_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(ica_row)
+
+	_ica_title_lbl = _make_label("ICA (Índice de Calidad de Agua)", false, PARAM_FONT_SIZE, Color.WHITE)
+	_ica_title_lbl.name = "ICATitle"
+	_ica_title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ica_row.add_child(_ica_title_lbl)
+
+	_ica_value_lbl = _make_label("95", true, ICA_NUM_FONT_SIZE, _current_hud_color)
+	_ica_value_lbl.name = "ICAValue"
+	_ica_value_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	ica_row.add_child(_ica_value_lbl)
+
+	# 4. Barra de progreso horizontal de ICA
+	_ica_bar = ProgressBar.new()
+	_ica_bar.name = "ICABar"
+	_ica_bar.min_value       = 0.0
+	_ica_bar.max_value       = 100.0
+	_ica_bar.value           = 95.0
+	_ica_bar.show_percentage = false
+	_ica_bar.custom_minimum_size = Vector2(0, ICA_BAR_HEIGHT)
+	_ica_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	# Fondo oscuro estilizado con bordes redondeados
+	var bar_bg := StyleBoxFlat.new()
+	bar_bg.bg_color = Color(0.12, 0.12, 0.12, 0.9)
+	bar_bg.set_corner_radius_all(6)
+	_ica_bar.add_theme_stylebox_override("background", bar_bg)
+
+	# Relleno del color de zona
+	_ica_bar_fill = StyleBoxFlat.new()
+	_ica_bar_fill.bg_color = _current_hud_color
+	_ica_bar_fill.set_corner_radius_all(6)
+	_ica_bar.add_theme_stylebox_override("fill", _ica_bar_fill)
+	vbox.add_child(_ica_bar)
+
+	# Espaciador sutil antes de los parámetros
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0, 4)
+	vbox.add_child(spacer)
+
+	# 5. Filas de parámetros (se pre-construyen MAX_PARAM_ROWS filas reutilizables)
+	var params_vbox := VBoxContainer.new()
+	params_vbox.name = "ParamsVBox"
+	params_vbox.add_theme_constant_override("separation", 6)
+	vbox.add_child(params_vbox)
+
+	_param_rows.clear()
+	for _i in range(MAX_PARAM_ROWS):
+		var row_data := _build_param_row(_current_hud_color)
+		row_data["row"].visible = false
+		params_vbox.add_child(row_data["row"])
+		_param_rows.append(row_data)
+
+	_populate_param_rows(_current_zone, _current_hud_color)
+	_update_param_panel_size()
 
 # ─── Panel de parámetros (superior en VR / inferior-izquierdo en PC) ──────────
 func _build_param_panel() -> void:
@@ -310,10 +450,10 @@ func _build_param_panel() -> void:
 # Construye una fila de parámetro vacía reutilizable
 func _build_param_row(col: Color) -> Dictionary:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 6)
+	row.add_theme_constant_override("separation", 8 if _is_vr else 6)
 
 	# Bullet ●
-	var dot := _make_label("●", false, max(8, PARAM_FONT_SIZE - 2), col)
+	var dot := _make_label("●", false, PARAM_FONT_SIZE, col)
 	dot.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	dot.custom_minimum_size = Vector2(PARAM_FONT_SIZE + 2, 0)
 	row.add_child(dot)
@@ -445,7 +585,10 @@ func _apply_hud_color(col: Color) -> void:
 
 	# Título y separador del panel de parámetros
 	if _zone_title and is_instance_valid(_zone_title):
-		_zone_title.add_theme_color_override("font_color", col)
+		if not _is_vr:
+			_zone_title.add_theme_color_override("font_color", col)
+		else:
+			_zone_title.add_theme_color_override("font_color", Color.WHITE)
 	if _sep_style:
 		_sep_style.color = col
 
@@ -464,12 +607,18 @@ func _apply_hud_color(col: Color) -> void:
 		if rd.has("val_lbl") and is_instance_valid(rd["val_lbl"]):
 			(rd["val_lbl"] as Label).add_theme_color_override("font_color", col)
 
+func _get_water_manager() -> Node:
+	if not is_inside_tree():
+		return null
+	return get_node_or_null("/root/WaterManager")
+
 # Llena las filas de parámetros con los datos de la zona activa
 func _populate_param_rows(zone: int, col: Color) -> void:
 	var params_def: Array = ZONE_PARAMS.get(zone, [])
 	var params_data: Dictionary = {}
-	if WaterManager:
-		params_data = WaterManager.get_zone_parameters(zone)
+	var wm := _get_water_manager()
+	if wm and wm.has_method("get_zone_parameters"):
+		params_data = wm.get_zone_parameters(zone)
 
 	var active_rows: int = params_def.size()
 
@@ -500,13 +649,8 @@ func _update_param_panel_size() -> void:
 	_param_panel.reset_size()
 	var panel_height: float = _param_panel.get_combined_minimum_size().y
 	if _is_vr:
-		var ica_h: float = 60.0
-		if _ica_panel:
-			_ica_panel.reset_size()
-			ica_h = max(_ica_panel.get_combined_minimum_size().y, 60.0)
-		var param_bottom: float = -MARGIN_BOTTOM - ica_h - VR_PANELS_GAP
-		_param_panel.offset_bottom = param_bottom
-		_param_panel.offset_top    = param_bottom - panel_height
+		_param_panel.offset_bottom = -MARGIN_BOTTOM
+		_param_panel.offset_top    = -MARGIN_BOTTOM - panel_height
 	else:
 		_param_panel.offset_bottom = -MARGIN_BOTTOM
 		_param_panel.offset_top    = -MARGIN_BOTTOM - panel_height
@@ -520,9 +664,10 @@ func _update_param_panel_size() -> void:
 func _on_metrics_updated(wqi: float, _do_val: float, _turb: float) -> void:
 	_update_ica(wqi)
 	# Actualizar valores de parámetros en tiempo real
-	if not WaterManager:
+	var wm := _get_water_manager()
+	if not wm or not wm.has_method("get_zone_parameters"):
 		return
-	var params_data := WaterManager.get_zone_parameters(_current_zone)
+	var params_data: Dictionary = wm.get_zone_parameters(_current_zone)
 	var params_def: Array = ZONE_PARAMS.get(_current_zone, [])
 	for i in range(min(_param_rows.size(), params_def.size())):
 		var def:     Array  = params_def[i]
@@ -548,7 +693,7 @@ func update_hud_floating(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	_floating_time += delta * 1.4
-	var wave: float = sin(_floating_time) * 2.0
+	var wave: float = round(sin(_floating_time) * 2.0) if _is_vr else sin(_floating_time) * 2.0
 	if _param_panel:
 		_param_panel.offset_top    = _param_panel_base_top + wave
 		_param_panel.offset_bottom = _param_panel_base_bottom + wave
@@ -566,19 +711,24 @@ func _make_label(text: String, bold: bool, size: int, col: Color) -> Label:
 	lbl.text = text
 	lbl.add_theme_color_override("font_color", col)
 	lbl.add_theme_font_size_override("font_size", size)
-	if bold and _font_bold:
+	var use_bold: bool = bold or _is_vr
+	if use_bold and _font_bold:
 		lbl.add_theme_font_override("font", _font_bold)
-	elif not bold and _font_regular:
+	elif _font_regular:
 		lbl.add_theme_font_override("font", _font_regular)
 	return lbl
 
 ## Crea un Label con tipografía vectorial Saira para los créditos
-func _make_saira_label(text: String, size: int, col: Color = Color.WHITE) -> Label:
+func _make_saira_label(text: String, size: int, col: Color = Color.WHITE, bold: bool = false, italic: bool = false) -> Label:
 	var lbl := Label.new()
 	lbl.text = text
 	lbl.add_theme_color_override("font_color", col)
 	lbl.add_theme_font_size_override("font_size", size)
-	if _font_saira:
+	if bold and _font_saira_bold:
+		lbl.add_theme_font_override("font", _font_saira_bold)
+	elif italic and _font_saira_italic:
+		lbl.add_theme_font_override("font", _font_saira_italic)
+	elif _font_saira:
 		lbl.add_theme_font_override("font", _font_saira)
 	return lbl
 
@@ -595,10 +745,10 @@ func _make_panel_style(zone_color: Color) -> StyleBoxFlat:
 	style.corner_radius_top_right     = CORNER_RADIUS
 	style.corner_radius_bottom_left   = CORNER_RADIUS
 	style.corner_radius_bottom_right  = CORNER_RADIUS
-	style.content_margin_left         = 10
-	style.content_margin_right        = 10
-	style.content_margin_top          = 8
-	style.content_margin_bottom       = 8
+	style.content_margin_left         = 24 if _is_vr else 10
+	style.content_margin_right        = 24 if _is_vr else 10
+	style.content_margin_top          = 18 if _is_vr else 8
+	style.content_margin_bottom       = 18 if _is_vr else 8
 	return style
 
 ## Formatea el valor según su tipo/clave
@@ -611,7 +761,9 @@ func _format_value(value: float, unit: String, key: String) -> String:
 		else:
 			return "%d %s" % [v, unit]
 	elif key == "cr":
-		# Cromo: entero en µg/L
+		# Cromo: con decimal si aplica, sino entero en µg/L
+		if fmod(value, 1.0) != 0.0:
+			return "%.1f %s" % [value, unit]
 		return "%d %s" % [int(value), unit]
 	elif value < 0.1:
 		return "%.2f %s" % [value, unit]
@@ -895,7 +1047,8 @@ func _show_big_card(zone: int) -> void:
 	vbox.add_child(params_vbox)
 
 	var params_def: Array = ZONE_PARAMS.get(zone, [])
-	var params_data: Dictionary = WaterManager.get_zone_parameters(zone) if WaterManager else {}
+	var wm := _get_water_manager()
+	var params_data: Dictionary = wm.get_zone_parameters(zone) if (wm and wm.has_method("get_zone_parameters")) else {}
 
 	for def in params_def:
 		var display: String = def[0]
@@ -953,7 +1106,7 @@ func _show_big_card(zone: int) -> void:
 	ica_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ica_row.add_child(ica_lbl)
 
-	var wqi: float = WaterManager.water_quality_index if WaterManager else 75.0
+	var wqi: float = wm.water_quality_index if (wm and "water_quality_index" in wm) else 75.0
 	var ica_val := _make_label("%d / 100" % int(round(wqi)), true, CARD_ICA_VAL_FONT_SIZE, col.lightened(0.2))
 	ica_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	ica_row.add_child(ica_val)
@@ -1116,7 +1269,7 @@ func _build_credits_panel() -> void:
 	if _is_vr:
 		slide2.custom_minimum_size = Vector2(1920, 1080)
 
-	var s2_font_size: int = int(round(46.0 if _is_vr else 32.0))
+	var s2_font_size: int = int(round(54.0 if _is_vr else 34.0))
 	var lbl2 := _make_saira_label("Una experiencia inmersiva sobre el Arroyo Ludueña.", s2_font_size, Color.WHITE)
 	lbl2.name = "TextExperience"
 	lbl2.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1129,8 +1282,7 @@ func _build_credits_panel() -> void:
 	_credits_slides.append(slide2)
 
 	# ── Diapositiva 3: Equipo 5 ──
-	# CSS: width: 546px; height: 234px; Saira 600 24.5px; centrado
-	# Renderizado tipográfico vectorial nativo para nitidez cristalina en visores VR
+	# Tipografía vectorial Saira SemiBold / Bold renderizada nativamente con tamaños optimizados para VR
 	var slide3 := Control.new()
 	slide3.name = "Slide3"
 	slide3.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -1148,26 +1300,34 @@ func _build_credits_panel() -> void:
 	team_container.anchor_bottom = 0.5
 	team_container.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	team_container.grow_vertical = Control.GROW_DIRECTION_BOTH
-	var v_sep: int = int(round(20.0 if _is_vr else 12.0))
+	var v_sep: int = int(round(26.0 if _is_vr else 14.0))
 	team_container.add_theme_constant_override("separation", v_sep)
 
-	var team_title_size: int = int(round(42.0 if _is_vr else 28.0))
-	var team_body_size: int = int(round(34.0 if _is_vr else 24.5))
+	var team_title_size: int = int(round(64.0 if _is_vr else 38.0))
+	var team_body_size: int = int(round(46.0 if _is_vr else 26.0))
 
-	var lbl_title := _make_saira_label("Equipo 5", team_title_size, Color.WHITE)
+	var lbl_title := _make_saira_label("Equipo 5", team_title_size, Color.WHITE, true)
 	lbl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	team_container.add_child(lbl_title)
 
-	var team_members: Array[String] = [
-		"Promotora: Agustina Ferraro y Ana Paula Martin",
-		"Gestor: Jose Luis Gaitan",
-		"Desarrollador: Ticiano Licarzze",
-		"Diseño: Virginia Sofia Guido"
+	var team_members: Array[Dictionary] = [
+		{ "role": "Promotora: ", "name": "Agustina Ferraro y Ana Paula Martin" },
+		{ "role": "Gestor: ", "name": "Jose Luis Gaitan" },
+		{ "role": "Desarrollador: ", "name": "Ticiano Licarzze" },
+		{ "role": "Diseño: ", "name": "Virginia Sofia Guido" }
 	]
-	for member_txt in team_members:
-		var lbl_member := _make_saira_label(member_txt, team_body_size, Color.WHITE)
-		lbl_member.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		team_container.add_child(lbl_member)
+	for m in team_members:
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", int(round(8.0 if _is_vr else 4.0)))
+
+		var lbl_role := _make_saira_label(m["role"], team_body_size, Color(0.92, 0.92, 0.92, 1.0), false, true)
+		row.add_child(lbl_role)
+
+		var lbl_name := _make_saira_label(m["name"], team_body_size, Color.WHITE, false, false)
+		row.add_child(lbl_name)
+
+		team_container.add_child(row)
 
 	slide3.add_child(team_container)
 

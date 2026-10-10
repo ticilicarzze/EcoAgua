@@ -52,6 +52,8 @@ textures/vram_compression/import_etc2_astc=true
 [xr]
 
 openxr/enabled=true
+openxr/foveation_level=2
+openxr/foveation_dynamic=true
 shaders/enabled=true
 openxr/extensions/meta=true
 openxr/extensions/meta_xr=true

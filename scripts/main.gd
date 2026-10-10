@@ -186,7 +186,8 @@ const LERP_SPEED: float = 2.0
 # =========================================================
 # CONSTANTES VR Y TRANSICIÓN VERTICAL SUAVE
 # =========================================================
-const VR_FIXED_EYE_OFFSET: Vector3 = Vector3(0.0, 1.25, 0.0)
+# Vector3.ZERO: Misma altura de ojos que el carrito y modo Flat (media columna de agua: Y=-1.25)
+const VR_FIXED_EYE_OFFSET: Vector3 = Vector3(0.0, 0.0, 0.0)
 const VERTICAL_TRANSITION_DURATION_DIVE: float    = 2.5   # Duración del descenso paulatino (segundos)
 const VERTICAL_TRANSITION_DURATION_SURFACE: float = 2.6   # Duración del ascenso a la superficie (segundos)
 const VR_SURFACE_TRANSITION_TIME: float           = 1.25  # Cruce de línea de agua en ascenso VR (segundos)
@@ -300,6 +301,22 @@ func _ready() -> void:
 			get_viewport().use_xr = true
 			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 			print("XR Mode: Visor OpenXR detectado e inicializado con éxito (Meta Quest).")
+
+			# Configurar Foveated Rendering (FFR) dinámico para Quest 3
+			if "foveation_level" in xr_interface:
+				xr_interface.foveation_level = 2
+				xr_interface.foveation_dynamic = true
+				print("XR Mode: Foveated rendering configurado (nivel 2 dinámico).")
+
+			# Sincronizar tasa de física del motor con los Hz reales de pantalla del visor (elimina judder)
+			var hmd_refresh: float = xr_interface.get_display_refresh_rate()
+			if hmd_refresh > 0.0:
+				Engine.physics_ticks_per_second = int(round(hmd_refresh))
+				print("XR Mode: Tasa de física sincronizada a %d Hz (pantalla HMD)." % Engine.physics_ticks_per_second)
+			else:
+				Engine.physics_ticks_per_second = 90
+				print("XR Mode: Tasa de física configurada por defecto a 90 Hz.")
+
 			# Cachear referencia al XROrigin3D para el bloqueo vertical del visor
 			if has_node("RiverPath/UserCart/XROrigin3D"):
 				_xr_origin_node = $RiverPath/UserCart/XROrigin3D
@@ -320,6 +337,7 @@ func _ready() -> void:
 	_setup_camera_fx()
 	_setup_aquatic_fauna()
 	_setup_palomas()
+	_organize_surface_culling()
 
 	# Posicionar el carrito en Z=0 y ARRIBA del agua (estado WAITING_START)
 	cart.progress = 200.0
@@ -497,6 +515,26 @@ func _setup_palomas() -> void:
 			if anim_player:
 				_palomas_anim_players.append(anim_player)
 	print("Palomas: %d palomas detectadas y listas." % _palomas.size())
+
+## Agrupa dinámicamente los elementos sueltos de superficie dentro de los nodos desaparecerZona
+## para que el culling subacuático los oculte automáticamente y libere draw calls en VR.
+func _organize_surface_culling() -> void:
+	var dz2_node := get_node_or_null("desaparecerZona2")
+	if dz2_node:
+		for child_name in ["roca_dos", "roca_tres", "Tero_dos", "Rama_sola", "granja", "Junco44", "Junco10", "Junco11", "Pastizales_altos_pampeanos7", "Pastizales_altos_pampeanos8"]:
+			var n := get_node_or_null(child_name)
+			if n and n.get_parent() == self:
+				n.reparent(dz2_node)
+		for c in get_children():
+			if c.name.begins_with("pasto_zona_dos") or c.name.begins_with("TRIGO") or c.name.begins_with("granja_dos"):
+				c.reparent(dz2_node)
+
+	var dz3_node := get_node_or_null("desaparecerZona3")
+	if dz3_node:
+		for c in get_children():
+			if c.name.begins_with("Luz_calle") or c.name.begins_with("Poste_de_luz") or c.name == "semaforo" or c.name.begins_with("rata"):
+				c.reparent(dz3_node)
+	print("Culling: Elementos de superficie agrupados en desaparecerZona para optimización de draw calls en VR.")
 
 func _find_animation_player(node: Node) -> AnimationPlayer:
 	if node is AnimationPlayer:
@@ -1453,7 +1491,23 @@ func _lock_xr_camera_position() -> void:
 	if not xr_cam:
 		return
 
-	_xr_origin_node.position = VR_FIXED_EYE_OFFSET - xr_cam.position
+	# Preservar el micro-desplazamiento 6DOF natural del cuello/cabeza (VOR anatómico)
+	# dentro del asiento del carrito (radio de confort +-0.35m horizontal).
+	# Si el usuario camina físicamente fuera del asiento, compensar suavemente el exceso:
+	var cam_local := xr_cam.position
+	var clamped_x := clampf(cam_local.x, -0.35, 0.35)
+	var clamped_z := clampf(cam_local.z, -0.35, 0.35)
+
+	# En vertical, permitir asomarse e inclinarse, pero evitar que la cabeza
+	# traspase la superficie del agua si estamos bajo el agua:
+	var max_y: float = 0.20 if _is_underwater else 0.80
+	var clamped_y := clampf(cam_local.y, -0.40, max_y)
+
+	_xr_origin_node.position = VR_FIXED_EYE_OFFSET - Vector3(
+		cam_local.x - clamped_x,
+		cam_local.y - clamped_y,
+		cam_local.z - clamped_z
+	)
 
 func _clamp_xr_vertical_position() -> void:
 	_lock_xr_camera_position()

@@ -253,7 +253,6 @@ WaveResult wave(vec2 pos, float time, float amp_scale) {
 varying float height;
 varying vec3 world_position;
 varying mat3 tbn_matrix;
-varying mat4 inv_mvp;
 
 // Vertex shader function
 void vertex() {
@@ -281,8 +280,6 @@ void vertex() {
     world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
     // Create TBN matrix for normal mapping
     tbn_matrix = mat3(t, b, n);
-    // Calculate inverse MVP matrix for screen space transformations
-    inv_mvp = inverse(PROJECTION_MATRIX * MODELVIEW_MATRIX);
 }
 
 
@@ -359,9 +356,11 @@ void fragment() {
     // Perturb the normal using the TBN matrix
     vec3 perturbed_normal = normalize(tbn_matrix * (combined_normal * effective_normal_strength));
 
-    // Sample depth texture
+    // Sample depth texture and reconstruct linear depth in view space (stereo/VR safe)
     float depth_raw = texture(DEPTH_TEXTURE, SCREEN_UV).r;
-    float depth = PROJECTION_MATRIX[3][2] / (depth_raw + PROJECTION_MATRIX[2][2]);
+    vec4 view_pos_raw = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, depth_raw, 1.0);
+    vec3 view_pos = view_pos_raw.xyz / view_pos_raw.w;
+    float depth = -view_pos.z;
 
     // Calculate the distance from the camera to the water surface
     float camera_depth = INV_VIEW_MATRIX[3].y - world_position.y;
@@ -385,12 +384,9 @@ void fragment() {
     float z_pos = edge(FRAGCOORD.z);
     float z_dif = z_depth - z_pos;
 
-	// Calculate caustic effect
-	vec4 caustic_screenPos = vec4(SCREEN_UV * 2.0 - 1.0, depth_raw, 1.0);
-	vec4 caustic_localPos = inv_mvp * caustic_screenPos;
-	caustic_localPos = vec4(caustic_localPos.xyz / caustic_localPos.w, caustic_localPos.w);
-
-	vec2 caustic_Uv = caustic_localPos.xz / vec2(1024.0) + 0.5;
+	// Calculate caustic effect using INV_VIEW_MATRIX (consistent per-eye stereo projection in VR)
+	vec4 caustic_worldPos = INV_VIEW_MATRIX * vec4(view_pos, 1.0);
+	vec2 caustic_Uv = caustic_worldPos.xz / vec2(1024.0) + 0.5;
 	caustic_Uv += perturbed_normal.xz * caustic_distortion_strength;
 
 	float caustic_layer_index = floor(mod(flow_time * 26.0, num_caustic_layers)); // Use floor for integer index
