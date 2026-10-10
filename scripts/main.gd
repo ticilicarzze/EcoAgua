@@ -1095,8 +1095,8 @@ func _input(event: InputEvent) -> void:
 		quick_restart_tour("Teclado (tecla R)")
 		return
 
-	# Atajo para alternar simulación de VR en PC (tecla F8)
-	if not get_viewport().use_xr and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F8:
+	# Atajo para alternar simulación de VR en PC (tecla V o F9)
+	if not get_viewport().use_xr and event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_V or event.keycode == KEY_F9):
 		_toggle_vr_simulation()
 		return
 
@@ -1400,7 +1400,7 @@ func _toggle_vr_simulation() -> void:
 		return
 	_is_vr_simulating = not _is_vr_simulating
 	if _is_vr_simulating:
-		print("VR Simulation: Activado modo simulador VR en PC (F8 / CLI).")
+		print("VR Simulation: Activado modo simulador VR en PC (tecla V / F9 / CLI).")
 		if has_node("CanvasLayer"):
 			$CanvasLayer.visible = false
 		if has_node("CanvasLayerVR"):
