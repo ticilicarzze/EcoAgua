@@ -53,6 +53,7 @@ var PARAM_PANEL_WIDTH:        int   = 260  # Ancho del panel de parámetros (px)
 var PARAM_VAL_COL_WIDTH:      int   = 90   # Ancho de la columna de valores (px)
 var ICA_PANEL_HALF_W:         int   = 160  # Semiancho del panel ICA (px)
 var ICA_BAR_HEIGHT:           int   = 10   # Altura de la barra ICA (px)
+var VR_PANELS_GAP:            float = 24.0 # Separación entre paneles en VR (px)
 
 # Subtítulos
 var SUBTITLE_ANCHOR_LEFT:     float = 0.25
@@ -243,17 +244,29 @@ func _build_param_panel() -> void:
 	_param_panel_style = _make_panel_style(_current_hud_color)
 	_param_panel.add_theme_stylebox_override("panel", _param_panel_style)
 
-	# Ancla: esquina inferior-izquierda
-	_param_panel.anchor_left     = 0.0
-	_param_panel.anchor_top      = 1.0
-	_param_panel.anchor_right    = 0.0
-	_param_panel.anchor_bottom   = 1.0
-	_param_panel.grow_horizontal = Control.GROW_DIRECTION_END
-	_param_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
-	_param_panel.offset_left     = MARGIN_SCREEN
-	_param_panel.offset_right    = MARGIN_SCREEN + PARAM_PANEL_WIDTH
-	_param_panel.offset_bottom   = -MARGIN_BOTTOM
-	_param_panel.offset_top      = -MARGIN_BOTTOM
+	# Ancla y posicionamiento según el modo (VR centrado en campo visual / Pantalla plana borde inferior-izquierdo)
+	if _is_vr:
+		_param_panel.anchor_left     = 0.5
+		_param_panel.anchor_top      = 1.0
+		_param_panel.anchor_right    = 0.5
+		_param_panel.anchor_bottom   = 1.0
+		_param_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		_param_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
+		_param_panel.offset_right    = -VR_PANELS_GAP / 2.0
+		_param_panel.offset_left     = -VR_PANELS_GAP / 2.0 - PARAM_PANEL_WIDTH
+		_param_panel.offset_bottom   = -MARGIN_BOTTOM
+		_param_panel.offset_top      = -MARGIN_BOTTOM
+	else:
+		_param_panel.anchor_left     = 0.0
+		_param_panel.anchor_top      = 1.0
+		_param_panel.anchor_right    = 0.0
+		_param_panel.anchor_bottom   = 1.0
+		_param_panel.grow_horizontal = Control.GROW_DIRECTION_END
+		_param_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
+		_param_panel.offset_left     = MARGIN_SCREEN
+		_param_panel.offset_right    = MARGIN_SCREEN + PARAM_PANEL_WIDTH
+		_param_panel.offset_bottom   = -MARGIN_BOTTOM
+		_param_panel.offset_top      = -MARGIN_BOTTOM
 	_param_panel_base_y = _param_panel.offset_top
 
 	_root.add_child(_param_panel)
@@ -314,15 +327,29 @@ func _build_ica_panel() -> void:
 	_ica_panel_style = _make_panel_style(_current_hud_color)
 	_ica_panel.add_theme_stylebox_override("panel", _ica_panel_style)
 
-	# Ancla: borde inferior, centrado horizontalmente
-	_ica_panel.anchor_left   = 0.5
-	_ica_panel.anchor_top    = 1.0
-	_ica_panel.anchor_right  = 0.5
-	_ica_panel.anchor_bottom = 1.0
-	_ica_panel.offset_left   = -ICA_PANEL_HALF_W
-	_ica_panel.offset_right  =  ICA_PANEL_HALF_W
-	_ica_panel.offset_bottom = -MARGIN_BOTTOM
-	_ica_panel.offset_top    = -MARGIN_BOTTOM - 52
+	# Ancla y posicionamiento según el modo (VR emparejado lado a lado / Pantalla plana centrado)
+	if _is_vr:
+		_ica_panel.anchor_left     = 0.5
+		_ica_panel.anchor_top      = 1.0
+		_ica_panel.anchor_right    = 0.5
+		_ica_panel.anchor_bottom   = 1.0
+		_ica_panel.grow_horizontal = Control.GROW_DIRECTION_END
+		_ica_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
+		_ica_panel.offset_left     = VR_PANELS_GAP / 2.0
+		_ica_panel.offset_right    = VR_PANELS_GAP / 2.0 + (ICA_PANEL_HALF_W * 2)
+		_ica_panel.offset_bottom   = -MARGIN_BOTTOM
+		_ica_panel.offset_top      = -MARGIN_BOTTOM - 60
+	else:
+		_ica_panel.anchor_left   = 0.5
+		_ica_panel.anchor_top    = 1.0
+		_ica_panel.anchor_right  = 0.5
+		_ica_panel.anchor_bottom = 1.0
+		_ica_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_ica_panel.grow_vertical   = Control.GROW_DIRECTION_BEGIN
+		_ica_panel.offset_left   = -ICA_PANEL_HALF_W
+		_ica_panel.offset_right  =  ICA_PANEL_HALF_W
+		_ica_panel.offset_bottom = -MARGIN_BOTTOM
+		_ica_panel.offset_top    = -MARGIN_BOTTOM - 52
 	_ica_panel_base_y = _ica_panel.offset_top
 
 	_root.add_child(_ica_panel)
@@ -368,9 +395,12 @@ func _build_ica_panel() -> void:
 	_ica_bar_fill.corner_radius_top_right    = 4
 	_ica_bar_fill.corner_radius_bottom_left  = 4
 	_ica_bar_fill.corner_radius_bottom_right = 4
-	_ica_bar.add_theme_stylebox_override("fill", _ica_bar_fill)
-
 	vbox.add_child(_ica_bar)
+
+	_ica_panel.reset_size()
+	var ica_h: float = _ica_panel.get_combined_minimum_size().y
+	_ica_panel.offset_top = -MARGIN_BOTTOM - max(ica_h, 60.0 if _is_vr else 52.0)
+	_ica_panel_base_y = _ica_panel.offset_top
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ACTUALIZACIÓN DE ZONA Y TRANSICIÓN FLUIDA DE COLOR

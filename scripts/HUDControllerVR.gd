@@ -20,8 +20,9 @@ class_name HUDControllerVR
 ##        exponencial (lerp suave) manteniendo el horizonte estrictamente nivelado (Roll = 0°).
 ##     4. Tipografía vectorial Saira renderizada en tiempo real con MSAA 4X para nitidez cristalina en Quest 3.
 
-const CART_HUD_POSITION: Vector3 = Vector3(0.0, 1.15, -1.6)
-const NORMAL_QUAD_SIZE: Vector2  = Vector2(2.4, 1.35)
+const CART_HUD_POSITION: Vector3    = Vector3(0.0, 0.95, -1.35) # Ubicado ergonómicamente sobre el frente del carrito
+const NORMAL_QUAD_SIZE: Vector2     = Vector2(1.8, 1.01)        # Proporción 16:9 optimizada para campo visual
+const NORMAL_QUAD_ROTATION: Vector3 = Vector3(-0.244346, 0.0, 0.0) # Inclinación de 14° hacia los ojos (perpendicular a la mirada)
 
 # Parámetros ergonómicos de créditos en VR
 const CREDITS_DISTANCE: float     = 2.0          # Distancia focal óptima para lectura relajada en visores
@@ -41,18 +42,18 @@ func _enter_tree() -> void:
 
 	_is_vr = true
 
-	# ── Tamaños VR — fuentes ampliadas y paneles optimizados para visores ────────
-	PARAM_FONT_SIZE          = 20
-	TITLE_FONT_SIZE          = 22
-	ICA_NUM_FONT_SIZE        = 24
-	PARAM_PANEL_WIDTH        = 420
-	PARAM_VAL_COL_WIDTH      = 150
-	ICA_PANEL_HALF_W         = 260
-	ICA_BAR_HEIGHT           = 16
+	# ── Estándares ergonómicos y escala visual para VR (Meta Quest 3) ─────────────
+	PARAM_FONT_SIZE          = 28   # Subtiende ~1.15° de ángulo visual (estándar de confort Meta)
+	TITLE_FONT_SIZE          = 30   # Subtiende ~1.25° de ángulo visual
+	ICA_NUM_FONT_SIZE        = 34   # Subtiende ~1.40° de ángulo visual
+	PARAM_PANEL_WIDTH        = 480  # Ancho proporcional equilibrado
+	PARAM_VAL_COL_WIDTH      = 170  # Ancho cómodo para valores numéricos y unidades
+	ICA_PANEL_HALF_W         = 240  # 480 px de ancho total (exactamente simétrico a ParamPanel)
+	ICA_BAR_HEIGHT           = 20
 	BORDER_WIDTH             = 3
-	CORNER_RADIUS            = 14
-	MARGIN_SCREEN            = 60
-	MARGIN_BOTTOM            = 50
+	CORNER_RADIUS            = 12
+	MARGIN_BOTTOM            = 45
+	VR_PANELS_GAP            = 28.0 # Separación central entre ambos paneles en VR
 
 	# Subtítulos VR (deshabilitados en VR para mayor inmersión)
 	SUBTITLE_ANCHOR_LEFT     = 0.18
@@ -137,7 +138,7 @@ func _attach_quad_to_cart() -> void:
 			_mesh_instance.get_parent().remove_child(_mesh_instance)
 		cart_target.add_child(_mesh_instance)
 		_mesh_instance.position = CART_HUD_POSITION
-		_mesh_instance.rotation = Vector3.ZERO
+		_mesh_instance.rotation = NORMAL_QUAD_ROTATION
 		_mesh_instance.visible = should_be_visible
 		print("HUDControllerVR: Quad 3D anclado al carrito (%s) en %s (estático respecto al visor, mayor legibilidad)." % [
 			cart_target.name, CART_HUD_POSITION
@@ -187,7 +188,7 @@ func _exit_credits_mode() -> void:
 		if _mesh_instance.mesh is QuadMesh:
 			(_mesh_instance.mesh as QuadMesh).size = NORMAL_QUAD_SIZE
 		_mesh_instance.position = CART_HUD_POSITION
-		_mesh_instance.rotation = Vector3.ZERO
+		_mesh_instance.rotation = NORMAL_QUAD_ROTATION
 
 ## Re-centra inmediatamente el panel de créditos frente a la mirada actual del usuario
 func _recenter_credits_immediately() -> void:
